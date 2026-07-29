@@ -1,0 +1,205 @@
+.title {
+  font-size: var(--font-size-4xl);
+  font-weight: 700;
+  color: var(--text-dark);
+  margin-bottom: var(--spacing-2);
+}
+
+.subtitle {
+  font-size: var(--font-size-base);
+  color: var(--text-body);
+  margin-bottom: var(--spacing-8);
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 250px 1fr 300px;
+  gap: var(--spacing-8);
+}
+
+/* Sidebar Steps */
+.sidebar {
+  border-right: 1px solid var(--border-color);
+  padding-right: var(--spacing-6);
+}
+
+.stepList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-6);
+  position: relative;
+}
+
+.stepList::before {
+  content: '';
+  position: absolute;
+  left: 15px;
+  top: 15px;
+  bottom: 15px;
+  width: 2px;
+  background-color: var(--border-color);
+  z-index: 0;
+}
+
+.stepItem {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-4);
+  color: var(--text-muted);
+  font-size: var(--font-size-sm);
+  position: relative;
+  z-index: 1;
+}
+
+.stepCircle {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: white;
+  border: 2px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+}
+
+.activeStep {
+  color: var(--primary-600);
+  font-weight: 500;
+}
+
+.activeStep .stepCircle {
+  background-color: var(--primary-500);
+  border-color: var(--primary-500);
+  color: white;
+}
+
+/* Middle Form */
+.formContainer {
+  background-color: var(--bg-main);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-xl);
+  padding: var(--spacing-8);
+}
+
+.formTitle {
+  font-size: var(--font-size-2xl);
+  font-weight: 600;
+  margin-bottom: var(--spacing-2);
+}
+
+.formDesc {
+  color: var(--text-body);
+  font-size: var(--font-size-sm);
+  margin-bottom: var(--spacing-8);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-6);
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+  flex: 1;
+}
+
+.formGroup label {
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--text-dark);
+}
+
+.formGroup label span {
+  color: var(--cat-health); /* red for required */
+}
+
+.formGroup input, .formGroup select {
+  padding: var(--spacing-3) var(--spacing-4);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  outline: none;
+  background-color: var(--bg-main);
+}
+
+.formGroup input:focus, .formGroup select:focus {
+  border-color: var(--primary-500);
+}
+
+.rowGroup {
+  display: flex;
+  gap: var(--spacing-4);
+}
+
+.formActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--spacing-4);
+  margin-top: var(--spacing-4);
+  border-top: 1px solid var(--border-color);
+  padding-top: var(--spacing-6);
+}
+
+.cancelBtn {
+  color: var(--text-body);
+  font-weight: 500;
+  padding: var(--spacing-2) var(--spacing-4);
+}
+
+.nextBtn {
+  background-color: var(--primary-500);
+  color: white;
+  padding: var(--spacing-2) var(--spacing-6);
+  border-radius: var(--radius-md);
+  font-weight: 500;
+}
+
+/* Right Tips */
+.tipsContainer {
+  background-color: var(--primary-50);
+  border-radius: var(--radius-xl);
+  padding: var(--spacing-8);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+}
+
+.tipsContainer h3 {
+  font-size: var(--font-size-lg);
+  margin-bottom: var(--spacing-4);
+  color: var(--text-dark);
+}
+
+.tipsList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3);
+  margin-left: var(--spacing-4);
+  list-style-type: disc;
+  color: var(--text-body);
+  font-size: var(--font-size-sm);
+  line-height: 1.5;
+  margin-bottom: var(--spacing-16);
+}
+
+.illustration {
+  position: absolute;
+  bottom: -40px;
+  right: -40px;
+  width: 250px;
+  height: 250px;
+  mix-blend-mode: multiply;
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+.tipsImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}

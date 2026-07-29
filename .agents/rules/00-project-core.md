@@ -1,0 +1,5 @@
+- The official product name is "Startups Blogs".
+- Never rename the product to "PitchHub".
+- Business is the central domain entity.
+- Startup is one valid Business Type.
+- Do not use Startup as a label for every business.

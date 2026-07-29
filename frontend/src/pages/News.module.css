@@ -1,0 +1,204 @@
+.title {
+  font-size: var(--font-size-4xl);
+  font-weight: 700;
+  color: var(--text-dark);
+  margin-bottom: var(--spacing-2);
+}
+
+.subtitle {
+  font-size: var(--font-size-base);
+  color: var(--text-body);
+  margin-bottom: var(--spacing-8);
+}
+
+.heroSection {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: var(--spacing-6);
+  margin-bottom: var(--spacing-8);
+}
+
+.mainNews {
+  position: relative;
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  min-height: 400px;
+}
+
+.mainNewsImage {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: var(--text-dark);
+  /* Placeholder for an image */
+}
+
+.mainNewsContent {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  padding: var(--spacing-8);
+  background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+  color: white;
+}
+
+.tag {
+  display: inline-block;
+  background-color: var(--primary-500);
+  color: white;
+  padding: var(--spacing-1) var(--spacing-3);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  margin-bottom: var(--spacing-4);
+}
+
+.mainNewsContent h2 {
+  font-size: var(--font-size-2xl);
+  margin-bottom: var(--spacing-2);
+}
+
+.mainNewsContent p {
+  font-size: var(--font-size-base);
+  opacity: 0.9;
+  margin-bottom: var(--spacing-4);
+}
+
+.meta {
+  font-size: var(--font-size-sm);
+  opacity: 0.8;
+}
+
+.popularNews {
+  background-color: var(--bg-main);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-xl);
+  padding: var(--spacing-6);
+}
+
+.popularTitle {
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  margin-bottom: var(--spacing-4);
+}
+
+.popularItem {
+  display: flex;
+  gap: var(--spacing-4);
+  padding: var(--spacing-3) 0;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.popularItem:last-child {
+  border-bottom: none;
+}
+
+.popularImg {
+  width: 64px;
+  height: 64px;
+  border-radius: var(--radius-md);
+  background-color: var(--bg-accent);
+  background-size: cover;
+  background-position: center;
+  flex-shrink: 0;
+}
+
+.popularContent h4 {
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  margin-bottom: var(--spacing-1);
+}
+
+.popularContent span {
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+}
+
+.tabs {
+  display: flex;
+  gap: var(--spacing-3);
+  margin-bottom: var(--spacing-8);
+  overflow-x: auto;
+  padding-bottom: var(--spacing-2);
+}
+
+.tab {
+  padding: var(--spacing-2) var(--spacing-4);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-sm);
+  color: var(--text-dark);
+  white-space: nowrap;
+}
+
+.activeTab {
+  background-color: var(--primary-500);
+  color: white;
+  border-color: var(--primary-500);
+}
+
+.newsList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-6);
+  margin-bottom: var(--spacing-8);
+}
+
+.listItem {
+  display: flex;
+  gap: var(--spacing-6);
+  padding-bottom: var(--spacing-6);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.listImg {
+  width: 240px;
+  height: 160px;
+  border-radius: var(--radius-lg);
+  background-color: var(--bg-accent);
+  background-size: cover;
+  background-position: center;
+  flex-shrink: 0;
+}
+
+.listContent {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.listTag {
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  color: var(--primary-500);
+  background-color: var(--primary-50);
+  padding: var(--spacing-1) var(--spacing-2);
+  border-radius: var(--radius-sm);
+  align-self: flex-start;
+  margin-bottom: var(--spacing-2);
+}
+
+.listContent h3 {
+  font-size: var(--font-size-xl);
+  margin-bottom: var(--spacing-2);
+}
+
+.listContent p {
+  color: var(--text-body);
+  font-size: var(--font-size-sm);
+  margin-bottom: var(--spacing-4);
+}
+
+.listContent .meta {
+  color: var(--text-muted);
+}
+
+.loadMore {
+  text-align: center;
+}
+
+.loadMoreBtn {
+  border: 1px solid var(--border-color);
+  padding: var(--spacing-2) var(--spacing-6);
+  border-radius: var(--radius-full);
+  font-weight: 500;
+  color: var(--primary-500);
+}
