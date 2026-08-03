@@ -1,0 +1,512 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserStatus {
+  ACTIVE
+  SUSPENDED
+  DISABLED
+  PENDING_DELETION
+}
+
+enum RoleCode {
+  BUSINESS_OWNER
+  INVESTOR
+  ENTERPRISE_PARTNER
+  CONTENT_EDITOR
+  SUPPORT_AGENT
+  MODERATOR
+  ADMIN
+}
+
+enum MemberRole {
+  OWNER
+  EDITOR
+  VIEWER
+}
+
+enum PublicationStatus {
+  DRAFT
+  PENDING_REVIEW
+  CHANGES_REQUESTED
+  REJECTED
+  PUBLISHED
+  SUSPENDED
+  ARCHIVED
+}
+
+enum OpportunityStatus {
+  DRAFT
+  PENDING_REVIEW
+  CHANGES_REQUESTED
+  REJECTED
+  PUBLISHED
+  CLOSED
+  FUNDED
+  ARCHIVED
+  HIDDEN
+}
+
+enum InvestorProfileType {
+  INDIVIDUAL
+  ANGEL_INVESTOR
+  VENTURE_CAPITAL
+  PRIVATE_EQUITY
+  CORPORATE_INVESTOR
+  FINANCIAL_INSTITUTION
+  ENTERPRISE_PARTNER
+  OTHER
+}
+
+enum ContactStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+  CLOSED
+}
+
+enum ArticleType {
+  NEWS
+  BLOG
+}
+
+enum UploadStatus {
+  PENDING
+  COMPLETED
+  EXPIRED
+  DELETED
+}
+
+enum DocumentVisibility {
+  PUBLIC
+  AUTHENTICATED
+  VERIFIED_INVESTOR
+  APPROVED_ACCESS
+  PRIVATE
+}
+
+enum ReviewDecision {
+  APPROVED
+  REJECTED
+  CHANGES_REQUESTED
+}
+
+enum ReportStatus {
+  OPEN
+  IN_REVIEW
+  DISMISSED
+  ACTIONED
+  ESCALATED
+}
+
+enum TargetType {
+  USER
+  BUSINESS
+  FUNDING_OPPORTUNITY
+  INVESTOR_PROFILE
+  ARTICLE
+  COMMENT
+  MESSAGE
+}
+
+model User {
+  id               String           @id @default(cuid())
+  cognitoSub       String           @unique
+  email            String           @unique
+  displayName      String
+  status           UserStatus       @default(ACTIVE)
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+  roles            UserRole[]
+  memberships      BusinessMember[]
+  investorProfile  InvestorProfile?
+  savedBusinesses  SavedBusiness[]
+  sentContacts     ContactRequest[] @relation("ContactSender")
+  authoredArticles Article[]        @relation("ArticleAuthor")
+  auditLogs        AuditLog[]
+  reports          Report[]         @relation("ReportCreator")
+  consents         UserConsent[]
+
+  @@index([status])
+}
+
+model Role {
+  id    String     @id @default(cuid())
+  code  RoleCode   @unique
+  users UserRole[]
+}
+
+model UserRole {
+  userId String
+  roleId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role   Role   @relation(fields: [roleId], references: [id], onDelete: Restrict)
+
+  @@id([userId, roleId])
+}
+
+model UserConsent {
+  id         String   @id @default(cuid())
+  userId     String
+  type       String
+  version    String
+  acceptedAt DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, type, version])
+}
+
+model TaxonomyItem {
+  id                      String                   @id @default(cuid())
+  group                   String
+  code                    String
+  name                    String
+  slug                    String
+  isActive                Boolean                  @default(true)
+  sortOrder               Int                      @default(0)
+  createdAt               DateTime                 @default(now())
+  updatedAt               DateTime                 @updatedAt
+  businessIndustries      BusinessIndustry[]
+  opportunityIndustries   OpportunityIndustry[]
+  opportunityFundingTypes OpportunityFundingType[]
+  investorIndustries      InvestorIndustry[]
+  investorFundingTypes    InvestorFundingType[]
+  articleCategories       ArticleCategory[]
+
+  @@unique([group, code])
+  @@unique([group, slug])
+  @@index([group, isActive, sortOrder])
+}
+
+model Business {
+  id               String                       @id @default(cuid())
+  slug             String                       @unique
+  name             String
+  legalName        String?
+  businessType     String
+  stage            String?
+  shortDescription String?
+  description      String?
+  foundedYear      Int?
+  employeeRange    String?
+  location         String?
+  website          String?
+  productsServices String?
+  logoObjectKey    String?
+  coverObjectKey   String?
+  isVerified       Boolean                      @default(false)
+  status           PublicationStatus            @default(DRAFT)
+  publishedAt      DateTime?
+  submittedAt      DateTime?
+  createdAt        DateTime                     @default(now())
+  updatedAt        DateTime                     @updatedAt
+  members          BusinessMember[]
+  industries       BusinessIndustry[]
+  opportunities    FundingOpportunity[]
+  savedBy          SavedBusiness[]
+  contactRequests  ContactRequest[]
+  featured         FeaturedFundingOpportunity[]
+
+  @@index([status, publishedAt(sort: Desc)])
+  @@index([businessType, stage])
+  @@index([location])
+}
+
+model BusinessMember {
+  businessId String
+  userId     String
+  role       MemberRole
+  isActive   Boolean    @default(true)
+  title      String?
+  bio        String?
+  createdAt  DateTime   @default(now())
+  business   Business   @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  user       User       @relation(fields: [userId], references: [id], onDelete: Restrict)
+
+  @@id([businessId, userId])
+  @@index([userId, isActive])
+}
+
+model BusinessIndustry {
+  businessId String
+  taxonomyId String
+  business   Business     @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  taxonomy   TaxonomyItem @relation(fields: [taxonomyId], references: [id], onDelete: Restrict)
+
+  @@id([businessId, taxonomyId])
+}
+
+model FundingOpportunity {
+  id               String                       @id @default(cuid())
+  businessId       String
+  slug             String                       @unique
+  title            String
+  shortDescription String?
+  description      String?
+  useOfFunds       String?
+  fundingPurpose   String?
+  fundingAmountMin Decimal?                     @db.Decimal(20, 2)
+  fundingAmountMax Decimal?                     @db.Decimal(20, 2)
+  currency         String?                      @db.VarChar(3)
+  location         String?
+  deadline         DateTime?
+  status           OpportunityStatus            @default(DRAFT)
+  submittedAt      DateTime?
+  publishedAt      DateTime?
+  closedAt         DateTime?
+  version          Int                          @default(1)
+  createdAt        DateTime                     @default(now())
+  updatedAt        DateTime                     @updatedAt
+  business         Business                     @relation(fields: [businessId], references: [id], onDelete: Restrict)
+  industries       OpportunityIndustry[]
+  fundingTypes     OpportunityFundingType[]
+  revisions        FundingOpportunityRevision[]
+  documents        FundingDocument[]
+  contactRequests  ContactRequest[]
+  featured         FeaturedFundingOpportunity[]
+
+  @@index([status, publishedAt(sort: Desc)])
+  @@index([businessId, status])
+  @@index([fundingPurpose, currency, fundingAmountMin, fundingAmountMax])
+}
+
+model OpportunityIndustry {
+  opportunityId String
+  taxonomyId    String
+  opportunity   FundingOpportunity @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
+  taxonomy      TaxonomyItem       @relation(fields: [taxonomyId], references: [id], onDelete: Restrict)
+
+  @@id([opportunityId, taxonomyId])
+}
+
+model OpportunityFundingType {
+  opportunityId String
+  taxonomyId    String
+  opportunity   FundingOpportunity @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
+  taxonomy      TaxonomyItem       @relation(fields: [taxonomyId], references: [id], onDelete: Restrict)
+
+  @@id([opportunityId, taxonomyId])
+}
+
+model FundingOpportunityRevision {
+  id            String             @id @default(cuid())
+  opportunityId String
+  version       Int
+  snapshot      Json
+  decision      ReviewDecision?
+  reviewNote    String?
+  submittedBy   String
+  reviewedBy    String?
+  createdAt     DateTime           @default(now())
+  reviewedAt    DateTime?
+  opportunity   FundingOpportunity @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
+
+  @@unique([opportunityId, version])
+  @@index([decision, createdAt])
+}
+
+model FundingDocument {
+  id            String             @id @default(cuid())
+  opportunityId String
+  objectKey     String             @unique
+  originalName  String
+  mimeType      String
+  sizeBytes     BigInt
+  purpose       String
+  visibility    DocumentVisibility @default(PRIVATE)
+  createdAt     DateTime           @default(now())
+  opportunity   FundingOpportunity @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
+
+  @@index([opportunityId, visibility])
+}
+
+model InvestorProfile {
+  id           String                @id @default(cuid())
+  userId       String                @unique
+  slug         String                @unique
+  name         String
+  type         InvestorProfileType
+  bio          String?
+  location     String?
+  ticketMin    Decimal?              @db.Decimal(20, 2)
+  ticketMax    Decimal?              @db.Decimal(20, 2)
+  currency     String?               @db.VarChar(3)
+  website      String?
+  isPublic     Boolean               @default(false)
+  isVerified   Boolean               @default(false)
+  createdAt    DateTime              @default(now())
+  updatedAt    DateTime              @updatedAt
+  user         User                  @relation(fields: [userId], references: [id], onDelete: Restrict)
+  industries   InvestorIndustry[]
+  fundingTypes InvestorFundingType[]
+
+  @@index([isPublic, createdAt(sort: Desc)])
+  @@index([type, location])
+}
+
+model InvestorIndustry {
+  investorId String
+  taxonomyId String
+  investor   InvestorProfile @relation(fields: [investorId], references: [id], onDelete: Cascade)
+  taxonomy   TaxonomyItem    @relation(fields: [taxonomyId], references: [id], onDelete: Restrict)
+
+  @@id([investorId, taxonomyId])
+}
+
+model InvestorFundingType {
+  investorId String
+  taxonomyId String
+  investor   InvestorProfile @relation(fields: [investorId], references: [id], onDelete: Cascade)
+  taxonomy   TaxonomyItem    @relation(fields: [taxonomyId], references: [id], onDelete: Restrict)
+
+  @@id([investorId, taxonomyId])
+}
+
+model SavedBusiness {
+  userId     String
+  businessId String
+  createdAt  DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  @@id([userId, businessId])
+  @@index([userId, createdAt(sort: Desc)])
+}
+
+model ContactRequest {
+  id            String              @id @default(cuid())
+  senderId      String
+  businessId    String
+  opportunityId String?
+  subject       String
+  purpose       String
+  message       String
+  status        ContactStatus       @default(PENDING)
+  decidedBy     String?
+  decidedAt     DateTime?
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+  sender        User                @relation("ContactSender", fields: [senderId], references: [id], onDelete: Restrict)
+  business      Business            @relation(fields: [businessId], references: [id], onDelete: Restrict)
+  opportunity   FundingOpportunity? @relation(fields: [opportunityId], references: [id], onDelete: SetNull)
+
+  @@index([businessId, status, createdAt(sort: Desc)])
+  @@index([senderId, createdAt(sort: Desc)])
+}
+
+model Article {
+  id                 String            @id @default(cuid())
+  authorId           String
+  type               ArticleType
+  slug               String            @unique
+  title              String
+  excerpt            String?
+  content            String
+  thumbnailObjectKey String?
+  status             PublicationStatus @default(DRAFT)
+  isFeatured         Boolean           @default(false)
+  publishedAt        DateTime?
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
+  author             User              @relation("ArticleAuthor", fields: [authorId], references: [id], onDelete: Restrict)
+  categories         ArticleCategory[]
+
+  @@index([type, status, publishedAt(sort: Desc)])
+}
+
+model ArticleCategory {
+  articleId  String
+  taxonomyId String
+  article    Article      @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  taxonomy   TaxonomyItem @relation(fields: [taxonomyId], references: [id], onDelete: Restrict)
+
+  @@id([articleId, taxonomyId])
+}
+
+model FeaturedFundingOpportunity {
+  id              String             @id @default(cuid())
+  opportunityId   String
+  businessId      String
+  subtitle        String?
+  bannerObjectKey String?
+  startAt         DateTime
+  endAt           DateTime
+  isActive        Boolean            @default(true)
+  createdAt       DateTime           @default(now())
+  opportunity     FundingOpportunity @relation(fields: [opportunityId], references: [id], onDelete: Restrict)
+  business        Business           @relation(fields: [businessId], references: [id], onDelete: Restrict)
+
+  @@index([isActive, startAt, endAt])
+}
+
+model UploadSession {
+  id           String       @id @default(cuid())
+  userId       String
+  resourceType String
+  resourceId   String
+  purpose      String
+  objectKey    String       @unique
+  mimeType     String
+  sizeBytes    BigInt
+  status       UploadStatus @default(PENDING)
+  expiresAt    DateTime
+  completedAt  DateTime?
+  createdAt    DateTime     @default(now())
+
+  @@index([status, expiresAt])
+  @@index([resourceType, resourceId])
+}
+
+model Report {
+  id          String       @id @default(cuid())
+  reporterId  String
+  targetType  TargetType
+  targetId    String
+  reason      String
+  description String?
+  status      ReportStatus @default(OPEN)
+  assignedTo  String?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  reporter    User         @relation("ReportCreator", fields: [reporterId], references: [id], onDelete: Restrict)
+
+  @@index([status, createdAt])
+  @@index([targetType, targetId])
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  actorId    String?
+  action     String
+  targetType String
+  targetId   String
+  requestId  String?
+  before     Json?
+  after      Json?
+  createdAt  DateTime @default(now())
+  actor      User?    @relation(fields: [actorId], references: [id], onDelete: SetNull)
+
+  @@index([actorId, createdAt(sort: Desc)])
+  @@index([targetType, targetId, createdAt(sort: Desc)])
+  @@index([action, createdAt(sort: Desc)])
+}
+
+model OutboxEvent {
+  id            String    @id @default(cuid())
+  type          String
+  aggregateType String
+  aggregateId   String
+  payload       Json
+  attempts      Int       @default(0)
+  availableAt   DateTime  @default(now())
+  processedAt   DateTime?
+  lastError     String?
+  createdAt     DateTime  @default(now())
+
+  @@index([processedAt, availableAt])
+}
