@@ -29,18 +29,22 @@ Tài liệu này đóng vai trò như một "bộ nhớ vĩnh cửu" (Permanent 
   - `PUT /businesses/:id` (Protected - Phân quyền Owner): Cập nhật Startup.
   - `DELETE /businesses/:id` (Protected - Phân quyền Owner): Xóa Startup.
 
+### 4. Module: Business Sub-models (Phase 3)
+- API cho **Team Members**: Đã tạo các API (Lấy danh sách, Thêm, Sửa, Xóa).
+- API cho **Funding Rounds**: Đã tạo các API (Lấy lịch sử gọi vốn, Thêm, Sửa, Xóa).
+- API cho **Funding Opportunities**: Đã tạo các API (Đăng tin gọi vốn, Cập nhật trạng thái tin, Xóa).
+- Thiết kế theo chuẩn **Nested Routing** (`/businesses/:businessId/...`).
+- Logic **Authorization bảo vệ kép**: User phải đăng nhập (có Token JWT) và bắt buộc phải là `ownerId` của Startup đó thì mới được phép can thiệp Thêm/Sửa/Xóa.
+
+### 5. Module: Articles & Blog (Phase 4)
+- API **Quản lý Bài viết**: Khởi tạo Module `articles` (Tạo, Sửa, Xóa, Đọc).
+- **Phân quyền Tác giả**: Chỉ có User tạo ra bài viết mới có quyền Cập nhật hoặc Xóa nó.
+- **Phân quyền Công ty (PR)**: Nếu người dùng muốn gán bài viết đó vào một Startup (Truyền `businessId`), hệ thống sẽ kiểm tra bảo mật (Dò xem người dùng đó có phải là Owner của Startup không). Chặn đứng việc mạo danh.
+- **Lượt xem**: Tự động tăng `viewCount` mỗi lần gọi API Xem chi tiết bài viết (`GET /articles/:slug`).
+
 ---
 
 ## 🟡 Những Phần Đang Chờ Triển Khai (To-Do)
-
-### Phase 3: Mở rộng tính năng Doanh nghiệp (Business Sub-models)
-- API cho **Team Members** (Thêm, Sửa, Xóa thành viên đội ngũ cho một Startup).
-- API cho **Funding Rounds** (Lịch sử gọi vốn).
-- API cho **Funding Opportunities** (Đăng tin cần gọi vốn).
-
-### Phase 4: Hệ thống Bài viết & Blog (Articles)
-- Tạo API cho **Articles** (Đăng bài, Cập nhật trạng thái bản nháp / xuất bản, Đọc bài viết).
-- Tích hợp logic: Bài viết có thể đăng dưới tư cách cá nhân (User) hoặc tư cách công ty (Business).
 
 ### Phase 5: Tương tác Mạng xã hội (Social Features)
 - API cho **Comments** (Bình luận & Trả lời bình luận lồng nhau).

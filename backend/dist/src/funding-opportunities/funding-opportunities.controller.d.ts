@@ -1,0 +1,75 @@
+import { FundingOpportunitiesService } from './funding-opportunities.service';
+import { CreateFundingOpportunityDto } from './dto/create-funding-opportunity.dto';
+import { UpdateFundingOpportunityDto } from './dto/update-funding-opportunity.dto';
+export declare class FundingOpportunitiesController {
+    private readonly fundingOpportunitiesService;
+    constructor(fundingOpportunitiesService: FundingOpportunitiesService);
+    create(businessId: string, createFundingOpportunityDto: CreateFundingOpportunityDto, req: any): Promise<{
+        id: string;
+        slug: string;
+        detailedOverview: string | null;
+        createdAt: Date;
+        title: string;
+        status: string;
+        publishedAt: Date | null;
+        businessId: string;
+        currency: string;
+        shortDescription: string;
+        fundingAmountMin: number;
+        fundingAmountMax: number;
+        fundingPurpose: string;
+        fundingType: string;
+        deadline: Date | null;
+    }>;
+    findAll(businessId: string): Promise<{
+        id: string;
+        slug: string;
+        detailedOverview: string | null;
+        createdAt: Date;
+        title: string;
+        status: string;
+        publishedAt: Date | null;
+        businessId: string;
+        currency: string;
+        shortDescription: string;
+        fundingAmountMin: number;
+        fundingAmountMax: number;
+        fundingPurpose: string;
+        fundingType: string;
+        deadline: Date | null;
+    }[]>;
+    update(businessId: string, id: string, updateFundingOpportunityDto: UpdateFundingOpportunityDto, req: any): Promise<{
+        id: string;
+        slug: string;
+        detailedOverview: string | null;
+        createdAt: Date;
+        title: string;
+        status: string;
+        publishedAt: Date | null;
+        businessId: string;
+        currency: string;
+        shortDescription: string;
+        fundingAmountMin: number;
+        fundingAmountMax: number;
+        fundingPurpose: string;
+        fundingType: string;
+        deadline: Date | null;
+    }>;
+    remove(businessId: string, id: string, req: any): Promise<{
+        id: string;
+        slug: string;
+        detailedOverview: string | null;
+        createdAt: Date;
+        title: string;
+        status: string;
+        publishedAt: Date | null;
+        businessId: string;
+        currency: string;
+        shortDescription: string;
+        fundingAmountMin: number;
+        fundingAmountMax: number;
+        fundingPurpose: string;
+        fundingType: string;
+        deadline: Date | null;
+    }>;
+}
