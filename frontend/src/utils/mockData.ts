@@ -44,7 +44,18 @@ export const MOCK_BUSINESSES: Business[] = [
       reportingPeriod: 'Năm 2023',
       currency: 'VND',
       selfReported: true,
-    }
+    },
+    fundingRounds: [
+      {
+        id: 'fr1',
+        roundName: 'Seed',
+        amount: 5000000000,
+        currency: 'VND',
+        date: '2020-05-10T00:00:00.000Z',
+        investors: 'Angel Investors',
+        isVerified: true
+      }
+    ]
   },
   {
     id: 'b2',
@@ -80,7 +91,27 @@ export const MOCK_BUSINESSES: Business[] = [
       reportingPeriod: 'Quý 1/2024',
       currency: 'VND',
       selfReported: true,
-    }
+    },
+    fundingRounds: [
+      {
+        id: 'fr2',
+        roundName: 'Pre-Seed',
+        amount: 50000,
+        currency: 'USD',
+        date: '2023-11-20T00:00:00.000Z',
+        investors: 'TechStars',
+        isVerified: true
+      },
+      {
+        id: 'fr3',
+        roundName: 'Seed',
+        amount: 250000,
+        currency: 'USD',
+        date: '2024-05-15T00:00:00.000Z',
+        investors: 'Ventures XYZ',
+        isVerified: false
+      }
+    ]
   },
   {
     id: 'b3',

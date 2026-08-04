@@ -17,7 +17,6 @@ import BusinessCard from '../components/business/BusinessCard';
 import styles from './BusinessDetail.module.css';
 import { 
   getBusinessBySlug, 
-  getPublishedFundingOpportunitiesByBusinessId, 
   getRelatedBusinesses 
 } from '../utils/filterHelpers';
 import { MOCK_ARTICLES } from '../utils/mockData';
@@ -32,8 +31,11 @@ const formatCurrency = (min: number, max: number, currency: string) => {
   return `${min / 1000000} – ${max / 1000000} triệu VNĐ`;
 };
 
+type Tab = 'overview' | 'updates' | 'team';
+
 const BusinessDetail = () => {
   const { slug } = useParams<{ slug: string }>();
+  const [activeTab, setActiveTab] = useState<Tab>('overview');
   const [isSaved, setIsSaved] = useState(false);
   const [isFollowing, setIsFollowing] = useState(false);
   const [contactNotice, setContactNotice] = useState(false);
@@ -57,7 +59,7 @@ const BusinessDetail = () => {
     );
   }
 
-  const opportunities = getPublishedFundingOpportunitiesByBusinessId(business.id);
+  // funding opportunities removed
   const relatedRecords = getRelatedBusinesses(business, 3);
   const businessArticles = MOCK_ARTICLES.filter(a => a.author.businessId === business.id);
 
@@ -108,11 +110,12 @@ const BusinessDetail = () => {
               </button>
               <button 
                 type="button"
-                className={`${styles.actionBtn} ${isFollowing ? styles.followingBtn : ''}`}
+                className={isFollowing ? styles.followingBtn : styles.followBtnPrimary}
                 onClick={() => setIsFollowing(!isFollowing)}
                 aria-label={isFollowing ? 'Unfollow business' : 'Follow business'}
               >
-                <Heart size={18} /> {isFollowing ? 'Following' : 'Follow'}
+                <Heart size={18} fill={isFollowing ? 'currentColor' : 'none'} /> 
+                {isFollowing ? 'Following' : 'Follow'}
               </button>
               <button 
                 type="button"
@@ -157,11 +160,36 @@ const BusinessDetail = () => {
           </div>
         </div>
 
+        {/* Navigation Tabs */}
+        <div className={styles.tabs}>
+          <button 
+            className={`${styles.tab} ${activeTab === 'overview' ? styles.activeTab : ''}`}
+            onClick={() => setActiveTab('overview')}
+          >
+            Overview
+          </button>
+          <button 
+            className={`${styles.tab} ${activeTab === 'updates' ? styles.activeTab : ''}`}
+            onClick={() => setActiveTab('updates')}
+          >
+            Updates
+          </button>
+          <button 
+            className={`${styles.tab} ${activeTab === 'team' ? styles.activeTab : ''}`}
+            onClick={() => setActiveTab('team')}
+          >
+            Team
+          </button>
+        </div>
+
         {/* Page Content Grid */}
         <div className={styles.contentLayout}>
           <div className={styles.mainContent}>
 
-            {/* Business Overview */}
+            {/* Overview Tab Content */}
+            {activeTab === 'overview' && (
+              <>
+                {/* Business Overview */}
             <section className={styles.sectionCard}>
               <h2 className={styles.sectionTitle}>Business Overview</h2>
               <p className={styles.bodyText}>
@@ -224,7 +252,7 @@ const BusinessDetail = () => {
             </section>
 
             {/* Market and Customers */}
-            {business.mainMarket && (
+            {activeTab === 'overview' && business.mainMarket && (
               <section className={styles.sectionCard}>
                 <h2 className={styles.sectionTitle}>Market & Customers</h2>
                 <p className={styles.bodyText}>
@@ -233,8 +261,79 @@ const BusinessDetail = () => {
               </section>
             )}
 
-            {/* Blogs & Updates */}
-            {businessArticles.length > 0 && (
+            {/* Public Financial Highlights */}
+            {activeTab === 'overview' && business.financialHighlights && (
+              <section className={styles.sectionCard}>
+                <h2 className={styles.sectionTitle}>Public Financial Highlights</h2>
+                <div className={styles.financialGrid}>
+                  <div className={styles.finCard}>
+                    <span className={styles.finLabel}>Revenue Range</span>
+                    <span className={styles.finValue}>{business.financialHighlights.revenueRange}</span>
+                  </div>
+                  <div className={styles.finCard}>
+                    <span className={styles.finLabel}>Growth Rate</span>
+                    <span className={styles.finValue}>{business.financialHighlights.growthRange}</span>
+                  </div>
+                  <div className={styles.finCard}>
+                    <span className={styles.finLabel}>Profitability</span>
+                    <span className={styles.finValue}>{business.financialHighlights.profitabilityStatus}</span>
+                  </div>
+                  <div className={styles.finCard}>
+                    <span className={styles.finLabel}>Reporting Period</span>
+                    <span className={styles.finValue}>{business.financialHighlights.reportingPeriod}</span>
+                  </div>
+                </div>
+                <p className={styles.disclaimerNote}>
+                  <ShieldAlert size={16} /> Financial figures are self-reported for preliminary review and should be independently verified.
+                </p>
+              </section>
+            )}
+
+            {/* Funding History */}
+            {activeTab === 'overview' && business.fundingRounds && business.fundingRounds.length > 0 && (
+              <section className={styles.sectionCard}>
+                <h2 className={styles.sectionTitle}>Funding History</h2>
+                <div className={styles.opportunitiesList}>
+                  {business.fundingRounds.map(round => (
+                    <div key={round.id} className={styles.opportunityItemCard}>
+                      <div className={styles.oppHeader}>
+                        <div>
+                          <h3 className={styles.oppTitle}>{round.roundName} Round</h3>
+                          {round.isVerified ? (
+                            <span className={`${styles.statusBadge} ${styles.published}`} title="Verified by platform">
+                              <CheckCircle2 size={12} style={{marginRight: 4}}/> Verified
+                            </span>
+                          ) : (
+                            <span className={styles.statusBadge} style={{backgroundColor: 'var(--bg-accent)', color: 'var(--text-muted)'}} title="Self-reported, unverified">
+                              Unverified
+                            </span>
+                          )}
+                        </div>
+                        <div style={{fontWeight: 700, fontSize: '1.25rem', color: 'var(--primary-600)'}}>
+                          {round.currency === 'USD' ? '$' : ''}{(round.amount).toLocaleString()} {round.currency === 'VND' ? 'VNĐ' : ''}
+                        </div>
+                      </div>
+                      <div className={styles.oppMeta} style={{marginTop: '0.5rem'}}>
+                        <span><strong>Date:</strong> {new Date(round.date).toLocaleDateString()}</span>
+                        <span><strong>Investors:</strong> {round.investors}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            )}
+
+            {activeTab === 'overview' && (!business.fundingRounds || business.fundingRounds.length === 0) && (
+              <section className={styles.sectionCard}>
+                <h2 className={styles.sectionTitle}>Funding History</h2>
+                <p className={styles.mutedText}>This business has not published any funding history.</p>
+              </section>
+            )}
+              </>
+            )}
+
+            {/* Updates Tab Content */}
+            {activeTab === 'updates' && businessArticles.length > 0 && (
               <section className={styles.sectionCard}>
                 <h2 className={styles.sectionTitle}>Blogs & Updates</h2>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
@@ -262,85 +361,37 @@ const BusinessDetail = () => {
               </section>
             )}
 
-            {/* Management Team */}
-            <section className={styles.sectionCard}>
-              <h2 className={styles.sectionTitle}>Management Team</h2>
-              {business.teamMembers && business.teamMembers.length > 0 ? (
-                <div className={styles.teamGrid}>
-                  {business.teamMembers.map(member => (
-                    <div key={member.id} className={styles.teamCard}>
-                      <div className={styles.avatarBox}>{member.name.charAt(0)}</div>
-                      <div>
-                        <h3 className={styles.memberName}>{member.name}</h3>
-                        <span className={styles.memberRole}>{member.role}</span>
-                        {member.bio && <p className={styles.memberBio}>{member.bio}</p>}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className={styles.mutedText}>Management team information has not been published yet.</p>
-              )}
-            </section>
-
-            {/* Public Financial Highlights */}
-            {business.financialHighlights && (
+            {activeTab === 'updates' && businessArticles.length === 0 && (
               <section className={styles.sectionCard}>
-                <h2 className={styles.sectionTitle}>Public Financial Highlights</h2>
-                <div className={styles.financialGrid}>
-                  <div className={styles.finCard}>
-                    <span className={styles.finLabel}>Revenue Range</span>
-                    <span className={styles.finValue}>{business.financialHighlights.revenueRange}</span>
-                  </div>
-                  <div className={styles.finCard}>
-                    <span className={styles.finLabel}>Growth Rate</span>
-                    <span className={styles.finValue}>{business.financialHighlights.growthRange}</span>
-                  </div>
-                  <div className={styles.finCard}>
-                    <span className={styles.finLabel}>Profitability</span>
-                    <span className={styles.finValue}>{business.financialHighlights.profitabilityStatus}</span>
-                  </div>
-                  <div className={styles.finCard}>
-                    <span className={styles.finLabel}>Reporting Period</span>
-                    <span className={styles.finValue}>{business.financialHighlights.reportingPeriod}</span>
-                  </div>
-                </div>
-                <p className={styles.disclaimerNote}>
-                  <ShieldAlert size={16} /> Financial figures are self-reported for preliminary review and should be independently verified.
-                </p>
+                <h2 className={styles.sectionTitle}>Blogs & Updates</h2>
+                <p className={styles.mutedText}>This business hasn't posted any updates yet.</p>
               </section>
             )}
 
-            {/* Active Funding Opportunities */}
-            <section className={styles.sectionCard}>
-              <h2 className={styles.sectionTitle}>Funding Opportunities</h2>
-              {opportunities.length > 0 ? (
-                <div className={styles.opportunitiesList}>
-                  {opportunities.map(opp => (
-                    <div key={opp.id} className={styles.opportunityItemCard}>
-                      <div className={styles.oppHeader}>
+            {/* Team Tab Content */}
+            {activeTab === 'team' && (
+              <section className={styles.sectionCard}>
+                <h2 className={styles.sectionTitle}>Management Team</h2>
+                {business.teamMembers && business.teamMembers.length > 0 ? (
+                  <div className={styles.teamGrid}>
+                    {business.teamMembers.map(member => (
+                      <div key={member.id} className={styles.teamCard}>
+                        <div className={styles.avatarBox}>{member.name.charAt(0)}</div>
                         <div>
-                          <h3 className={styles.oppTitle}>{opp.title}</h3>
-                          <span className={`${styles.statusBadge} ${styles[opp.status.toLowerCase()]}`}>{opp.status}</span>
+                          <h3 className={styles.memberName}>{member.name}</h3>
+                          <span className={styles.memberRole}>{member.role}</span>
+                          {member.bio && <p className={styles.memberBio}>{member.bio}</p>}
                         </div>
-                        <Link to={`/funding-opportunities/${opp.slug}`} className={styles.primaryBtn}>
-                          View Opportunity
-                        </Link>
                       </div>
-                      <p className={styles.oppDesc}>{opp.shortDescription}</p>
-                      <div className={styles.oppMeta}>
-                        <span><strong>Seeking:</strong> {formatCurrency(opp.fundingAmountMin, opp.fundingAmountMax, opp.currency)}</span>
-                        <span><strong>Purpose:</strong> {opp.fundingPurpose}</span>
-                        <span><strong>Type:</strong> {opp.fundingType}</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className={styles.mutedText}>This business currently has no active public funding opportunities.</p>
-              )}
-            </section>
+                    ))}
+                  </div>
+                ) : (
+                  <p className={styles.mutedText}>Management team information has not been published yet.</p>
+                )}
+              </section>
+            )}
 
+            {/* End Overview Content */}
           </div>
 
           {/* Sidebar */}
@@ -367,9 +418,6 @@ const BusinessDetail = () => {
               <p className={styles.sideDisclaimer}>
                 Startups Blogs is an information connection platform. All negotiations occur directly between parties.
               </p>
-              <Link to="/investment-disclaimer" className={styles.disclaimerLink}>
-                Read full Investment Disclaimer
-              </Link>
             </div>
           </div>
         </div>

@@ -1,4 +1,4 @@
-export type ArticleStatus = 'DRAFT' | 'PENDING' | 'PUBLISHED' | 'REJECTED';
+export type ArticleStatus = 'DRAFT' | 'PENDING' | 'PUBLISHED' | 'REJECTED' | 'PENDING_DELETE';
 
 export interface AuthorInfo {
   id: string;

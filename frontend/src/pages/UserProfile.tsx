@@ -1,17 +1,21 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { 
   LayoutGrid, 
   FileText, 
   Settings as SettingsIcon, 
-  Eye, 
   Edit3, 
   Trash2,
-  User as UserIcon,
-  Bell,
-  Lock,
   Bookmark,
-  Users
+  MapPin,
+  Calendar,
+  Globe,
+  Link2,
+  Mail,
+  MessageSquare,
+  Users,
+  Eye,
+  Building2
 } from 'lucide-react';
 import { 
   ComposedChart, 
@@ -28,28 +32,86 @@ import styles from './UserProfile.module.css';
 import { MOCK_ARTICLES } from '../utils/mockData';
 
 type Tab = 'overview' | 'posts' | 'saved' | 'settings';
-type SettingsTab = 'profile' | 'security' | 'notifications';
+type SubSettingsTab = 'profile' | 'social' | 'notifications';
 
 const UserProfile = () => {
   const { id } = useParams<{ id: string }>();
   const [following, setFollowing] = useState(false);
-  const [activeTab, setActiveTab] = useState<Tab>('overview');
-  const [activeSettingsTab, setActiveSettingsTab] = useState<SettingsTab>('profile');
+  const [activeTab, setActiveTab] = useState<Tab>('posts');
+  const [settingsActiveTab, setSettingsActiveTab] = useState<SubSettingsTab>('profile');
+  const [forceRender, setForceRender] = useState(0);
+  const [postSearchTerm, setPostSearchTerm] = useState('');
+  const [postStatusFilter, setPostStatusFilter] = useState('ALL');
+  const [postDateFrom, setPostDateFrom] = useState('');
+  const [postDateTo, setPostDateTo] = useState('');
+  const [chartTimeRange, setChartTimeRange] = useState('7days');
 
-  // MOCK DATA
-  const CURRENT_USER_ID = 'u1'; // Assume logged in user is u1
-  const isOwner = id === CURRENT_USER_ID;
+  // In a real app, this would come from an auth context
+  const [isOwner, setIsOwner] = useState(false);
+  
+  useEffect(() => {
+    // Basic mock check: if the requested ID matches the mock logged in user
+    // For simplicity, we just assume if they navigate to /user/u1 and they are logged in, it's them.
+    const loggedIn = localStorage.getItem('mockLoggedIn') === 'true';
+    setIsOwner(loggedIn && (id === 'u1' || !id)); 
+    
+    if (loggedIn && id === 'u1') {
+      setActiveTab('overview');
+    }
+  }, [id]);
 
-  const authoredArticles = MOCK_ARTICLES.filter(a => a.author.id === id);
-  const authorInfo = authoredArticles.length > 0 ? authoredArticles[0].author : {
-    id: id || 'u1',
+  const targetId = id || 'u1';
+  const authoredArticles = MOCK_ARTICLES.filter(a => a.author.id === targetId);
+  const authorInfo = authoredArticles.length > 0 ? {
+    ...authoredArticles[0].author,
+    location: 'Ho Chi Minh City, Vietnam',
+    joinedAt: 'August 2026'
+  } : {
+    id: targetId,
     name: 'Lê Hoàng Nam',
-    bio: 'Co-Founder & CTO tại GreenFlow',
+    bio: 'Co-Founder & CTO tại GreenFlow. Xây dựng nền tảng SaaS quản lý năng lượng thông minh cho nhà máy.',
     businessId: 'b2',
     businessName: 'GreenFlow',
     followersCount: 1250,
-    role: 'BUSINESS' // Testing conditional settings
+    location: 'Ho Chi Minh City, Vietnam',
+    joinedAt: 'August 2026'
   };
+
+  const getInitials = (name: string) => {
+    return name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+  };
+
+  const formatDate = (isoString: string) => {
+    const date = new Date(isoString);
+    return new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', year: 'numeric' }).format(date);
+  };
+
+  const handleDelete = (postId: string) => {
+    if (window.confirm('Bạn có chắc chắn muốn xóa bài viết này không? Bài viết sẽ được chuyển vào trạng thái chờ duyệt xóa.')) {
+      const article = MOCK_ARTICLES.find(a => a.id === postId);
+      if (article) {
+        article.status = 'PENDING_DELETE';
+        setForceRender(prev => prev + 1);
+        alert('Yêu cầu xóa đã được gửi cho Admin duyệt.');
+      }
+    }
+  };
+
+  const publishedArticles = authoredArticles.filter(a => a.status === 'PUBLISHED');
+  
+  const filteredPosts = authoredArticles.filter(post => {
+    const matchesSearch = post.title.toLowerCase().includes(postSearchTerm.toLowerCase());
+    const matchesStatus = postStatusFilter === 'ALL' || post.status === postStatusFilter;
+    
+    let matchesDate = true;
+    if (postDateFrom || postDateTo) {
+      const postDate = new Date(post.publishedAt || post.createdAt).toISOString().split('T')[0];
+      if (postDateFrom && postDate < postDateFrom) matchesDate = false;
+      if (postDateTo && postDate > postDateTo) matchesDate = false;
+    }
+    
+    return matchesSearch && matchesStatus && matchesDate;
+  });
 
   const mockChartData = [
     { name: 'Mon', views: 4000, interactions: 2400 },
@@ -60,15 +122,6 @@ const UserProfile = () => {
     { name: 'Sat', views: 2390, interactions: 3800 },
     { name: 'Sun', views: 3490, interactions: 4300 },
   ];
-
-  const getInitials = (name: string) => {
-    return name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
-  };
-
-  const formatDate = (isoString: string) => {
-    const date = new Date(isoString);
-    return new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', year: 'numeric' }).format(date);
-  };
 
   return (
     <div className={styles.pageWrapper}>
@@ -83,39 +136,68 @@ const UserProfile = () => {
           <div className={styles.userInfo}>
             <div className={styles.nameRow}>
               <h1 className={styles.name}>{authorInfo.name}</h1>
-              {!isOwner && (
+            </div>
+            
+            <p className={styles.bio}>{authorInfo.bio}</p>
+            
+            <div className={styles.userMetaRow}>
+              {authorInfo.location && (
+                <span className={styles.metaItem}>
+                  <MapPin size={18} /> {authorInfo.location}
+                </span>
+              )}
+              {authorInfo.joinedAt && (
+                <span className={styles.metaItem}>
+                  <Calendar size={18} /> Joined {authorInfo.joinedAt}
+                </span>
+              )}
+              {authorInfo.businessId && (
+                <Link to={`/businesses/${authorInfo.businessId}`} className={styles.businessLink}>
+                  <Building2 size={16} />
+                  {authorInfo.businessName}
+                </Link>
+              )}
+            </div>
+
+            <div className={styles.socialLinks}>
+              <button className={styles.socialIconBtn} aria-label="Website"><Globe size={18} /></button>
+              <button className={styles.socialIconBtn} aria-label="Portfolio"><Link2 size={18} /></button>
+              <button className={styles.socialIconBtn} aria-label="Email"><Mail size={18} /></button>
+            </div>
+
+            {!isOwner && (
+              <div className={styles.actionButtons}>
                 <button 
                   className={following ? styles.followingBtn : styles.followBtn}
                   onClick={() => setFollowing(!following)}
                 >
                   {following ? 'Following' : 'Follow'}
                 </button>
-              )}
-            </div>
-            
-            <p className={styles.bio}>{authorInfo.bio}</p>
-            {authorInfo.businessId && (
-              <Link to={`/business/${authorInfo.businessId}`} className={styles.businessLink}>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-                  <polyline points="9 22 9 12 15 12 15 22"></polyline>
-                </svg>
-                {authorInfo.businessName}
-              </Link>
+                <button className={styles.messageBtn}>
+                  <MessageSquare size={18} /> Message
+                </button>
+              </div>
             )}
             
             <div className={styles.stats}>
               <div className={styles.statItem}>
-                <span className={styles.statValue}>{(authorInfo.followersCount || 0) + (following ? 1 : 0)}</span>
+                <span className={styles.statValue}>
+                  <Users size={20} color="#64748B" style={{marginRight: 8, verticalAlign: 'middle'}}/>
+                  {(authorInfo.followersCount || 0) + (following ? 1 : 0)}
+                </span>
                 <span className={styles.statLabel}>Followers</span>
               </div>
               <div className={styles.statItem}>
-                <span className={styles.statValue}>{authoredArticles.length}</span>
+                <span className={styles.statValue}>
+                  <Edit3 size={20} color="#64748B" style={{marginRight: 8, verticalAlign: 'middle'}}/>
+                  {publishedArticles.length}
+                </span>
                 <span className={styles.statLabel}>Published</span>
               </div>
               <div className={styles.statItem}>
                 <span className={styles.statValue}>
-                  {authoredArticles.reduce((sum, a) => sum + (a.viewCount || 0), 0).toLocaleString()}
+                  <Eye size={20} color="#64748B" style={{marginRight: 8, verticalAlign: 'middle'}}/>
+                  {publishedArticles.reduce((sum, a) => sum + (a.viewCount || 0), 0).toLocaleString()}
                 </span>
                 <span className={styles.statLabel}>Total Views</span>
               </div>
@@ -123,337 +205,326 @@ const UserProfile = () => {
           </div>
         </div>
 
-        {/* DASHBOARD / CONTENT SECTION */}
-        {isOwner ? (
-          <div className={styles.dashboardLayout}>
-            {/* SIDEBAR */}
-            <aside className={styles.sidebar}>
-              <div className={styles.sidebarNav}>
-                <button 
-                  className={`${styles.navItem} ${activeTab === 'overview' ? styles.active : ''}`}
-                  onClick={() => setActiveTab('overview')}
-                >
-                  <LayoutGrid size={18} /> Overview
-                </button>
-                <button 
-                  className={`${styles.navItem} ${activeTab === 'posts' ? styles.active : ''}`}
-                  onClick={() => setActiveTab('posts')}
-                >
-                  <FileText size={18} /> Posts Management
-                </button>
-                <button 
-                  className={`${styles.navItem} ${activeTab === 'saved' ? styles.active : ''}`}
-                  onClick={() => setActiveTab('saved')}
-                >
-                  <Bookmark size={18} /> Saved Articles
-                </button>
-                <button 
-                  className={`${styles.navItem} ${activeTab === 'settings' ? styles.active : ''}`}
-                  onClick={() => setActiveTab('settings')}
-                >
-                  <SettingsIcon size={18} /> Account Settings
-                </button>
-              </div>
-            </aside>
-
-            {/* MAIN CONTENT */}
-            <main className={styles.mainContent}>
-              {/* OVERVIEW TAB */}
-              {activeTab === 'overview' && (
-                <div className={styles.fadeEnter}>
-                  <h1 className={styles.pageTitle}>Welcome back, {authorInfo.name}! 👋</h1>
-                  <p className={styles.pageSubtitle}>Here's what's happening with your account today.</p>
-                  
-                  <div className={styles.statsGrid}>
-                    <div className={styles.statCard}>
-                      <div className={styles.statIconWrapper} style={{ backgroundColor: '#EEF2FF', color: '#4F46E5' }}>
-                        <Eye size={20} />
-                      </div>
-                      <div className={styles.statInfo}>
-                        <p className={styles.statLabel}>Total Views</p>
-                        <p className={styles.statValue}>{authoredArticles.reduce((sum, a) => sum + (a.viewCount || 0), 0).toLocaleString()}</p>
-                      </div>
-                    </div>
-                    <div className={styles.statCard}>
-                      <div className={styles.statIconWrapper} style={{ backgroundColor: '#F0FDF4', color: '#16A34A' }}>
-                        <Users size={20} />
-                      </div>
-                      <div className={styles.statInfo}>
-                        <p className={styles.statLabel}>Followers</p>
-                        <p className={styles.statValue}>{(authorInfo.followersCount || 0).toLocaleString()}</p>
-                      </div>
-                    </div>
-                    <div className={styles.statCard}>
-                      <div className={styles.statIconWrapper} style={{ backgroundColor: '#FFF7ED', color: '#EA580C' }}>
-                        <FileText size={20} />
-                      </div>
-                      <div className={styles.statInfo}>
-                        <p className={styles.statLabel}>Published Posts</p>
-                        <p className={styles.statValue}>{authoredArticles.length}</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className={styles.sectionHeader}>
-                    <h2>Analytics Overview</h2>
-                  </div>
-                  <div className={styles.chartContainer}>
-                    <ResponsiveContainer width="100%" height={300}>
-                      <ComposedChart data={mockChartData}>
-                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
-                        <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#6B7280'}} />
-                        <YAxis yAxisId="left" axisLine={false} tickLine={false} tick={{fill: '#6B7280'}} />
-                        <YAxis yAxisId="right" orientation="right" axisLine={false} tickLine={false} tick={{fill: '#6B7280'}} />
-                        <Tooltip 
-                          contentStyle={{borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px rgba(0,0,0,0.1)'}}
-                        />
-                        <Legend />
-                        <Bar yAxisId="left" dataKey="views" fill="#F97316" radius={[4, 4, 0, 0]} name="Views" maxBarSize={40} />
-                        <Line yAxisId="right" type="monotone" dataKey="interactions" stroke="#4F46E5" strokeWidth={3} name="Interactions" dot={{r: 4, strokeWidth: 2}} activeDot={{r: 6}} />
-                      </ComposedChart>
-                    </ResponsiveContainer>
-                  </div>
-                </div>
-              )}
-
-              {/* POSTS MANAGEMENT */}
-              {activeTab === 'posts' && (
-                <div className={styles.fadeEnter}>
-                  <div className={styles.sectionHeader}>
-                    <div>
-                      <h1 className={styles.pageTitle}>Posts Management</h1>
-                      <p className={styles.pageSubtitle}>Manage your published articles and drafts.</p>
-                    </div>
-                    <button className={styles.primaryBtn}>+ Create New Post</button>
-                  </div>
-                  <div className={styles.tableContainer}>
-                    <table className={styles.postsTable}>
-                      <thead>
-                        <tr>
-                          <th>Title</th>
-                          <th>Views</th>
-                          <th>Date</th>
-                          <th>Actions</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {authoredArticles.map(post => (
-                          <tr key={post.id}>
-                            <td className={styles.postTitleCell}>{post.title}</td>
-                            <td>{post.viewCount > 0 ? post.viewCount.toLocaleString() : '-'}</td>
-                            <td className={styles.dateCell}>{formatDate(post.publishedAt || post.createdAt)}</td>
-                            <td>
-                              <div className={styles.actionBtns}>
-                                <button className={styles.iconActionBtn} title="Edit"><Edit3 size={16} /></button>
-                                <button className={`${styles.iconActionBtn} ${styles.deleteBtn}`} title="Delete"><Trash2 size={16} /></button>
-                              </div>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              )}
-
-              {/* SETTINGS TAB */}
-              {activeTab === 'settings' && (
-                <div className={styles.fadeEnter}>
-                  <h1 className={styles.pageTitle}>Account Settings</h1>
-                  <p className={styles.pageSubtitle}>Manage your profile, security, and preferences.</p>
-                  
-                  <div className={styles.settingsContainer}>
-                    <div className={styles.settingsSidebar}>
-                      <button 
-                        className={`${styles.settingsNavItem} ${activeSettingsTab === 'profile' ? styles.active : ''}`}
-                        onClick={() => setActiveSettingsTab('profile')}
-                      >
-                        <UserIcon size={16} /> Profile
-                      </button>
-                      <button 
-                        className={`${styles.settingsNavItem} ${activeSettingsTab === 'security' ? styles.active : ''}`}
-                        onClick={() => setActiveSettingsTab('security')}
-                      >
-                        <Lock size={16} /> Security
-                      </button>
-                      <button 
-                        className={`${styles.settingsNavItem} ${activeSettingsTab === 'notifications' ? styles.active : ''}`}
-                        onClick={() => setActiveSettingsTab('notifications')}
-                      >
-                        <Bell size={16} /> Notifications
-                      </button>
-                    </div>
-
-                    <div className={styles.settingsContent}>
-                      {activeSettingsTab === 'profile' && (
-                        <div className={styles.settingsForm}>
-                          <div className={styles.avatarUpload}>
-                            <div className={styles.avatarCircle}>{getInitials(authorInfo.name)}</div>
-                            <button className={styles.secondaryBtn}>Change Avatar</button>
-                          </div>
-
-                          {authorInfo.role === 'BUSINESS' ? (
-                            <>
-                              <h3>Business Profile</h3>
-                              <div className={styles.formGroup}>
-                                <label>Representative Name</label>
-                                <input type="text" className={styles.inputField} defaultValue={authorInfo.name} />
-                              </div>
-                              <div className={styles.formGroup}>
-                                <label>Company Name</label>
-                                <input type="text" className={styles.inputField} defaultValue={authorInfo.businessName || ''} />
-                              </div>
-                              <div className={styles.formGroup}>
-                                <label>Tax ID (Mã số thuế)</label>
-                                <input type="text" className={styles.inputField} defaultValue="0101234567" />
-                              </div>
-                            </>
-                          ) : (
-                            <>
-                              <h3>Personal Profile</h3>
-                              <div className={styles.formGroup}>
-                                <label>Full Name</label>
-                                <input type="text" className={styles.inputField} defaultValue={authorInfo.name} />
-                              </div>
-                            </>
-                          )}
-                          
-                          <div className={styles.formGroup}>
-                            <label>Bio</label>
-                            <textarea className={styles.textareaField} rows={4} defaultValue={authorInfo.bio}></textarea>
-                          </div>
-                          
-                          <div className={styles.formGroup}>
-                            <label>LinkedIn URL</label>
-                            <input type="text" className={styles.inputField} placeholder="https://linkedin.com/in/yourprofile" />
-                          </div>
-
-                          <button className={styles.primaryBtn} style={{marginTop: '1rem'}}>Save Changes</button>
-                        </div>
-                      )}
-
-                      {activeSettingsTab === 'security' && (
-                        <div className={styles.settingsForm}>
-                          <h3>Change Password</h3>
-                          <div className={styles.formGroup}>
-                            <label>Current Password</label>
-                            <input type="password" className={styles.inputField} />
-                          </div>
-                          <div className={styles.formGroup}>
-                            <label>New Password</label>
-                            <input type="password" className={styles.inputField} />
-                          </div>
-                          <div className={styles.formGroup}>
-                            <label>Confirm New Password</label>
-                            <input type="password" className={styles.inputField} />
-                          </div>
-                          <button className={styles.primaryBtn} style={{marginTop: '1rem'}}>Update Password</button>
-
-                          <hr className={styles.divider} />
-                          
-                          <h3>Two-Factor Authentication (2FA)</h3>
-                          <p className={styles.helperText}>Add an extra layer of security to your account.</p>
-                          <button className={styles.secondaryBtn}>Enable 2FA</button>
-                        </div>
-                      )}
-
-                      {activeSettingsTab === 'notifications' && (
-                        <div className={styles.settingsForm}>
-                          <h3>Email Notifications</h3>
-                          
-                          <div className={styles.toggleRow}>
-                            <div>
-                              <h4>Newsletter</h4>
-                              <p className={styles.helperText}>Receive weekly updates and highlights.</p>
-                            </div>
-                            <label className={styles.toggleSwitch}>
-                              <input type="checkbox" defaultChecked />
-                              <span className={styles.toggleSlider}></span>
-                            </label>
-                          </div>
-
-                          <div className={styles.toggleRow}>
-                            <div>
-                              <h4>New Followers</h4>
-                              <p className={styles.helperText}>Get notified when someone follows you.</p>
-                            </div>
-                            <label className={styles.toggleSwitch}>
-                              <input type="checkbox" defaultChecked />
-                              <span className={styles.toggleSlider}></span>
-                            </label>
-                          </div>
-
-                          <div className={styles.toggleRow}>
-                            <div>
-                              <h4>Comments</h4>
-                              <p className={styles.helperText}>Get notified when someone comments on your post.</p>
-                            </div>
-                            <label className={styles.toggleSwitch}>
-                              <input type="checkbox" />
-                              <span className={styles.toggleSlider}></span>
-                            </label>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              )}
-              
-              {/* SAVED */}
-              {activeTab === 'saved' && (
-                 <div className={styles.fadeEnter}>
-                    <div className={styles.sectionHeader}>
-                      <div>
-                        <h1 className={styles.pageTitle}>Saved Articles</h1>
-                        <p className={styles.pageSubtitle}>Your private reading list.</p>
-                      </div>
-                    </div>
-                    <div className={styles.tableContainer}>
-                      <div style={{padding: '3rem', textAlign: 'center', color: 'var(--text-secondary)'}}>
-                        <Bookmark size={48} style={{margin: '0 auto 1rem', opacity: 0.5}} />
-                        <p>You haven't saved any articles yet.</p>
-                      </div>
-                    </div>
-                 </div>
-              )}
-            </main>
+        {/* TABS */}
+        <div className={styles.tabs}>
+          {isOwner ? (
+            <>
+              <button 
+                className={`${styles.tab} ${activeTab === 'overview' ? styles.activeTab : ''}`}
+                onClick={() => setActiveTab('overview')}
+              >
+                <LayoutGrid size={20} /> Overview
+              </button>
+              <button 
+                className={`${styles.tab} ${activeTab === 'posts' ? styles.activeTab : ''}`}
+                onClick={() => setActiveTab('posts')}
+              >
+                <FileText size={20} /> Posts Management
+              </button>
+              <button 
+                className={`${styles.tab} ${activeTab === 'saved' ? styles.activeTab : ''}`}
+                onClick={() => setActiveTab('saved')}
+              >
+                <Bookmark size={20} /> Saved
+              </button>
+              <button 
+                className={`${styles.tab} ${activeTab === 'settings' ? styles.activeTab : ''}`}
+                onClick={() => setActiveTab('settings')}
+              >
+                <SettingsIcon size={20} /> Settings
+              </button>
+            </>
+          ) : (
+            <button className={`${styles.tab} ${styles.activeTab}`}>
+              <FileText size={20} /> Published Blogs
+            </button>
+          )}
+        </div>
+        
+        {/* TAB CONTENTS */}
+        {activeTab === 'overview' && isOwner && (
+          <div className={styles.chartCard}>
+            <div className={styles.chartHeader}>
+              <h2>Engagement Over Time</h2>
+              <select 
+                className={styles.filterSelect}
+                value={chartTimeRange}
+                onChange={(e) => setChartTimeRange(e.target.value)}
+              >
+                <option value="7days">Last 7 days</option>
+                <option value="30days">Last 30 days</option>
+                <option value="alltime">All Time</option>
+              </select>
+            </div>
+            <div style={{ width: '100%', height: 400 }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <ComposedChart data={mockChartData}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
+                  <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#6B7280', fontSize: 14}} />
+                  <YAxis yAxisId="left" axisLine={false} tickLine={false} tick={{fill: '#6B7280', fontSize: 14}} />
+                  <YAxis yAxisId="right" orientation="right" axisLine={false} tickLine={false} tick={{fill: '#6B7280', fontSize: 14}} />
+                  <Tooltip contentStyle={{borderRadius: '8px', fontSize: '16px'}} />
+                  <Legend wrapperStyle={{paddingTop: '20px', fontSize: '16px'}}/>
+                  <Bar yAxisId="left" dataKey="views" fill="#F97316" radius={[4, 4, 0, 0]} name="Views" maxBarSize={50} />
+                  <Line yAxisId="right" type="monotone" dataKey="interactions" stroke="#4F46E5" strokeWidth={4} name="Interactions" dot={{r: 6}} activeDot={{r: 8}} />
+                </ComposedChart>
+              </ResponsiveContainer>
+            </div>
           </div>
-        ) : (
-          /* PUBLIC VIEW */
-          <>
-            <div className={styles.tabs}>
-              <button className={`${styles.tab} ${styles.activeTab}`}>
-                Published Blogs
+        )}
+
+        {activeTab === 'posts' && (
+          isOwner ? (
+            <div className={styles.tableContainer}>
+              <div className={styles.tableFilters}>
+                <input 
+                  type="text" 
+                  placeholder="Search articles..." 
+                  className={styles.searchInput}
+                  value={postSearchTerm}
+                  onChange={(e) => setPostSearchTerm(e.target.value)}
+                />
+                <select 
+                  className={styles.filterSelect}
+                  value={postStatusFilter}
+                  onChange={(e) => setPostStatusFilter(e.target.value)}
+                >
+                  <option value="ALL">All Statuses</option>
+                  <option value="PUBLISHED">Published</option>
+                  <option value="PENDING">Pending</option>
+                  <option value="PENDING_DELETE">Pending Delete</option>
+                </select>
+                <div style={{display: 'flex', alignItems: 'center', gap: '8px'}}>
+                  <input 
+                    type="date"
+                    className={styles.filterSelect}
+                    value={postDateFrom}
+                    onChange={(e) => setPostDateFrom(e.target.value)}
+                    title="Từ ngày"
+                  />
+                  <span style={{color: '#64748B'}}>-</span>
+                  <input 
+                    type="date"
+                    className={styles.filterSelect}
+                    value={postDateTo}
+                    onChange={(e) => setPostDateTo(e.target.value)}
+                    title="Đến ngày"
+                  />
+                </div>
+              </div>
+              <div className={styles.tableScrollWrapper}>
+                <table className={styles.postsTable}>
+                  <thead>
+                  <tr>
+                    <th>Title</th>
+                    <th>Status</th>
+                    <th>Views</th>
+                    <th>Date</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredPosts.map(post => (
+                    <tr key={post.id}>
+                      <td className={styles.postTitleCell}>
+                        <div className={styles.postCellContent}>
+                          {post.coverImage ? (
+                            <img src={post.coverImage} alt="" className={styles.postThumbnail} />
+                          ) : (
+                            <div className={styles.postThumbnailPlaceholder}>
+                              <FileText size={20} />
+                            </div>
+                          )}
+                          <div className={styles.postTitleText}>
+                            {post.status === 'PUBLISHED' ? (
+                              <Link to={`/blogs/${post.slug}`} style={{color: 'inherit', textDecoration: 'none'}}>{post.title}</Link>
+                            ) : (
+                              post.title
+                            )}
+                          </div>
+                        </div>
+                      </td>
+                      <td>
+                        <span style={{
+                          backgroundColor: post.status === 'PUBLISHED' ? '#dcfce7' : post.status === 'PENDING' ? '#fef08a' : post.status === 'PENDING_DELETE' ? '#fee2e2' : '#f3f4f6',
+                          color: post.status === 'PUBLISHED' ? '#166534' : post.status === 'PENDING' ? '#854d0e' : post.status === 'PENDING_DELETE' ? '#991b1b' : '#374151',
+                          padding: '6px 12px',
+                          borderRadius: '6px',
+                          fontSize: '14px',
+                          fontWeight: 600
+                        }}>
+                          {post.status}
+                        </span>
+                      </td>
+                      <td>{post.viewCount > 0 ? post.viewCount.toLocaleString() : '-'}</td>
+                      <td>{formatDate(post.publishedAt || post.createdAt)}</td>
+                      <td>
+                        <div className={styles.actionBtns}>
+                          <Link to={`/edit-blog/${post.id}`} className={styles.iconActionBtn} title="Edit">
+                            <Edit3 size={20} />
+                          </Link>
+                          <button 
+                            className={`${styles.iconActionBtn} ${styles.deleteBtn}`} 
+                            title="Delete"
+                            onClick={() => handleDelete(post.id)}
+                          >
+                            <Trash2 size={20} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                  {authoredArticles.length === 0 && (
+                    <tr>
+                      <td colSpan={5} style={{textAlign: 'center', padding: '60px 20px', color: '#64748B', fontSize: '1.2rem'}}>
+                        No posts found. Start writing!
+                        <br />
+                        <Link to="/create-blog" className={styles.primaryBtn} style={{marginTop: 24}}>+ Write New Post</Link>
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+            {authoredArticles.length > 0 && (
+                <div style={{padding: '24px', borderTop: '1px solid #E2E8F0', textAlign: 'right'}}>
+                  <Link to="/create-blog" className={styles.primaryBtn}>+ Write New Post</Link>
+                </div>
+              )}
+            </div>
+          ) : (
+            <>
+              {publishedArticles.length === 0 ? (
+                <div className={styles.emptyState}>
+                  <p>No articles found in this section.</p>
+                </div>
+              ) : (
+                <div className={styles.articlesGrid}>
+                  {publishedArticles.map(article => (
+                    <div key={article.id} className={styles.articleCard}>
+                      {article.coverImage && (
+                        <img src={article.coverImage} alt={article.title} className={styles.cardImage} />
+                      )}
+                      <div className={styles.cardContent}>
+                        <span className={styles.cardCategory}>{article.category}</span>
+                        <Link to={`/blogs/${article.slug}`} className={styles.cardTitle}>
+                          {article.title}
+                        </Link>
+                        <p className={styles.cardSummary}>{article.summary}</p>
+                        <div className={styles.cardFooter}>
+                          <span>{formatDate(article.publishedAt || article.createdAt)}</span>
+                          <span>{article.viewCount > 0 ? article.viewCount.toLocaleString() : '-'} views</span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </>
+          )
+        )}
+
+        {activeTab === 'saved' && isOwner && (
+           <div className={styles.emptyState}>
+             <Bookmark size={48} style={{margin: '0 auto 16px', color: '#CBD5E1'}} />
+             <p>Articles you save will appear here.</p>
+           </div>
+        )}
+
+        {activeTab === 'settings' && isOwner && (
+          <div className={styles.settingsLayout}>
+            {/* Sidebar */}
+            <div className={styles.settingsSidebar}>
+              <button 
+                className={`${styles.settingsSidebarBtn} ${settingsActiveTab === 'profile' ? styles.settingsSidebarBtnActive : ''}`}
+                onClick={() => setSettingsActiveTab('profile')}
+              >
+                Profile Details
+              </button>
+              <button 
+                className={`${styles.settingsSidebarBtn} ${settingsActiveTab === 'social' ? styles.settingsSidebarBtnActive : ''}`}
+                onClick={() => setSettingsActiveTab('social')}
+              >
+                Social Links
+              </button>
+              <button 
+                className={`${styles.settingsSidebarBtn} ${settingsActiveTab === 'notifications' ? styles.settingsSidebarBtnActive : ''}`}
+                onClick={() => setSettingsActiveTab('notifications')}
+              >
+                Notification Preferences
               </button>
             </div>
-            
-            {authoredArticles.length === 0 ? (
-              <div className={styles.emptyState}>
-                <p>No articles found in this section.</p>
-              </div>
-            ) : (
-              <div className={styles.articlesGrid}>
-                {authoredArticles.map(article => (
-                  <div key={article.id} className={styles.articleCard}>
-                    {article.coverImage && (
-                      <img src={article.coverImage} alt={article.title} className={styles.cardImage} />
-                    )}
-                    <div className={styles.cardContent}>
-                      <span className={styles.cardCategory}>{article.category}</span>
-                      <Link to={`/blogs/${article.slug}`} className={styles.cardTitle}>
-                        {article.title}
-                      </Link>
-                      <p className={styles.cardSummary}>{article.summary}</p>
-                      <div className={styles.cardFooter}>
-                        <span>{formatDate(article.publishedAt || article.createdAt)}</span>
-                      </div>
-                    </div>
+
+            {/* Content Area */}
+            <div className={styles.settingsContent}>
+              {settingsActiveTab === 'profile' && (
+                <div className={styles.settingsCard}>
+                  <h2 className={styles.settingsTitle}>Profile Details</h2>
+                  <div className={styles.formGroup}>
+                    <label>Full Name</label>
+                    <input type="text" className={styles.inputField} defaultValue={authorInfo.name} />
                   </div>
-                ))}
-              </div>
-            )}
-          </>
+                  <div className={styles.formGroup}>
+                    <label>Email Address</label>
+                    <input type="email" className={styles.inputField} defaultValue="nam.le@greenflow.vn" />
+                  </div>
+                  <div className={styles.formGroup}>
+                    <label>Role / Job Title</label>
+                    <input type="text" className={styles.inputField} defaultValue="Co-Founder & CTO" />
+                  </div>
+                  <div className={styles.formGroup}>
+                    <label>Bio</label>
+                    <textarea className={styles.textareaField} rows={4} defaultValue={authorInfo.bio}></textarea>
+                  </div>
+                  <button className={styles.primaryBtn} style={{marginTop: 16}}>Save Changes</button>
+                </div>
+              )}
+
+              {settingsActiveTab === 'social' && (
+                <div className={styles.settingsCard}>
+                  <h2 className={styles.settingsTitle}>Social Links</h2>
+                  <div className={styles.formGroup}>
+                    <label>LinkedIn URL</label>
+                    <input type="url" className={styles.inputField} placeholder="https://linkedin.com/in/username" defaultValue="https://linkedin.com/in/namle" />
+                  </div>
+                  <div className={styles.formGroup}>
+                    <label>Twitter URL</label>
+                    <input type="url" className={styles.inputField} placeholder="https://twitter.com/username" />
+                  </div>
+                  <div className={styles.formGroup}>
+                    <label>Personal Website</label>
+                    <input type="url" className={styles.inputField} placeholder="https://yourwebsite.com" />
+                  </div>
+                  <button className={styles.primaryBtn} style={{marginTop: 16}}>Update Socials</button>
+                </div>
+              )}
+
+              {settingsActiveTab === 'notifications' && (
+                <div className={styles.settingsCard}>
+                  <h2 className={styles.settingsTitle}>Notification Preferences</h2>
+                  <div className={styles.checkboxGroup}>
+                    <label className={styles.checkboxLabel}>
+                      <input type="checkbox" defaultChecked />
+                      Email me when my post is approved
+                    </label>
+                  </div>
+                  <div className={styles.checkboxGroup}>
+                    <label className={styles.checkboxLabel}>
+                      <input type="checkbox" defaultChecked />
+                      Email me when someone follows me
+                    </label>
+                  </div>
+                  <div className={styles.checkboxGroup}>
+                    <label className={styles.checkboxLabel}>
+                      <input type="checkbox" />
+                      Weekly newsletter and platform updates
+                    </label>
+                  </div>
+                  <button className={styles.primaryBtn} style={{marginTop: 16}}>Save Preferences</button>
+                </div>
+              )}
+            </div>
+          </div>
         )}
       </div>
     </div>

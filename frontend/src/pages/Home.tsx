@@ -15,7 +15,7 @@ import {
 } from 'lucide-react';
 import BusinessCard from '../components/business/BusinessCard';
 import styles from './Home.module.css';
-import { MOCK_RECORDS } from '../utils/mockData';
+import { MOCK_BUSINESSES, MOCK_ARTICLES } from '../utils/mockData';
 
 const Home = () => {
   const navigate = useNavigate();
@@ -34,8 +34,8 @@ const Home = () => {
     navigate(`/businesses?industry=${encodeURIComponent(industryName)}`);
   };
 
-  const featuredRecord = MOCK_RECORDS[0]; // An Nam Culinary
-  const latestRecords = MOCK_RECORDS.slice(0, 6);
+  const featuredBusiness = MOCK_BUSINESSES[0]; // An Nam Culinary
+  const latestBusinesses = MOCK_BUSINESSES.slice(0, 6);
 
   const industries = [
     { name: 'Food & Beverage', icon: <Utensils size={28} />, color: 'var(--cat-food)' },
@@ -55,9 +55,9 @@ const Home = () => {
       {/* Hero Section */}
       <section className={styles.hero}>
         <div className="container text-center">
-          <h1 className={styles.heroTitle}>Grow Your Business with the Right Partners</h1>
+          <h1 className={styles.heroTitle}>Kết nối Startup, Xây dựng Cộng đồng & Kiến tạo Tương lai</h1>
           <p className={styles.heroDesc}>
-            Connect small businesses and startups to create sustainable growth opportunities.
+            Nền tảng kết nối các doanh nghiệp và những người đam mê khởi nghiệp. Khám phá cơ hội hợp tác và chia sẻ câu chuyện của bạn.
           </p>
           <form className={styles.searchBar} onSubmit={handleSearchSubmit}>
             <input 
@@ -71,57 +71,57 @@ const Home = () => {
           </form>
           <div className={styles.heroActions}>
             <Link to="/businesses" className={styles.primaryBtn}>Explore Businesses</Link>
-            <Link to="/raise-capital" className={styles.secondaryBtn}>Raise Capital</Link>
+            <Link to="/create-blog" className={styles.secondaryBtn}>Viết Blog Ngay</Link>
           </div>
         </div>
       </section>
 
-      {/* Featured Business Opportunity Banner */}
-      {featuredRecord && featuredRecord.opportunity && (
+      {/* Featured Business Banner */}
+      {featuredBusiness && (
         <section className="section bg-secondary">
           <div className="container">
             <div className="flex justify-between items-center" style={{ marginBottom: 'var(--spacing-6)' }}>
-              <h2 className="section-title" style={{ marginBottom: 0 }}>Featured Business Opportunity</h2>
-              <Link to="/businesses" style={{ color: 'var(--primary-500)', fontWeight: 600 }}>Explore all opportunities &rarr;</Link>
+              <h2 className="section-title" style={{ marginBottom: 0 }}>Featured Startup</h2>
+              <Link to="/businesses" style={{ color: 'var(--primary-500)', fontWeight: 600 }}>Explore all startups &rarr;</Link>
             </div>
 
             <div className={styles.featuredCard} style={{ backgroundColor: 'white', borderRadius: 'var(--radius-xl)', padding: 'var(--spacing-8)', border: '1px solid var(--border-color)', display: 'flex', gap: 'var(--spacing-8)', flexWrap: 'wrap' }}>
               <div style={{ flex: '1 1 300px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-3)', marginBottom: 'var(--spacing-3)' }}>
                   <div style={{ width: '44px', height: '44px', borderRadius: 'var(--radius-md)', backgroundColor: 'var(--primary-50)', color: 'var(--primary-500)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700 }}>
-                    {featuredRecord.business.name.charAt(0)}
+                    {featuredBusiness.name.charAt(0)}
                   </div>
                   <div>
                     <h3 style={{ fontSize: 'var(--font-size-xl)', fontWeight: 700, margin: 0, display: 'flex', alignItems: 'center', gap: 'var(--spacing-2)' }}>
-                      {featuredRecord.business.name}
-                      {featuredRecord.business.verified && <CheckCircle2 size={18} color="var(--primary-500)" />}
+                      {featuredBusiness.name}
+                      {featuredBusiness.verified && <CheckCircle2 size={18} color="var(--primary-500)" />}
                     </h3>
-                    <span style={{ fontSize: 'var(--font-size-xs)', color: 'var(--text-muted)' }}>{featuredRecord.business.industry} • {featuredRecord.business.businessType}</span>
+                    <span style={{ fontSize: 'var(--font-size-xs)', color: 'var(--text-muted)' }}>{featuredBusiness.industry} • {featuredBusiness.businessType}</span>
                   </div>
                 </div>
                 <h4 style={{ fontSize: 'var(--font-size-lg)', fontWeight: 700, color: 'var(--primary-600)', marginBottom: 'var(--spacing-2)' }}>
-                  {featuredRecord.opportunity.title}
+                  {featuredBusiness.description}
                 </h4>
                 <p style={{ fontSize: 'var(--font-size-sm)', color: 'var(--text-body)', lineHeight: 1.6, marginBottom: 'var(--spacing-4)' }}>
-                  {featuredRecord.opportunity.shortDescription}
+                  {featuredBusiness.detailedOverview}
                 </p>
                 <div style={{ display: 'flex', gap: 'var(--spacing-4)', marginBottom: 'var(--spacing-4)', fontSize: 'var(--font-size-sm)' }}>
                   <div>
-                    <span style={{ color: 'var(--text-muted)', display: 'block', fontSize: 'var(--font-size-xs)' }}>Seeking</span>
-                    <strong>2 – 3.5 tỷ VNĐ</strong>
-                  </div>
-                  <div>
-                    <span style={{ color: 'var(--text-muted)', display: 'block', fontSize: 'var(--font-size-xs)' }}>Purpose</span>
-                    <strong>{featuredRecord.opportunity.fundingPurpose}</strong>
+                    <span style={{ color: 'var(--text-muted)', display: 'block', fontSize: 'var(--font-size-xs)' }}>Stage</span>
+                    <strong>{featuredBusiness.businessStage}</strong>
                   </div>
                   <div>
                     <span style={{ color: 'var(--text-muted)', display: 'block', fontSize: 'var(--font-size-xs)' }}>Location</span>
-                    <strong>{featuredRecord.business.location}</strong>
+                    <strong>{featuredBusiness.location}</strong>
+                  </div>
+                  <div>
+                    <span style={{ color: 'var(--text-muted)', display: 'block', fontSize: 'var(--font-size-xs)' }}>Team Size</span>
+                    <strong>{featuredBusiness.employeeRange || 'N/A'}</strong>
                   </div>
                 </div>
                 <div style={{ display: 'flex', gap: 'var(--spacing-3)' }}>
-                  <Link to={`/businesses/${featuredRecord.business.slug}`} className={styles.primaryBtn} style={{ padding: 'var(--spacing-2) var(--spacing-6)', fontSize: 'var(--font-size-sm)' }}>
-                    View Opportunity
+                  <Link to={`/businesses/${featuredBusiness.slug}`} className={styles.primaryBtn} style={{ padding: 'var(--spacing-2) var(--spacing-6)', fontSize: 'var(--font-size-sm)' }}>
+                    View Business
                   </Link>
                 </div>
               </div>
@@ -138,8 +138,8 @@ const Home = () => {
             <Link to="/businesses" style={{ color: 'var(--primary-500)', fontWeight: 500 }}>View all businesses &rarr;</Link>
           </div>
           <div className={styles.grid}>
-            {latestRecords.map((record) => (
-              <BusinessCard key={record.business.id} {...record} />
+            {latestBusinesses.map((business) => (
+              <BusinessCard key={business.id} business={business} />
             ))}
           </div>
         </div>
@@ -173,10 +173,10 @@ const Home = () => {
       {/* How It Works */}
       <section className="section">
         <div className="container">
-          <h2 className="section-title">How It Works</h2>
+          <h2 className="section-title text-center" style={{ marginBottom: 'var(--spacing-10)' }}>How It Works</h2>
           <div className={styles.howItWorks}>
             <div className={styles.stepBox}>
-              <h3>For Businesses</h3>
+              <h3 style={{ textAlign: 'center' }}>For Businesses</h3>
               <div className={styles.steps}>
                 <div className={styles.step}>
                   <div className={styles.stepNum}>1</div>
@@ -185,8 +185,8 @@ const Home = () => {
                 </div>
                 <div className={styles.step}>
                   <div className={styles.stepNum}>2</div>
-                  <div className={styles.stepTitle}>Publish a Funding Opportunity</div>
-                  <div className={styles.stepDesc}>Công bố nhu cầu gọi vốn hoặc tìm kiếm đối tác hợp tác.</div>
+                  <div className={styles.stepTitle}>Manage Funding History</div>
+                  <div className={styles.stepDesc}>Cập nhật các vòng gọi vốn để gia tăng uy tín cho startup.</div>
                 </div>
                 <div className={styles.step}>
                   <div className={styles.stepNum}>3</div>
@@ -195,6 +195,60 @@ const Home = () => {
                 </div>
               </div>
             </div>
+
+            <div className={styles.stepBox} style={{ backgroundColor: '#f0fdf4' }}>
+              <h3 style={{ textAlign: 'center', color: '#166534' }}>For the Community</h3>
+              <div className={styles.steps}>
+                <div className={styles.step}>
+                  <div className={styles.stepNum} style={{ backgroundColor: '#22c55e' }}>1</div>
+                  <div className={styles.stepTitle}>Read Startup News</div>
+                  <div className={styles.stepDesc}>Cập nhật tin tức và xu hướng mới nhất từ các startup.</div>
+                </div>
+                <div className={styles.step}>
+                  <div className={styles.stepNum} style={{ backgroundColor: '#22c55e' }}>2</div>
+                  <div className={styles.stepTitle}>Share Your Insights</div>
+                  <div className={styles.stepDesc}>Viết blog chia sẻ kiến thức, kinh nghiệm về thị trường.</div>
+                </div>
+                <div className={styles.step}>
+                  <div className={styles.stepNum} style={{ backgroundColor: '#22c55e' }}>3</div>
+                  <div className={styles.stepTitle}>Engage & Discuss</div>
+                  <div className={styles.stepDesc}>Tương tác, bình luận và xây dựng cộng đồng khởi nghiệp.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Latest News & Blogs */}
+      <section className="section bg-secondary">
+        <div className="container">
+          <div className="flex justify-between items-center" style={{ marginBottom: 'var(--spacing-8)' }}>
+            <h2 className="section-title" style={{ marginBottom: 0 }}>Latest News & Insights</h2>
+            <Link to="/blogs" style={{ color: 'var(--primary-500)', fontWeight: 500 }}>View all articles &rarr;</Link>
+          </div>
+          <div className={styles.newsGrid} style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))' }}>
+            {MOCK_ARTICLES.slice(0, 3).map(article => (
+              <div key={article.id} className={styles.newsCard} style={{ backgroundColor: 'white' }}>
+                <div className={styles.newsImg} style={{ backgroundImage: `url(${article.coverImage})`, backgroundSize: 'cover', backgroundPosition: 'center' }} />
+                <div className={styles.newsContent}>
+                  <div style={{ display: 'flex', gap: 'var(--spacing-2)', marginBottom: 'var(--spacing-2)' }}>
+                    <span style={{ fontSize: 'var(--font-size-xs)', fontWeight: 600, color: 'var(--primary-600)', backgroundColor: 'var(--primary-50)', padding: '2px 8px', borderRadius: '4px' }}>{article.category}</span>
+                  </div>
+                  <h3 style={{ fontSize: 'var(--font-size-lg)', fontWeight: 700, marginBottom: 'var(--spacing-2)' }}>
+                    <Link to={`/blogs/${article.slug}`} style={{ color: 'inherit', textDecoration: 'none' }}>{article.title}</Link>
+                  </h3>
+                  <p style={{ fontSize: 'var(--font-size-sm)', color: 'var(--text-body)', marginBottom: 'var(--spacing-4)', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                    {article.summary}
+                  </p>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-2)', fontSize: 'var(--font-size-xs)', color: 'var(--text-muted)' }}>
+                    <span style={{ fontWeight: 500 }}>{article.author.name}</span>
+                    <span>•</span>
+                    <span>{new Date(article.publishedAt).toLocaleDateString()}</span>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
@@ -203,11 +257,11 @@ const Home = () => {
       <section className="container">
         <div className={styles.ctaBanner}>
           <div>
-            <h2 style={{ fontSize: 'var(--font-size-3xl)', marginBottom: 'var(--spacing-2)' }}>Ready to expand your business?</h2>
-            <p style={{ fontSize: 'var(--font-size-lg)', color: 'var(--text-body)' }}>Giới thiệu cơ hội hợp tác và mở rộng cùng cộng đồng người dùng.</p>
+            <h2 style={{ fontSize: 'var(--font-size-3xl)', marginBottom: 'var(--spacing-2)' }}>Bạn có câu chuyện khởi nghiệp muốn chia sẻ?</h2>
+            <p style={{ fontSize: 'var(--font-size-lg)', color: 'var(--text-body)' }}>Trở thành một phần của cộng đồng, lan tỏa kiến thức và nâng cao uy tín cho bản thân và startup của bạn.</p>
           </div>
-          <Link to="/raise-capital" className={styles.primaryBtn} style={{ padding: 'var(--spacing-4) var(--spacing-8)', fontSize: 'var(--font-size-lg)', textDecoration: 'none' }}>
-            Raise Capital Now
+          <Link to="/create-blog" className={styles.primaryBtn} style={{ padding: 'var(--spacing-4) var(--spacing-8)', fontSize: 'var(--font-size-lg)', textDecoration: 'none', whiteSpace: 'nowrap' }}>
+            Bắt đầu viết
           </Link>
         </div>
       </section>

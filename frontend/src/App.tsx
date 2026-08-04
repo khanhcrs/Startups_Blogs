@@ -3,7 +3,6 @@ import Layout from './components/layout/Layout';
 import Home from './pages/Home';
 import ExploreBusinesses from './pages/ExploreBusinesses';
 import BusinessDetail from './pages/BusinessDetail';
-import FundingOpportunityDetail from './pages/FundingOpportunityDetail';
 import News from './pages/News';
 import Blogs from './pages/Blogs';
 import BlogDetail from './pages/BlogDetail';
@@ -11,7 +10,6 @@ import CreateBlog from './pages/CreateBlog';
 import UserProfile from './pages/UserProfile';
 import Notifications from './pages/Notifications';
 import PostIdea from './pages/PostIdea';
-import InvestmentDisclaimer from './pages/InvestmentDisclaimer';
 import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
 import RegisterBusiness from './pages/auth/RegisterBusiness';
@@ -40,13 +38,10 @@ function App() {
           <Route index element={<Home />} />
           <Route path="businesses" element={<ExploreBusinesses />} />
           <Route path="businesses/:slug" element={<BusinessDetail />} />
-          <Route path="funding-opportunities/:slug" element={<FundingOpportunityDetail />} />
           <Route path="startups" element={<LegacyRedirect to="/businesses" />} />
           <Route path="news" element={<News />} />
           <Route path="blogs" element={<Blogs />} />
           <Route path="blogs/:slug" element={<BlogDetail />} />
-          <Route path="create-blog" element={<CreateBlog />} />
-          <Route path="user/:id" element={<UserProfile />} />
           <Route path="notifications" element={<Notifications />} />
           <Route path="login" element={<Login />} />
           <Route path="register" element={<Register />} />
@@ -54,8 +49,10 @@ function App() {
           <Route path="pending-verification" element={<PendingVerification />} />
           <Route path="raise-capital" element={<PostIdea />} />
           <Route path="post-idea" element={<LegacyRedirect to="/raise-capital" />} />
-          <Route path="investment-disclaimer" element={<InvestmentDisclaimer />} />
+          <Route path="user/:id" element={<UserProfile />} />
         </Route>
+        <Route path="/create-blog" element={<CreateBlog />} />
+        <Route path="/edit-blog/:id" element={<CreateBlog />} />
       </Routes>
     </Router>
   );

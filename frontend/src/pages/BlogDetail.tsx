@@ -1,17 +1,52 @@
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
+import { Edit3, Trash2 } from 'lucide-react';
+import { 
+  ComposedChart, 
+  Line, 
+  Bar, 
+  XAxis, 
+  YAxis, 
+  CartesianGrid, 
+  Tooltip, 
+  ResponsiveContainer 
+} from 'recharts';
 import styles from './BlogDetail.module.css';
 import { MOCK_ARTICLES, MOCK_COMMENTS } from '../utils/mockData';
 
 const BlogDetail = () => {
   const { slug } = useParams<{ slug: string }>();
+  const navigate = useNavigate();
   const [bookmarked, setBookmarked] = useState(false);
   const [liked, setLiked] = useState(false);
   const [following, setFollowing] = useState(false);
+  const [forceRender, setForceRender] = useState(0);
 
   // In a real app, fetch by slug. Here we mock it.
   const article = MOCK_ARTICLES.find(a => a.slug === slug) || MOCK_ARTICLES[0];
   const comments = MOCK_COMMENTS.filter(c => c.articleId === article.id);
+
+  const CURRENT_USER_ID = 'u1';
+  const isAuthor = article?.author.id === CURRENT_USER_ID;
+
+  const handleDelete = () => {
+    if (window.confirm('Bạn có chắc chắn muốn xóa bài viết này không? Bài viết sẽ được chuyển vào trạng thái chờ duyệt xóa.')) {
+      article.status = 'PENDING_DELETE';
+      setForceRender(prev => prev + 1);
+      alert('Yêu cầu xóa đã được gửi cho Admin duyệt.');
+      navigate('/user/u1');
+    }
+  };
+
+  const mockChartData = [
+    { name: 'Mon', views: 120 },
+    { name: 'Tue', views: 300 },
+    { name: 'Wed', views: 200 },
+    { name: 'Thu', views: 278 },
+    { name: 'Fri', views: 189 },
+    { name: 'Sat', views: 239 },
+    { name: 'Sun', views: 349 },
+  ];
 
   const getInitials = (name: string) => {
     return name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
@@ -41,6 +76,39 @@ const BlogDetail = () => {
 
   return (
     <div className={styles.container}>
+      {isAuthor && (
+        <div className={styles.authorDashboard}>
+          <div className={styles.dashboardHeader}>
+            <h3 className={styles.dashboardTitle}>Author Dashboard</h3>
+            <div className={styles.dashboardActions}>
+              <Link to={`/edit-blog/${article.id}`} className={styles.editBtn}>
+                <Edit3 size={16} /> Chỉnh sửa
+              </Link>
+              <button onClick={handleDelete} className={styles.deleteBtn}>
+                <Trash2 size={16} /> Xóa bài
+              </button>
+            </div>
+          </div>
+          {article.status === 'PENDING_DELETE' && (
+            <div style={{ backgroundColor: '#fee2e2', color: '#991b1b', padding: '12px', borderRadius: '8px', marginBottom: '16px', fontWeight: 500 }}>
+              Bài viết này đang ở trạng thái chờ Admin duyệt xóa.
+            </div>
+          )}
+          <div className={styles.chartWrapper}>
+            <ResponsiveContainer width="100%" height="100%">
+              <ComposedChart data={mockChartData}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
+                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#6B7280', fontSize: 12}} />
+                <YAxis axisLine={false} tickLine={false} tick={{fill: '#6B7280', fontSize: 12}} />
+                <Tooltip contentStyle={{borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px rgba(0,0,0,0.1)'}} />
+                <Bar dataKey="views" fill="#F97316" radius={[4, 4, 0, 0]} maxBarSize={40} />
+                <Line type="monotone" dataKey="views" stroke="#4F46E5" strokeWidth={3} dot={false} />
+              </ComposedChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      )}
+
       <span className={styles.category}>{article.category}</span>
       <h1 className={styles.title}>{article.title}</h1>
       

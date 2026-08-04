@@ -2042,6 +2042,15 @@ Contact Business / Contact Business Owner
   - Có giao diện soạn thảo văn bản (Rich-text editor).
   - Có thể chọn danh mục (Funding, Growth, Product...).
   - Lưu bản nháp (Draft) hoặc Gửi duyệt (Submit for Review).
+  - Có tính năng Chỉnh sửa bài viết (gửi duyệt lại khi sửa).
+  - Có tính năng Yêu cầu xóa bài viết (chuyển sang trạng thái chờ duyệt xóa `PENDING_DELETE`).
+  
+**7.1.1. Bảng điều khiển tác giả (Author Analytics Dashboard)**
+- **Mô tả:** Tôi muốn xem thống kê lượng truy cập và tương tác của bài viết mình đã đăng.
+- **Acceptance Criteria:**
+  - Hiển thị bảng điều khiển ngay trên cùng của bài viết nếu người xem chính là tác giả.
+  - Cung cấp biểu đồ thống kê lượt xem theo thời gian (ví dụ: lượt xem trong tuần).
+  - Tích hợp sẵn các nút hành động nhanh như "Chỉnh sửa" và "Xóa" ngay trên giao diện đọc bài.
 
 **7.2. Kiểm duyệt nội dung (Dành cho Moderator)**
 - **Mô tả:** Tôi muốn kiểm duyệt các bài Blog do người dùng gửi lên trước khi hiển thị công khai.

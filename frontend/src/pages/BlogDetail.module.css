@@ -12,6 +12,70 @@
   margin-bottom: var(--spacing-6);
 }
 
+/* Author Dashboard */
+.authorDashboard {
+  background: var(--surface-color);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-6);
+  margin-bottom: var(--spacing-8);
+}
+
+.dashboardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-6);
+}
+
+.dashboardTitle {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.dashboardActions {
+  display: flex;
+  gap: var(--spacing-2);
+}
+
+.editBtn, .deleteBtn {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  padding: var(--spacing-2) var(--spacing-4);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  text-decoration: none;
+}
+
+.editBtn {
+  background: var(--primary-50);
+  color: var(--primary-700);
+}
+
+.editBtn:hover {
+  background: var(--primary-100);
+}
+
+.deleteBtn {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.deleteBtn:hover {
+  background: #fecaca;
+}
+
+.chartWrapper {
+  height: 200px;
+  width: 100%;
+}
+
 .category {
   display: inline-block;
   background: var(--primary-100);
