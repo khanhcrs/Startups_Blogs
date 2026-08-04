@@ -6,9 +6,16 @@ import BusinessDetail from './pages/BusinessDetail';
 import FundingOpportunityDetail from './pages/FundingOpportunityDetail';
 import News from './pages/News';
 import Blogs from './pages/Blogs';
-import Investors from './pages/Investors';
+import BlogDetail from './pages/BlogDetail';
+import CreateBlog from './pages/CreateBlog';
+import UserProfile from './pages/UserProfile';
+import Notifications from './pages/Notifications';
 import PostIdea from './pages/PostIdea';
 import InvestmentDisclaimer from './pages/InvestmentDisclaimer';
+import Login from './pages/auth/Login';
+import Register from './pages/auth/Register';
+import RegisterBusiness from './pages/auth/RegisterBusiness';
+import PendingVerification from './pages/auth/PendingVerification';
 
 function LegacyRedirect({ to }: { to: string }) {
   const location = useLocation();
@@ -37,7 +44,14 @@ function App() {
           <Route path="startups" element={<LegacyRedirect to="/businesses" />} />
           <Route path="news" element={<News />} />
           <Route path="blogs" element={<Blogs />} />
-          <Route path="investors" element={<Investors />} />
+          <Route path="blogs/:slug" element={<BlogDetail />} />
+          <Route path="create-blog" element={<CreateBlog />} />
+          <Route path="user/:id" element={<UserProfile />} />
+          <Route path="notifications" element={<Notifications />} />
+          <Route path="login" element={<Login />} />
+          <Route path="register" element={<Register />} />
+          <Route path="register/business" element={<RegisterBusiness />} />
+          <Route path="pending-verification" element={<PendingVerification />} />
           <Route path="raise-capital" element={<PostIdea />} />
           <Route path="post-idea" element={<LegacyRedirect to="/raise-capital" />} />
           <Route path="investment-disclaimer" element={<InvestmentDisclaimer />} />

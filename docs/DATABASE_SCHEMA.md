@@ -10,7 +10,7 @@ User sở hữu/tham gia nhiều startup.
 
 Startup có nhiều idea và member.
 
-Investor lưu nhiều startup.
+User lưu nhiều startup.
 
 Contact request liên quan user, startup và có thể liên quan idea.
 
@@ -23,11 +23,12 @@ Core entities
 User
 ├── owned Startups
 ├── StartupMemberships
-├── InvestorProfile
 ├── AuthoredIdeas
 ├── SavedStartups
 ├── ContactRequests
+├── SavedArticles (Bookmarks)
 ├── Articles
+├── Comments
 └── Notifications
 
 Startup
@@ -35,6 +36,7 @@ Startup
 ├── Categories
 ├── Ideas
 ├── Saves
+├── Articles (Blogs/Updates)
 ├── ContactRequests
 └── FeaturedStartup records
 
@@ -44,6 +46,18 @@ Idea
 ├── Media
 ├── ContactRequests
 └── Moderator review metadata
+
+Article (Blog/News)
+├── Author (User - Business Owner/Admin)
+├── Startup (Optional - linked business)
+├── Comments
+└── Status (DRAFT, PENDING, PUBLISHED, REJECTED)
+
+Comment
+├── Content
+├── Author (User)
+├── Article
+└── ParentComment (For replies)
 
 Source of identity
 
@@ -67,7 +81,7 @@ Indexing ưu tiên
 
 User.cognitoSub, User.email unique.
 
-Startup.slug, Idea.slug, Article.slug, InvestorProfile.slug unique.
+Startup.slug, Idea.slug, Article.slug unique.
 
 Index cho status/publishedAt/createdAt.
 

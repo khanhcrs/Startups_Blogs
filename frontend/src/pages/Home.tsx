@@ -55,9 +55,9 @@ const Home = () => {
       {/* Hero Section */}
       <section className={styles.hero}>
         <div className="container text-center">
-          <h1 className={styles.heroTitle}>Grow Your Business with the Right Investment</h1>
+          <h1 className={styles.heroTitle}>Grow Your Business with the Right Partners</h1>
           <p className={styles.heroDesc}>
-            Connect small businesses, startups and investors to create sustainable growth opportunities.
+            Connect small businesses and startups to create sustainable growth opportunities.
           </p>
           <form className={styles.searchBar} onSubmit={handleSearchSubmit}>
             <input 
@@ -76,12 +76,12 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Featured Investment Opportunity Banner */}
+      {/* Featured Business Opportunity Banner */}
       {featuredRecord && featuredRecord.opportunity && (
         <section className="section bg-secondary">
           <div className="container">
             <div className="flex justify-between items-center" style={{ marginBottom: 'var(--spacing-6)' }}>
-              <h2 className="section-title" style={{ marginBottom: 0 }}>Featured Investment Opportunity</h2>
+              <h2 className="section-title" style={{ marginBottom: 0 }}>Featured Business Opportunity</h2>
               <Link to="/businesses" style={{ color: 'var(--primary-500)', fontWeight: 600 }}>Explore all opportunities &rarr;</Link>
             </div>
 
@@ -130,11 +130,11 @@ const Home = () => {
         </section>
       )}
 
-      {/* Latest Businesses Seeking Investment */}
+      {/* Latest Businesses Seeking Partners */}
       <section className="section">
         <div className="container">
           <div className="flex justify-between items-center" style={{ marginBottom: 'var(--spacing-8)' }}>
-            <h2 className="section-title" style={{ marginBottom: 0 }}>Latest Businesses Seeking Investment</h2>
+            <h2 className="section-title" style={{ marginBottom: 0 }}>Latest Businesses Seeking Partners</h2>
             <Link to="/businesses" style={{ color: 'var(--primary-500)', fontWeight: 500 }}>View all businesses &rarr;</Link>
           </div>
           <div className={styles.grid}>
@@ -190,28 +190,8 @@ const Home = () => {
                 </div>
                 <div className={styles.step}>
                   <div className={styles.stepNum}>3</div>
-                  <div className={styles.stepTitle}>Connect with Investors</div>
-                  <div className={styles.stepDesc}>Nhận yêu cầu liên hệ trực tiếp từ các nhà đầu tư quan tâm.</div>
-                </div>
-              </div>
-            </div>
-            <div className={styles.stepBox} style={{ backgroundColor: 'var(--primary-50)' }}>
-              <h3 style={{ color: 'var(--primary-600)' }}>For Investors</h3>
-              <div className={styles.steps}>
-                <div className={styles.step}>
-                  <div className={styles.stepNum} style={{ backgroundColor: 'var(--primary-600)' }}>1</div>
-                  <div className={styles.stepTitle}>Explore Businesses</div>
-                  <div className={styles.stepDesc}>Tìm kiếm cơ hội đầu tư theo ngành nghề, loại hình và địa điểm.</div>
-                </div>
-                <div className={styles.step}>
-                  <div className={styles.stepNum} style={{ backgroundColor: 'var(--primary-600)' }}>2</div>
-                  <div className={styles.stepTitle}>Save & Evaluate</div>
-                  <div className={styles.stepDesc}>Lưu lại và đánh giá các hồ sơ doanh nghiệp tiềm năng.</div>
-                </div>
-                <div className={styles.step}>
-                  <div className={styles.stepNum} style={{ backgroundColor: 'var(--primary-600)' }}>3</div>
-                  <div className={styles.stepTitle}>Contact Business Owners</div>
-                  <div className={styles.stepDesc}>Gửi yêu cầu liên hệ trực tiếp tới chủ doanh nghiệp.</div>
+                  <div className={styles.stepTitle}>Connect with Partners</div>
+                  <div className={styles.stepDesc}>Nhận yêu cầu liên hệ trực tiếp từ các đối tác quan tâm.</div>
                 </div>
               </div>
             </div>
@@ -224,7 +204,7 @@ const Home = () => {
         <div className={styles.ctaBanner}>
           <div>
             <h2 style={{ fontSize: 'var(--font-size-3xl)', marginBottom: 'var(--spacing-2)' }}>Ready to expand your business?</h2>
-            <p style={{ fontSize: 'var(--font-size-lg)', color: 'var(--text-body)' }}>Giới thiệu cơ hội đầu tư và mở rộng hợp tác cùng cộng đồng nhà đầu tư.</p>
+            <p style={{ fontSize: 'var(--font-size-lg)', color: 'var(--text-body)' }}>Giới thiệu cơ hội hợp tác và mở rộng cùng cộng đồng người dùng.</p>
           </div>
           <Link to="/raise-capital" className={styles.primaryBtn} style={{ padding: 'var(--spacing-4) var(--spacing-8)', fontSize: 'var(--font-size-lg)', textDecoration: 'none' }}>
             Raise Capital Now

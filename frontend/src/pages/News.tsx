@@ -49,7 +49,7 @@ const News = () => {
         <div className={styles.newsList}>
           {[
             { tag: 'FUNDING', title: 'HealthTech startup Medix AI raises $3.5M Series A', desc: 'Medix AI will use the funding to expand its product and enter new markets across Southeast Asia.', date: 'May 11, 2024', readTime: '4 min read', img: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=400&q=80' },
-            { tag: 'EVENTS', title: 'Startup Vietnam Summit 2024 announced', desc: 'The largest startup event in Vietnam will return this August in Ho Chi Minh City with 100+ speakers and investors.', date: 'May 9, 2024', readTime: '3 min read', img: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=400&q=80' },
+            { tag: 'EVENTS', title: 'Startup Vietnam Summit 2024 announced', desc: 'The largest startup event in Vietnam will return this August in Ho Chi Minh City with 100+ speakers.', date: 'May 9, 2024', readTime: '3 min read', img: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=400&q=80' },
             { tag: 'POLICY', title: 'New tax incentives for innovative startups', desc: 'The government introduces new tax policies to encourage innovation and research in early-stage startups.', date: 'May 7, 2024', readTime: '2 min read', img: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=400&q=80' }
           ].map((item, i) => (
             <div key={i} className={styles.listItem}>

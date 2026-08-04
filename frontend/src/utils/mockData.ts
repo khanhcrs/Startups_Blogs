@@ -1,4 +1,5 @@
 import type { Business, FundingOpportunity, BusinessOpportunityRecord } from '../types/business';
+import type { Article, Comment } from '../types/article';
 
 const TODAY = new Date();
 const SUB_DAYS = (days: number) => {
@@ -568,3 +569,115 @@ export const MOCK_RECORDS: BusinessOpportunityRecord[] = MOCK_BUSINESSES.map(b =
     opportunity: opp,
   };
 });
+
+
+export const MOCK_ARTICLES: Article[] = [
+  {
+    id: 'a1',
+    slug: '5-sai-lam-khi-goi-von-seed',
+    title: '5 Sai lầm phổ biến khi gọi vốn vòng Seed mà Founder cần tránh',
+    summary: 'Bài viết chia sẻ từ thực tiễn về những lỗi sai kinh điển khiến Startups bị từ chối ngay từ vòng Seed.',
+    content: `Gọi vốn vòng Seed là một cột mốc quan trọng, nhưng rất nhiều Founder mắc phải những lỗi cơ bản. Dưới đây là 5 sai lầm phổ biến:
+
+1. **Định giá quá cao (Overvaluation):** Không ai muốn đầu tư vào một dự án chưa có doanh thu nhưng định giá chục triệu đô.
+2. **Thiếu sự rõ ràng trong mô hình kinh doanh:** Nếu bạn không thể giải thích cách kiếm tiền trong 1 câu, nhà đầu tư sẽ bỏ qua.
+3. **Quên mất bài toán "Go-to-market":** Có sản phẩm tốt là chưa đủ, bạn cần biết cách bán nó.
+4. **Không nắm vững chỉ số tài chính:** Lỗ/lãi, burn rate, runway là những con số phải nằm lòng.
+5. **Thiếu sự đồng thuận giữa các Co-founder:** Đội ngũ lục đục là Red Flag lớn nhất.
+
+Hãy chuẩn bị thật kỹ trước khi gõ cửa các quỹ đầu tư!`,
+    coverImage: 'https://images.unsplash.com/photo-1553484771-371a605b060b?auto=format&fit=crop&q=80&w=800',
+    status: 'PUBLISHED',
+    category: 'Funding',
+    tags: ['Seed Round', 'Fundraising', 'Startup Guide'],
+    author: {
+      id: 'u1',
+      name: 'Lê Hoàng Nam',
+      bio: 'Co-Founder & CTO tại GreenFlow',
+      businessId: 'b2',
+      businessName: 'GreenFlow',
+      followersCount: 1250
+    },
+    createdAt: SUB_DAYS(3),
+    publishedAt: SUB_DAYS(3),
+    likesCount: 342,
+    bookmarksCount: 45,
+    commentsCount: 12,
+    viewCount: 1500
+  },
+  {
+    id: 'a2',
+    slug: 'xu-huong-fnb-2024',
+    title: 'Xu hướng ngành F&B 2024: Chuyển đổi số và Trải nghiệm khách hàng',
+    summary: 'Phân tích từ An Nam Culinary về cách công nghệ đang định hình lại ngành nhà hàng tại Việt Nam.',
+    content: `Năm 2024 đánh dấu sự chuyển mình mạnh mẽ của ngành F&B. Sau đại dịch, hành vi khách hàng đã thay đổi hoàn toàn.
+
+**1. Đặt món qua App và Kiosk:** 
+Tại An Nam Culinary, chúng tôi nhận thấy 40% doanh thu hiện đến từ các nền tảng online. Việc tích hợp hệ thống POS đa kênh là bắt buộc.
+
+**2. Trải nghiệm cá nhân hóa (Hyper-personalization):**
+Sử dụng dữ liệu CRM để biết khách hàng thích món gì, dị ứng với gì. Một lời chúc sinh nhật kèm món tráng miệng miễn phí tạo ra khách hàng trung thành.
+
+**3. Tối ưu hóa chuỗi cung ứng bằng AI:**
+Dự báo nguyên liệu cần nhập mỗi ngày giúp giảm 15% lượng thức ăn thừa (food waste).
+
+Chuyển đổi số không còn là lựa chọn, nó là vấn đề sống còn của các nhà hàng hiện đại.`,
+    coverImage: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&q=80&w=800',
+    status: 'PUBLISHED',
+    category: 'Growth',
+    tags: ['F&B', 'Digital Transformation', 'Trends'],
+    author: {
+      id: 'u2',
+      name: 'Nguyễn Văn An',
+      bio: 'Founder & CEO tại An Nam Culinary',
+      businessId: 'b1',
+      businessName: 'An Nam Culinary',
+      followersCount: 840
+    },
+    createdAt: SUB_DAYS(10),
+    publishedAt: SUB_DAYS(9),
+    likesCount: 512,
+    bookmarksCount: 89,
+    commentsCount: 4,
+    viewCount: 3200
+  }
+];
+
+export const MOCK_COMMENTS: Comment[] = [
+  {
+    id: 'c1',
+    articleId: 'a1',
+    content: 'Bài viết rất thực tế. Lỗi định giá quá cao là lỗi mình từng mắc phải ở startup đầu tiên.',
+    author: {
+      id: 'u3',
+      name: 'Trần Minh Tuấn',
+      bio: 'Serial Entrepreneur'
+    },
+    createdAt: SUB_DAYS(2),
+    replies: [
+      {
+        id: 'c1-1',
+        articleId: 'a1',
+        content: 'Chào anh Tuấn, anh có thể chia sẻ thêm về cách anh định giá lại công ty sau đó không ạ?',
+        author: {
+          id: 'u4',
+          name: 'Phạm Thị Lan',
+          bio: 'Junior Founder'
+        },
+        parentId: 'c1',
+        createdAt: SUB_DAYS(1)
+      }
+    ]
+  },
+  {
+    id: 'c2',
+    articleId: 'a1',
+    content: 'Phần Go-to-market đúng là bài toán khó nhất. Sản phẩm làm ra mà không biết bán cho ai thì cũng vứt.',
+    author: {
+      id: 'u5',
+      name: 'Hoàng Hải',
+      bio: 'Marketing Manager'
+    },
+    createdAt: SUB_DAYS(2)
+  }
+];

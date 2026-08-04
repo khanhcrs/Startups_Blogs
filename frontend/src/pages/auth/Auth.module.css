@@ -1,0 +1,194 @@
+.authPage {
+  min-height: calc(100vh - 80px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--background);
+  padding: var(--spacing-8) var(--spacing-4);
+}
+
+.authContainer {
+  width: 100%;
+  max-width: 480px;
+  background: white;
+  padding: var(--spacing-10);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--border-color);
+}
+
+.authContainerWide {
+  max-width: 700px;
+}
+
+.authHeader {
+  text-align: center;
+  margin-bottom: var(--spacing-8);
+}
+
+.authHeader h1 {
+  font-size: 2rem;
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-2);
+}
+
+.authHeader p {
+  color: var(--text-secondary);
+}
+
+.authForm {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-5);
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-5);
+}
+
+@media (max-width: 600px) {
+  .formGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+
+.formGroup label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.formGroup input, .formGroup select, .formGroup textarea {
+  padding: var(--spacing-3);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.2s;
+  font-family: inherit;
+}
+
+.formGroup input:focus, .formGroup select:focus, .formGroup textarea:focus {
+  border-color: var(--primary-500);
+}
+
+.formGroup .hint {
+  font-size: 0.75rem;
+  color: var(--text-tertiary);
+  margin-top: -0.25rem;
+}
+
+.formOptions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.875rem;
+}
+
+.checkboxLabel {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.forgotLink {
+  color: var(--primary-600);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.forgotLink:hover {
+  text-decoration: underline;
+}
+
+.submitBtn {
+  background: var(--primary-600);
+  color: white;
+  border: none;
+  padding: var(--spacing-3);
+  border-radius: var(--radius-md);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+  margin-top: var(--spacing-2);
+}
+
+.submitBtn:hover {
+  background: var(--primary-700);
+}
+
+.authFooter {
+  text-align: center;
+  margin-top: var(--spacing-8);
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+.authFooter a {
+  color: var(--primary-600);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.authFooter a:hover {
+  text-decoration: underline;
+}
+
+.roleSelection {
+  display: flex;
+  gap: var(--spacing-4);
+  margin-bottom: var(--spacing-6);
+}
+
+.roleCard {
+  flex: 1;
+  border: 1px solid var(--border-color);
+  padding: var(--spacing-6);
+  border-radius: var(--radius-lg);
+  text-align: center;
+  text-decoration: none;
+  color: inherit;
+  transition: all 0.2s;
+}
+
+.roleCard:hover {
+  border-color: var(--primary-500);
+  box-shadow: var(--shadow-sm);
+  background: var(--surface-color);
+}
+
+.roleCard h3 {
+  color: var(--primary-700);
+  margin-bottom: var(--spacing-2);
+}
+
+.roleCard p {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+.fileUpload {
+  border: 2px dashed var(--border-color);
+  padding: var(--spacing-6);
+  text-align: center;
+  border-radius: var(--radius-md);
+  background: var(--surface-color);
+  cursor: pointer;
+  color: var(--text-secondary);
+}
+
+.fileUpload:hover {
+  border-color: var(--primary-400);
+  color: var(--primary-600);
+}

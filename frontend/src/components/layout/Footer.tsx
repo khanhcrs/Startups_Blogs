@@ -16,7 +16,7 @@ const Footer = () => {
             <span className={styles.logoText}>Startups Blogs</span>
           </Link>
           <p className={styles.description}>
-            Connecting innovative startups with investors and opportunities to build a better future.
+            Connecting innovative startups with opportunities to build a better future.
           </p>
           <div className={styles.social}>
             <a href="#" className={styles.socialIcon} aria-label="Twitter">
@@ -42,7 +42,7 @@ const Footer = () => {
           <ul>
             <li><Link to="/">Home</Link></li>
             <li><Link to="/businesses">Explore Businesses</Link></li>
-            <li><Link to="/investors">Investors</Link></li>
+            
             <li><Link to="/raise-capital">Raise Capital</Link></li>
           </ul>
         </div>

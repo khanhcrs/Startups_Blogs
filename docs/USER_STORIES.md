@@ -20,11 +20,11 @@ Business Owner
 
 Chủ doanh nghiệp hoặc thành viên được ủy quyền quản lý doanh nghiệp nhỏ, doanh nghiệp vừa hoặc startup.
 
-Investor
+User
 
-Nhà đầu tư cá nhân, angel investor, quỹ đầu tư hoặc tổ chức tài chính.
 
-Enterprise Partner
+
+User
 
 Doanh nghiệp lớn tìm kiếm cơ hội đầu tư, hợp tác, mua giải pháp, liên doanh hoặc M&A.
 
@@ -44,7 +44,7 @@ Admin
 
 Người quản trị toàn bộ hệ thống, cấu hình danh mục và phân quyền.
 
-Một tài khoản có thể mang nhiều vai trò. Ví dụ: một Business Owner đồng thời có thể tạo Investor Profile nếu được hệ thống cho phép.
+Một tài khoản có thể mang nhiều vai trò. Ví dụ: một Business Owner đồng thời có thể tạo User Profile nếu được hệ thống cho phép.
 
 1.2. Loại hình doanh nghiệp
 
@@ -60,7 +60,7 @@ Franchise
 
 Cooperative
 
-Social Enterprise
+Social User
 
 Other — do Admin quản lý
 
@@ -98,7 +98,7 @@ Có nút Raise Capital.
 
 Có thanh tìm kiếm doanh nghiệp, cơ hội đầu tư, ngành nghề hoặc địa điểm.
 
-Có nội dung hướng dẫn ngắn cho Business Owner và Investor.
+Có nội dung hướng dẫn ngắn cho Business Owner và User.
 
 Hiển thị tốt trên desktop, tablet và mobile.
 
@@ -184,7 +184,7 @@ Acceptance Criteria
 
 Phần For Businesses gồm: tạo hồ sơ, đăng Funding Opportunity, kết nối nhà đầu tư.
 
-Phần For Investors gồm: khám phá, đánh giá/lưu, gửi yêu cầu liên hệ.
+Phần For Users gồm: khám phá, đánh giá/lưu, gửi yêu cầu liên hệ.
 
 Có CTA phù hợp với từng nhóm người dùng.
 
@@ -192,7 +192,7 @@ Nội dung không ngụ ý Startups Blogs trực tiếp bảo đảm hoặc th�
 
 Priority: P1
 
-US-HOME-07 — Featured Investors
+US-HOME-07 — Featured Users
 
 Là Business Owner, tôi muốn xem các nhà đầu tư tiêu biểu để biết những nhà đầu tư nào đang tham gia nền tảng.
 
@@ -202,9 +202,9 @@ Hiển thị tên, logo/ảnh đại diện, loại investor, lĩnh vực quan t
 
 Chỉ hiển thị hồ sơ đang hoạt động và được phép công khai.
 
-Nhấn card mở Investor Profile.
+Nhấn card mở User Profile.
 
-Có nút View All Investors.
+Có nút View All Users.
 
 Priority: P1
 
@@ -234,7 +234,7 @@ Acceptance Criteria
 
 Người dùng nhập họ tên, email và mật khẩu.
 
-Người dùng chọn mục đích ban đầu: Business Owner, Investor hoặc Enterprise Partner.
+Người dùng chọn mục đích ban đầu: Business Owner, User hoặc User.
 
 Email không được trùng với tài khoản đã tồn tại.
 
@@ -322,7 +322,7 @@ Guest chỉ xem nội dung công khai.
 
 Business Owner chỉ quản lý doanh nghiệp mà họ sở hữu hoặc được cấp quyền.
 
-Investor có thể lưu, theo dõi, yêu cầu liên hệ và yêu cầu quyền xem tài liệu theo chính sách.
+User có thể lưu, theo dõi, yêu cầu liên hệ và yêu cầu quyền xem tài liệu theo chính sách.
 
 Content Editor quản lý News và Blogs.
 
@@ -460,7 +460,7 @@ Nhập mô hình kinh doanh và nguồn doanh thu chính.
 
 Có thể nhập các chỉ số như số khách hàng, đơn hàng hoặc công suất nếu phù hợp.
 
-Có thể đánh dấu từng trường là Public, Verified Investors Only hoặc Private theo policy.
+Có thể đánh dấu từng trường là Public, Logged-in Users Only hoặc Private theo policy.
 
 Priority: P1
 
@@ -654,7 +654,7 @@ Là Business Owner, tôi muốn thiết lập visibility cho thông tin và tài
 
 Acceptance Criteria
 
-Các mức tối thiểu: Public, Logged-in Users, Verified Investors, Approved Access và Private.
+Các mức tối thiểu: Public, Logged-in Users, Logged-in Users, Approved Access và Private.
 
 Quyền xem được thực thi ở backend.
 
@@ -772,7 +772,7 @@ Priority: P0
 
 US-EXPLORE-03 — Lọc doanh nghiệp
 
-Là Investor, tôi muốn lọc kết quả theo tiêu chí để tìm cơ hội phù hợp với chiến lược đầu tư.
+Là User, tôi muốn lọc kết quả theo tiêu chí để tìm cơ hội phù hợp với chiến lược đầu tư.
 
 Acceptance Criteria
 
@@ -830,7 +830,7 @@ Priority: P0
 
 US-EXPLORE-06 — Xem Business Profile và Funding Opportunity Detail
 
-Là Investor, tôi muốn xem thông tin chi tiết để đánh giá cơ hội trước khi liên hệ.
+Là User, tôi muốn xem thông tin chi tiết để đánh giá cơ hội trước khi liên hệ.
 
 Acceptance Criteria
 
@@ -878,115 +878,11 @@ Không đưa dữ liệu confidential vào metadata hoặc preview mạng xã h�
 
 Priority: P1
 
-7. Epic: Investors và Enterprise Partners
-
-US-INVESTOR-01 — Tạo Investor Profile
-
-Là Investor, tôi muốn tạo hồ sơ đầu tư để doanh nghiệp hiểu tiêu chí và khả năng đầu tư của tôi.
-
-Acceptance Criteria
-
-Nhập tên cá nhân/tổ chức, logo/ảnh, giới thiệu và Investor Type.
-
-Nhập Industry quan tâm, Business Stage, khu vực và khoảng vốn đầu tư.
-
-Nhập Funding Type quan tâm.
-
-Nhập website và thông tin liên hệ công khai theo quyền.
-
-Có thể lưu Draft và publish.
-
-Priority: P0
-
-US-INVESTOR-02 — Tạo Enterprise Partner Profile
-
-Là Enterprise Partner, tôi muốn tạo hồ sơ đối tác để tìm doanh nghiệp phù hợp để đầu tư hoặc hợp tác.
-
-Acceptance Criteria
-
-Chọn mục tiêu: Investment, Strategic Partnership, Procurement, Joint Venture, Franchise, M&A hoặc Innovation Partnership.
-
-Nhập ngành, khu vực, quy mô doanh nghiệp và loại cơ hội quan tâm.
-
-Có thể công khai quy trình tiếp nhận đề xuất hoặc thông tin liên hệ.
-
-Profile hiển thị trong Investors/Partners theo thiết kế sản phẩm.
-
-Priority: P1
-
-US-INVESTOR-03 — Duyệt danh sách nhà đầu tư
-
-Là Business Owner, tôi muốn xem danh sách Investor và Partner để tìm người phù hợp với nhu cầu gọi vốn.
-
-Acceptance Criteria
-
-Hiển thị dạng card/list.
-
-Có tìm kiếm và filter theo Investor Type, Industry, Business Stage, Funding Type, Ticket Size và Location.
-
-Có pagination.
-
-Có View Profile.
-
-Không hiển thị thông tin private.
-
-Priority: P0
-
-US-INVESTOR-04 — Xem Investor Profile
-
-Là Business Owner, tôi muốn xem chi tiết nhà đầu tư để đánh giá mức độ phù hợp trước khi liên hệ.
-
-Acceptance Criteria
-
-Hiển thị tổ chức, tiêu chí đầu tư, Industry, Business Stage, Ticket Size, khu vực và portfolio công khai.
-
-Hiển thị Verified Badge nếu có.
-
-Có nút Contact hoặc Submit Opportunity theo policy.
-
-Nếu không nhận unsolicited contact, hệ thống hiển thị trạng thái phù hợp.
-
-Priority: P0
-
-US-INVESTOR-05 — Xác minh Investor
-
-Là Investor, tôi muốn gửi yêu cầu xác minh để tăng độ tin cậy với Business Owner.
-
-Acceptance Criteria
-
-Upload tài liệu xác minh vào S3 private storage.
-
-Trạng thái Pending, Approved hoặc Rejected.
-
-Admin/Moderator có thể yêu cầu bổ sung.
-
-Tài liệu không công khai.
-
-Hồ sơ Approved có Verified Badge.
-
-Priority: P1
-
-US-INVESTOR-06 — Nhận gợi ý doanh nghiệp phù hợp
-
-Là Investor, tôi muốn nhận gợi ý cơ hội theo tiêu chí để khám phá nhanh hơn.
-
-Acceptance Criteria
-
-Gợi ý dựa trên Industry, Business Stage, Funding Type, Ticket Size và Location đã khai báo.
-
-Người dùng có thể điều chỉnh tiêu chí.
-
-Hệ thống giải thích ngắn lý do phù hợp khi có thể.
-
-MVP có thể dùng rule-based matching; không bắt buộc AI.
-
-Priority: P2
-
-8. Epic: Tương tác, quyền xem và kết nối
+7. Epic: Tương tác, quyền xem và kết nối
 
 US-INTERACT-01 — Lưu doanh nghiệp
 
-Là Investor, tôi muốn lưu Business Profile để xem lại sau.
+Là User, tôi muốn lưu Business Profile để xem lại sau.
 
 Acceptance Criteria
 
@@ -1002,7 +898,7 @@ Priority: P0
 
 US-INTERACT-02 — Lưu Funding Opportunity
 
-Là Investor, tôi muốn lưu một cơ hội gọi vốn cụ thể để theo dõi đúng đợt gọi vốn quan tâm.
+Là User, tôi muốn lưu một cơ hội gọi vốn cụ thể để theo dõi đúng đợt gọi vốn quan tâm.
 
 Acceptance Criteria
 
@@ -1054,7 +950,7 @@ Là người dùng, tôi muốn báo cáo nội dung hoặc tài khoản vi ph�
 
 Acceptance Criteria
 
-Có thể báo cáo Business, Funding Opportunity, Investor Profile, Comment, Message và User.
+Có thể báo cáo Business, Funding Opportunity, User Profile, Comment, Message và User.
 
 Người dùng chọn lý do và có thể thêm mô tả.
 
@@ -1066,7 +962,7 @@ Priority: P0
 
 US-CONTACT-01 — Gửi Contact Request
 
-Là Investor hoặc Enterprise Partner, tôi muốn gửi yêu cầu liên hệ tới doanh nghiệp để thảo luận về đầu tư hoặc hợp tác.
+Là User hoặc User, tôi muốn gửi yêu cầu liên hệ tới doanh nghiệp để thảo luận về đầu tư hoặc hợp tác.
 
 Acceptance Criteria
 
@@ -1104,7 +1000,7 @@ Priority: P0
 
 US-ACCESS-01 — Yêu cầu xem tài liệu confidential
 
-Là Verified Investor, tôi muốn gửi Document Access Request để xem dữ liệu cần thiết để đánh giá sâu hơn.
+Là Logged-in User, tôi muốn gửi Document Access Request để xem dữ liệu cần thiết để đánh giá sâu hơn.
 
 Acceptance Criteria
 
@@ -1140,7 +1036,7 @@ Priority: P1
 
 US-MESSAGE-01 — Nhắn tin trực tiếp
 
-Là Business Owner, Investor hoặc Enterprise Partner, tôi muốn nhắn tin trong hệ thống để trao đổi mà không cần công khai thông tin cá nhân.
+Là Business Owner, User hoặc User, tôi muốn nhắn tin trong hệ thống để trao đổi mà không cần công khai thông tin cá nhân.
 
 Acceptance Criteria
 
@@ -1156,7 +1052,7 @@ Không log nội dung nhạy cảm ở application logs.
 
 Priority: P1
 
-9. Epic: News
+8. Epic: News
 
 US-NEWS-01 — Xem danh sách News
 
@@ -1204,7 +1100,7 @@ URL lưu filter đang chọn.
 
 Priority: P1
 
-10. Epic: Blogs và kiến thức
+9. Epic: Blogs và kiến thức
 
 US-BLOG-01 — Xem danh sách Blog
 
@@ -1226,7 +1122,7 @@ Là người dùng, tôi muốn lọc Blog theo mục tiêu để tìm nội dun
 
 Acceptance Criteria
 
-Danh mục có thể gồm Business Guide, Funding, Financial Management, Growth, Marketing, Operations, Digital Transformation, Investor Insights và Business Stories.
+Danh mục có thể gồm Business Guide, Funding, Financial Management, Growth, Marketing, Operations, Digital Transformation, User Insights và Business Stories.
 
 Category do Admin quản lý.
 
@@ -1268,7 +1164,7 @@ Upload ảnh qua S3 theo flow chuẩn.
 
 Priority: P0
 
-11. Epic: Footer và trang thông tin
+10. Epic: Footer và trang thông tin
 
 US-FAQ-01 — Xem FAQ
 
@@ -1276,7 +1172,7 @@ Là người dùng, tôi muốn xem câu hỏi thường gặp để tự giải
 
 Acceptance Criteria
 
-FAQ chia theo nhóm Business, Investor, Funding Opportunity, Account, Privacy và Support.
+FAQ chia theo nhóm Business, User, Funding Opportunity, Account, Privacy và Support.
 
 Có search và accordion.
 
@@ -1410,7 +1306,7 @@ Là Admin, tôi muốn xem tổng quan hệ thống để theo dõi hoạt độ
 
 Acceptance Criteria
 
-Hiển thị tổng User, Business, Investor và Enterprise Partner.
+Hiển thị tổng User, Business, User và User.
 
 Hiển thị Funding Opportunity theo trạng thái.
 
@@ -1440,7 +1336,7 @@ Quyết định được audit log.
 
 Priority: P0
 
-US-ADMIN-03 — Duyệt Business và Investor Verification
+US-ADMIN-03 — Duyệt Business và User Verification
 
 Là Moderator hoặc Admin, tôi muốn xử lý yêu cầu xác minh để tăng độ tin cậy của nền tảng.
 
@@ -1468,7 +1364,7 @@ Search user và xem thông tin cần thiết.
 
 Suspend, Disable, Restore hoặc thay đổi role theo quyền.
 
-Xem trạng thái Business/Investor Profile liên quan.
+Xem trạng thái Business/User Profile liên quan.
 
 Xem lịch sử vi phạm và audit log.
 
@@ -1518,7 +1414,7 @@ Là Admin, tôi muốn quản lý taxonomy để giữ dữ liệu thống nhấ
 
 Acceptance Criteria
 
-Quản lý Industry, Business Type, Business Stage, Funding Purpose, Funding Type, Investor Type, News Category, Blog Category và Report Reason.
+Quản lý Industry, Business Type, Business Stage, Funding Purpose, Funding Type, User Type, News Category, Blog Category và Report Reason.
 
 Có active/inactive và sort order.
 
@@ -1740,8 +1636,8 @@ Industry
 FundingOpportunity
 FundingOpportunityRevision
 FundingDocument
-InvestorProfile
-InvestorVerification
+UserProfile
+UserVerification
 SavedBusiness
 SavedFundingOpportunity
 Follow
@@ -1764,7 +1660,7 @@ AuditLog
 
 User
 ├── owns or joins Businesses through BusinessMember
-├── may have InvestorProfile
+├── may have UserProfile
 ├── saves Businesses and Funding Opportunities
 ├── follows Businesses
 ├── creates ContactRequests and DocumentAccessRequests
@@ -1868,8 +1764,8 @@ src/
 │ ├── ExploreBusinesses/
 │ ├── BusinessDetail/
 │ ├── FundingOpportunityDetail/
-│ ├── Investors/
-│ ├── InvestorDetail/
+│ ├── Users/
+│ ├── UserDetail/
 │ ├── RaiseCapital/
 │ ├── News/
 │ ├── Blogs/
@@ -2001,7 +1897,7 @@ Node.js → lưu object key và metadata vào PostgreSQL
 
 Business Profile và quản lý owner/editor cơ bản.
 
-Investor Profile.
+User Profile.
 
 Raise Capital và Funding Opportunity Draft/Submit/Review/Publish.
 
@@ -2011,7 +1907,7 @@ Explore Businesses với search, filter, sort và pagination.
 
 Business Detail và Funding Opportunity Detail.
 
-Investor Directory và Investor Detail.
+User Directory và User Detail.
 
 Save Business.
 
@@ -2037,7 +1933,7 @@ Saved Funding Opportunity.
 
 Notifications.
 
-Business và Investor Verification.
+Business và User Verification.
 
 Document Access Request.
 
@@ -2136,3 +2032,39 @@ Saved Business
 Contact Founder
 
 Contact Business / Contact Business Owner
+
+
+## Epic 7: Cộng đồng và Thảo luận (User-Generated Content)
+
+**7.1. Đóng góp bài viết (Dành cho Business Owner)**
+- **Mô tả:** Tôi muốn có thể tự viết bài Blog/Insight trên nền tảng.
+- **Acceptance Criteria:**
+  - Có giao diện soạn thảo văn bản (Rich-text editor).
+  - Có thể chọn danh mục (Funding, Growth, Product...).
+  - Lưu bản nháp (Draft) hoặc Gửi duyệt (Submit for Review).
+
+**7.2. Kiểm duyệt nội dung (Dành cho Moderator)**
+- **Mô tả:** Tôi muốn kiểm duyệt các bài Blog do người dùng gửi lên trước khi hiển thị công khai.
+- **Acceptance Criteria:**
+  - Danh sách bài chờ duyệt (PENDING_REVIEW).
+  - Nút Phê duyệt (Publish) hoặc Từ chối (Reject) kèm lý do qua email.
+
+**7.3. Bình luận bài viết (Dành cho User & Business Owner)**
+- **Mô tả:** Tôi muốn bình luận và thảo luận dưới các bài viết.
+- **Acceptance Criteria:**
+  - Người dùng đã đăng nhập có quyền bình luận.
+  - Có thể trả lời (Reply) bình luận của người khác (Nested comments 1 cấp).
+  - Moderator có quyền xóa các bình luận vi phạm.
+
+
+**7.4. Đánh dấu bài viết (Bookmark)**
+- **Mô tả:** Tôi muốn lưu (bookmark) các bài viết Blog/News hay để đọc lại sau.
+- **Acceptance Criteria:**
+  - Có nút Bookmark trên thẻ bài viết và trang chi tiết bài viết.
+  - Xem danh sách "Saved Blogs" trong trang User Profile (Private view).
+
+**7.5. Trang Cá Nhân & Doanh Nghiệp (Public Profiles)**
+- **Mô tả:** Tôi muốn xem hồ sơ công khai của Người dùng (Tác giả) và Doanh nghiệp (Startup) để đọc tất cả các bài viết của họ.
+- **Acceptance Criteria:**
+  - **User Profile:** Hiển thị Avatar, Tên, Bio và danh sách các bài viết đã được duyệt của người dùng đó.
+  - **Startup Profile:** Bổ sung tab "Blogs & Updates" để hiển thị các bài viết được liên kết với doanh nghiệp đó.

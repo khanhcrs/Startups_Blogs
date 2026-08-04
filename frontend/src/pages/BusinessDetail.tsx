@@ -20,6 +20,7 @@ import {
   getPublishedFundingOpportunitiesByBusinessId, 
   getRelatedBusinesses 
 } from '../utils/filterHelpers';
+import { MOCK_ARTICLES } from '../utils/mockData';
 
 const formatCurrency = (min: number, max: number, currency: string) => {
   if (currency === 'USD') {
@@ -58,6 +59,7 @@ const BusinessDetail = () => {
 
   const opportunities = getPublishedFundingOpportunitiesByBusinessId(business.id);
   const relatedRecords = getRelatedBusinesses(business, 3);
+  const businessArticles = MOCK_ARTICLES.filter(a => a.author.businessId === business.id);
 
   return (
     <div className={styles.pageWrapper}>
@@ -231,6 +233,35 @@ const BusinessDetail = () => {
               </section>
             )}
 
+            {/* Blogs & Updates */}
+            {businessArticles.length > 0 && (
+              <section className={styles.sectionCard}>
+                <h2 className={styles.sectionTitle}>Blogs & Updates</h2>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                  {businessArticles.map(article => (
+                    <Link to={`/blogs/${article.slug}`} key={article.id} style={{
+                      display: 'block', 
+                      padding: '1rem', 
+                      border: '1px solid var(--border-color)', 
+                      borderRadius: 'var(--radius-md)',
+                      textDecoration: 'none',
+                      color: 'inherit'
+                    }}>
+                      <div style={{ fontSize: '0.875rem', color: 'var(--primary-600)', marginBottom: '0.5rem', fontWeight: 600 }}>
+                        {article.category}
+                      </div>
+                      <h3 style={{ fontSize: '1.125rem', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>
+                        {article.title}
+                      </h3>
+                      <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
+                        {article.summary}
+                      </p>
+                    </Link>
+                  ))}
+                </div>
+              </section>
+            )}
+
             {/* Management Team */}
             <section className={styles.sectionCard}>
               <h2 className={styles.sectionTitle}>Management Team</h2>
@@ -317,7 +348,7 @@ const BusinessDetail = () => {
             <div className={styles.sideCard}>
               <h3 className={styles.sideTitle}>Engagement Summary</h3>
               <div className={styles.sideStat}>
-                <span>Saved by Investors</span>
+                <span>Saved by Users</span>
                 <strong>{business.savedCount}</strong>
               </div>
               <div className={styles.sideStat}>

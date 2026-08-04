@@ -12,7 +12,7 @@ const InvestmentDisclaimer = () => {
             <h2>1. Platform Purpose</h2>
             <p>
               Startups Blogs is an information and connection platform designed to facilitate interactions between businesses, 
-              entrepreneurs, investors, and enterprise partners. Startups Blogs does not guarantee funding, investment returns, 
+              entrepreneurs and users. Startups Blogs does not guarantee funding, investment returns, 
               or successful business partnerships.
             </p>
           </div>

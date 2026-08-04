@@ -91,3 +91,231 @@
 .primaryBtn:hover {
   background-color: var(--primary-600);
 }
+
+.loggedInActions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-4);
+}
+
+.iconBtn {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  transition: color 0.2s;
+  padding: var(--spacing-2);
+}
+
+.iconBtn:hover {
+  color: var(--text-primary);
+}
+
+.badge {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background-color: #F97316;
+  color: white;
+  font-size: 0.65rem;
+  font-weight: 700;
+  border-radius: 10px;
+  padding: 0 5px;
+  min-width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.userMenu {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  cursor: pointer;
+  padding: var(--spacing-1);
+  border-radius: 30px;
+  transition: background-color 0.2s;
+}
+
+.userMenu:hover {
+  background-color: var(--surface-hover);
+}
+
+.avatarImg {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid transparent;
+  transition: border-color 0.2s;
+}
+
+.userMenu:hover .avatarImg {
+  border-color: var(--primary-500);
+}
+
+.chevron {
+  color: var(--text-secondary);
+}
+
+.relativeBox {
+  position: relative;
+}
+
+.userDropdown {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  width: 200px;
+  background: #FFFFFF;
+  border-radius: var(--radius-md);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+  border: 1px solid var(--border-color);
+  overflow: hidden;
+  z-index: 100;
+}
+
+.dropdownItem {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+  padding: var(--spacing-3) var(--spacing-4);
+  color: var(--text-primary);
+  text-decoration: none;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.dropdownItem:hover {
+  background-color: var(--surface-hover);
+}
+
+.dropdownItem svg {
+  color: var(--text-secondary);
+}
+
+.dropdownDivider {
+  height: 1px;
+  background-color: var(--border-color);
+  margin: var(--spacing-1) 0;
+}
+
+.logoutText {
+  color: #EF4444;
+}
+
+.logoutText:hover {
+  background-color: rgba(239, 68, 68, 0.1);
+}
+
+.logoutText svg {
+  color: #EF4444;
+}
+
+.notifDropdown {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: -50px;
+  width: 360px;
+  background: #FFFFFF;
+  border-radius: var(--radius-md);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+  border: 1px solid var(--border-color);
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+}
+
+.notifHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-4);
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.markRead {
+  color: #F97316;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.notifList {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.notifItem {
+  display: flex;
+  gap: var(--spacing-3);
+  padding: var(--spacing-4);
+  border-bottom: 1px solid var(--border-color);
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.notifItem:hover {
+  background-color: var(--surface-hover);
+}
+
+.notifDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--border-color);
+  margin-top: 6px;
+  flex-shrink: 0;
+}
+
+.notifDot.unread {
+  background-color: #F97316;
+}
+
+.notifContent {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.notifTitle {
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: 0.85rem;
+}
+
+.notifDesc {
+  color: #9CA3AF;
+  font-size: 0.8rem;
+  line-height: 1.4;
+}
+
+.notifTime {
+  color: #6B7280;
+  font-size: 0.75rem;
+  margin-top: 2px;
+}
+
+.notifFooter {
+  padding: var(--spacing-3);
+  text-align: center;
+  color: #F97316;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  border-top: 1px solid var(--border-color);
+  text-decoration: none;
+  display: block;
+}
+
+.notifFooter:hover {
+  background-color: var(--surface-hover);
+}

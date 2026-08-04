@@ -251,7 +251,7 @@ const FundingOpportunityDetail = () => {
               {/* Restricted Financial Data Note */}
               <div className={styles.restrictedBox}>
                 <Lock size={18} className={styles.restrictedIcon} />
-                <span>Additional detailed financial statements and audit records are available to approved investors upon request.</span>
+                <span>Additional detailed financial statements and audit records are available to approved users upon request.</span>
               </div>
             </section>
 
@@ -341,7 +341,7 @@ const FundingOpportunityDetail = () => {
                 <button 
                   type="button"
                   className={styles.secondaryActionBtn}
-                  onClick={() => setActionNotice('Document access request is restricted to verified investors.')}
+                  onClick={() => setActionNotice('Document access request is restricted to verified users.')}
                 >
                   <Lock size={16} /> Request Document Access
                 </button>
