@@ -1,94 +1,70 @@
-DATABASE SCHEMA — PostgreSQL + Prisma
+# Cơ sở Dữ liệu Hệ thống (Database Schema)
 
-Schema khởi đầu nằm tại prisma/schema.prisma.
+Tài liệu này ghi chú lại cấu trúc cơ sở dữ liệu hiện tại (dựa trên Prisma Schema) phục vụ cho dự án **Startups & Blogs**.
 
-Vì sao dùng PostgreSQL cho MVP
+## 1. Bảng `User`
+Lưu trữ thông tin người dùng (Investor, Founder, hoặc Người đọc bình thường).
+- `id` (UUID - Khóa chính)
+- `email` (String - Unique)
+- `password` (String - Đã mã hóa bằng bcrypt)
+- `name` (String)
+- `bio` (String - Tùy chọn)
+- `location` (String - Tùy chọn)
+- `avatarUrl` (String - Tùy chọn)
+- `role` (Enum: `USER`, `ADMIN`, `MODERATOR`)
 
-Startups Blogs có nhiều quan hệ và truy vấn linh hoạt:
+**Liên kết (Relations):**
+- 1 User có thể sở hữu nhiều `Business` (ownedBusinesses).
+- 1 User có thể viết nhiều `Article` (articles).
+- 1 User có thể viết nhiều `Comment` (comments).
+- Quan hệ Follow: 1 User có thể theo dõi nhiều User khác, và được theo dõi bởi nhiều User khác (`Follow`).
 
-User sở hữu/tham gia nhiều startup.
+## 2. Bảng `Business` (Startup)
+Lưu trữ thông tin cốt lõi của một Doanh nghiệp.
+- `id` (UUID - Khóa chính)
+- `slug` (String - Unique - Dùng cho URL thân thiện, VD: `/startup/open-ai`)
+- `name` (String - Tên hiển thị)
+- `legalName` (String - Tên pháp lý)
+- `description` (String - Mô tả ngắn)
+- `detailedOverview` (String - Bài giới thiệu chi tiết)
+- `businessType` (String - VD: B2B, B2C...)
+- `businessStage` (String - VD: Seed, Series A...)
+- `industry` (String - Ngành nghề: AI, Fintech...)
+- `location` (String - Trụ sở)
+- `website`, `logoUrl`, `coverUrl` (String - Tùy chọn)
+- `ownerId` (String - Trỏ về người tạo ra Startup này)
 
-Startup có nhiều idea và member.
+**Liên kết (Relations):**
+- Chứa nhiều `TeamMember` (Thành viên đội ngũ).
+- Chứa nhiều `FundingRound` (Lịch sử gọi vốn).
+- Chứa nhiều `FundingOpportunity` (Cơ hội đầu tư đang mở).
+- Có thể đăng nhiều `Article` dưới danh nghĩa công ty.
 
-User lưu nhiều startup.
+## 3. Các Bảng Phụ của Business
+### a. `TeamMember`
+- `name`, `role`, `bio`, `avatarUrl`
+- `businessId` (Khóa ngoại trỏ về `Business`)
 
-Contact request liên quan user, startup và có thể liên quan idea.
+### b. `FundingRound` (Lịch sử)
+- `roundName`, `amount`, `currency`, `date`, `investors`
+- `isVerified` (Boolean)
+- `businessId` (Khóa ngoại)
 
-Admin cần filter, sort, report và audit.
+### c. `FundingOpportunity` (Đang gọi vốn)
+- `title`, `shortDescription`, `fundingAmountMin`, `fundingAmountMax`, `currency`
+- `fundingPurpose`, `fundingType` (Cổ phần, Khoản vay...)
+- `status` (Draft, Pending Review, Published)
+- `businessId` (Khóa ngoại)
 
-Mô hình quan hệ giúp biểu diễn và truy vấn các quan hệ này trực tiếp, đồng thời Prisma tạo type-safe client cho Node.js/TypeScript.
+## 4. Bảng Bài viết & Tương tác
+### a. `Article` (Bài đăng/Blog)
+- `title`, `summary`, `content`, `category`, `status`
+- `authorId` (Trỏ về `User`)
+- `businessId` (Tùy chọn - nếu bài viết này đại diện cho công ty)
 
-Core entities
+### b. `Comment` (Bình luận lồng nhau)
+- `content`, `authorId`, `articleId`
+- `parentId` (Khóa ngoại tự trỏ về chính bảng Comment để làm chức năng Reply)
 
-User
-├── owned Startups
-├── StartupMemberships
-├── AuthoredIdeas
-├── SavedStartups
-├── ContactRequests
-├── SavedArticles (Bookmarks)
-├── Articles
-├── Comments
-└── Notifications
-
-Startup
-├── Members
-├── Categories
-├── Ideas
-├── Saves
-├── Articles (Blogs/Updates)
-├── ContactRequests
-└── FeaturedStartup records
-
-Idea
-├── Startup
-├── Author
-├── Media
-├── ContactRequests
-└── Moderator review metadata
-
-Article (Blog/News)
-├── Author (User - Business Owner/Admin)
-├── Startup (Optional - linked business)
-├── Comments
-└── Status (DRAFT, PENDING, PUBLISHED, REJECTED)
-
-Comment
-├── Content
-├── Author (User)
-├── Article
-└── ParentComment (For replies)
-
-Source of identity
-
-Cognito sub lưu ở User.cognitoSub và unique.
-
-PostgreSQL lưu profile và quyền nghiệp vụ.
-
-Không lưu password/hash Cognito trong database.
-
-Migration rules
-
-Mọi thay đổi schema đi qua Prisma migration.
-
-Không sửa production DB thủ công.
-
-Migration destructive cần review và backup.
-
-Seed data chỉ dùng category, demo dev và admin bootstrap có kiểm soát.
-
-Indexing ưu tiên
-
-User.cognitoSub, User.email unique.
-
-Startup.slug, Idea.slug, Article.slug unique.
-
-Index cho status/publishedAt/createdAt.
-
-Index cho Startup.stage, Idea.status, Article.type + status.
-
-Composite key cho SavedStartup và StartupMember.
-
-DynamoDB note
-
-DynamoDB có thể được dùng cho một số workload sau này như notification stream, chat presence hoặc event counters. Không dùng DynamoDB làm database chính của MVP trừ khi đội ngũ chấp nhận thiết kế access-pattern-first, denormalization và tự quản lý quan hệ trong code.
+### c. `Bookmark` & `Follow`
+- Các bảng trung gian lưu giữ trạng thái Lưu bài viết (`Bookmark`) và Theo dõi người dùng (`Follow`).
