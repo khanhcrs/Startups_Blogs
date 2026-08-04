@@ -18,12 +18,16 @@ const team_members_module_1 = require("./team-members/team-members.module");
 const funding_rounds_module_1 = require("./funding-rounds/funding-rounds.module");
 const funding_opportunities_module_1 = require("./funding-opportunities/funding-opportunities.module");
 const articles_module_1 = require("./articles/articles.module");
+const comments_module_1 = require("./comments/comments.module");
+const bookmarks_module_1 = require("./bookmarks/bookmarks.module");
+const follows_module_1 = require("./follows/follows.module");
+const upload_module_1 = require("./upload/upload.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
 exports.AppModule = AppModule = __decorate([
     (0, common_1.Module)({
-        imports: [prisma_module_1.PrismaModule, users_module_1.UsersModule, auth_module_1.AuthModule, businesses_module_1.BusinessesModule, team_members_module_1.TeamMembersModule, funding_rounds_module_1.FundingRoundsModule, funding_opportunities_module_1.FundingOpportunitiesModule, articles_module_1.ArticlesModule],
+        imports: [prisma_module_1.PrismaModule, users_module_1.UsersModule, auth_module_1.AuthModule, businesses_module_1.BusinessesModule, team_members_module_1.TeamMembersModule, funding_rounds_module_1.FundingRoundsModule, funding_opportunities_module_1.FundingOpportunitiesModule, articles_module_1.ArticlesModule, comments_module_1.CommentsModule, bookmarks_module_1.BookmarksModule, follows_module_1.FollowsModule, upload_module_1.UploadModule],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService],
     })

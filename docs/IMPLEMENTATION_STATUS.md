@@ -42,17 +42,30 @@ Tài liệu này đóng vai trò như một "bộ nhớ vĩnh cửu" (Permanent 
 - **Phân quyền Công ty (PR)**: Nếu người dùng muốn gán bài viết đó vào một Startup (Truyền `businessId`), hệ thống sẽ kiểm tra bảo mật (Dò xem người dùng đó có phải là Owner của Startup không). Chặn đứng việc mạo danh.
 - **Lượt xem**: Tự động tăng `viewCount` mỗi lần gọi API Xem chi tiết bài viết (`GET /articles/:slug`).
 
+### 6. Module: Social Features (Phase 5)
+- **Bình luận (Comments)**: Đã tích hợp API đăng bình luận. Hỗ trợ hệ thống "Bình luận lồng nhau" (Truyền `parentId` để Reply). Khi truy xuất sẽ lấy luôn danh sách Replies của từng bình luận gốc.
+- **Lưu bài viết (Bookmarks)**: Áp dụng phương án Tách rời 2 API (`POST` để lưu và `DELETE` để hủy). Thiết kế chuẩn RESTful, đảm bảo tính Idempotent chống Race-condition.
+- **Theo dõi (Follows)**: Cho phép Theo dõi (`POST`) và Bỏ theo dõi (`DELETE`) giữa các người dùng với nhau.
+- Tất cả API đều được bảo mật kép (User phải Đăng nhập và chỉ có thể tự xóa Bình luận / Bookmark / Follow của chính mình, không được xóa hộ người khác).
+
+---
+
+### 7. Module: Image Upload (Phase 6)
+- **Kiến trúc MinIO (S3 Giả lập)**: Cài đặt và khởi chạy MinIO qua Docker (`docker-compose.yml`) tại cổng 9000. Cung cấp API tương thích 100% với AWS S3.
+- **Tích hợp AWS SDK**: Cài đặt `@aws-sdk/client-s3`. Tự động khởi tạo bucket `startups-blogs-bucket` và cấp quyền truy cập Public Read thông qua `PutBucketPolicyCommand`.
+- **API Upload (`POST /upload`)**: Chặn kích thước file (tối đa 5MB) và chỉ cho phép định dạng ảnh (jpg, png, gif, webp). Trả về URL trực tiếp tới ảnh trên MinIO S3.
+- Rất dễ dàng chuyển sang AWS thật trên môi trường Production bằng cách thay thế biến môi trường trong `.env`.
+
 ---
 
 ## 🟡 Những Phần Đang Chờ Triển Khai (To-Do)
 
-### Phase 5: Tương tác Mạng xã hội (Social Features)
-- API cho **Comments** (Bình luận & Trả lời bình luận lồng nhau).
-- API cho **Bookmarks** (Lưu bài viết yêu thích).
-- API cho **Follows** (Theo dõi User / Startup khác).
-
-### Phase 6: Upload Hình ảnh (S3 Integration)
-- Xử lý việc upload Avatar, Logo công ty, Cover ảnh lên AWS S3 và lưu lại URL vào Database thay vì chứa file cục bộ.
+### Phase 7: Kết nối Frontend (FE-BE Integration)
+- Khởi tạo thư viện Axios và quản lý Global State.
+- Kết nối luồng Đăng nhập / Đăng ký.
+- Kết nối các luồng Đăng bài, Quản lý Startup.
+- **[LƯU Ý DÀNH CHO AI TIẾP THEO]**: Hãy đọc kỹ file `docs/PHASE_7_PLAN.md` (Kế hoạch kết nối FE-BE). Trong đó có 2 câu hỏi chờ User chốt (Về cách lưu Token và thư viện State Management).
+- **AI mới hãy chào User và yêu cầu User trả lời 2 câu hỏi trong file Kế Hoạch trước khi bắt đầu code nhé!**
 
 > [!NOTE]
-> Bất cứ khi nào bạn tiếp tục làm việc, hãy yêu cầu AI: *"Hãy đọc file `docs/IMPLEMENTATION_STATUS.md` để biết tiến độ và làm tiếp Phase tiếp theo"* là hệ thống sẽ tự động bắt nhịp ngay lập tức!
+> Bất cứ khi nào bạn (User) trở lại với một AI mới, hãy yêu cầu AI: *"Hãy đọc file `docs/IMPLEMENTATION_STATUS.md` và `docs/PHASE_7_PLAN.md` để nắm bối cảnh dự án!"*
