@@ -14,6 +14,12 @@ export class ArticlesController {
     return this.articlesService.create(createArticleDto, req.user.userId);
   }
 
+  @UseGuards(JwtAuthGuard)
+  @Get('me')
+  findMyArticles(@Request() req: any) {
+    return this.articlesService.findMyArticles(req.user.userId);
+  }
+
   @Get()
   findAll(
     @Query('category') category?: string,

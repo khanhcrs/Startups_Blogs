@@ -2,16 +2,34 @@ import { Link } from 'react-router-dom';
 import styles from './Blogs.module.css';
 import { MOCK_ARTICLES } from '../utils/mockData';
 import { getInitials } from '../utils/stringUtils';
+import { api } from '../lib/axios';
+import { useState, useEffect } from 'react';
 
 const Blogs = () => {
+  const [articles, setArticles] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    api.get('/articles?type=BLOG&take=20')
+      .then(res => {
+        setArticles(res.data);
+        setIsLoading(false);
+      })
+      .catch(err => {
+        console.error('Failed to fetch blogs', err);
+        setArticles(MOCK_ARTICLES.filter(a => a.type === 'BLOG' || !a.type));
+        setIsLoading(false);
+      });
+  }, []);
+
   // Get trending tags
   const trendingTags = ['Startup', 'Funding', 'Technology', 'Marketing', 'Leadership'];
   
   // Get featured article (first one for demo)
-  const featuredArticle = MOCK_ARTICLES[0];
+  const featuredArticle = articles[0];
   
   // Get feed articles
-  const feedArticles = MOCK_ARTICLES.slice(1);
+  const feedArticles = articles.slice(1);
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -36,7 +54,9 @@ const Blogs = () => {
           <div className={styles.feed}>
             
             {/* Featured Article */}
-            {featuredArticle && (
+            {isLoading ? (
+              <div style={{ textAlign: 'center', padding: '2rem' }}>Loading blogs...</div>
+            ) : featuredArticle && (
               <Link to={`/blogs/${featuredArticle.slug}`} className={styles.featuredCard}>
                 {featuredArticle.coverImage && (
                   <div className={styles.featuredImage} style={{backgroundImage: `url(${featuredArticle.coverImage})`}}></div>
@@ -50,24 +70,25 @@ const Blogs = () => {
                   <p className={styles.featuredSummary}>{featuredArticle.summary}</p>
                   
                   <div className={styles.authorRow}>
-                    <div className={styles.avatarSmall}>{getInitials(featuredArticle.author.name)}</div>
-                    <span>{featuredArticle.author.name}</span>
+                    <div className={styles.avatarSmall}>{getInitials(featuredArticle.author?.name || 'User')}</div>
+                    <span>{featuredArticle.author?.name || 'Unknown'}</span>
                   </div>
                 </div>
               </Link>
             )}
 
             {/* Standard Feed */}
-            <div className={styles.articleList}>
-              {feedArticles.map(article => (
-                <Link to={`/blogs/${article.slug}`} key={article.id} className={styles.articleCard}>
-                  <div className={styles.articleInfo}>
-                    <div className={styles.authorRow} style={{marginBottom: '0.5rem', color: 'var(--text-secondary)', fontSize: '0.875rem'}}>
-                      <div className={styles.avatarTiny}>{getInitials(article.author.name)}</div>
-                      <span>{article.author.name}</span>
-                      <span style={{margin: '0 0.25rem'}}>•</span>
-                      <span>{formatDate(article.publishedAt || article.createdAt)}</span>
-                    </div>
+            {!isLoading && (
+              <div className={styles.articleList}>
+                {feedArticles.map(article => (
+                  <Link to={`/blogs/${article.slug}`} key={article.id} className={styles.articleCard}>
+                    <div className={styles.articleInfo}>
+                      <div className={styles.authorRow} style={{marginBottom: '0.5rem', color: 'var(--text-secondary)', fontSize: '0.875rem'}}>
+                        <div className={styles.avatarTiny}>{getInitials(article.author?.name || 'User')}</div>
+                        <span>{article.author?.name || 'Unknown'}</span>
+                        <span style={{margin: '0 0.25rem'}}>•</span>
+                        <span>{formatDate(article.publishedAt || article.createdAt)}</span>
+                      </div>
                     <h3 className={styles.articleTitle}>{article.title}</h3>
                     <p className={styles.articleSummary}>{article.summary}</p>
                     <div className={styles.articleFooter}>
@@ -79,9 +100,10 @@ const Blogs = () => {
                   {article.coverImage && (
                     <div className={styles.articleThumb} style={{backgroundImage: `url(${article.coverImage})`}}></div>
                   )}
-                </Link>
-              ))}
-            </div>
+                  </Link>
+                ))}
+              </div>
+            )}
 
           </div>
           

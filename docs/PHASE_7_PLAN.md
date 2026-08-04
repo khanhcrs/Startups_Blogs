@@ -40,3 +40,9 @@ Sẽ tiến hành cuốn chiếu theo đúng thứ tự các Phase của Backend
 > **[CÂU HỎI 2] Quản lý State:** Bạn chuộng dùng thư viện nào để quản lý Global State? **Zustand** (Rất nhẹ, trend hiện tại) hay **Redux Toolkit** (Nặng đô, truyền thống) hay chỉ cần **React Context** (Đơn giản nhất)?
 
 **LỜI NHẮN CHO AI MỚI**: Khi khởi động lại, hãy hỏi User 2 câu hỏi trên để chốt phương án trước khi gõ code nhé!
+
+## QUY?T �?NH C?A USER (�� Ch?t)
+- **Luu Token**: LocalStorage (Uu ti�n t?c d? MVP).
+- **Qu?n l� State**: Zustand.
+
+**L?I NH?N CHO AI M?I**: Ngu?i d�ng d� ch?t phuong �n. H�y ti?n h�nh kh?i t?o thu m?c store, c�i d?t xios, zustand v� b?t d?u tri?n khai c�c lu?ng FE-BE ngay l?p t?c!

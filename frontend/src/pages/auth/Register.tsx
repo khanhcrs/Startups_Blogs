@@ -1,7 +1,38 @@
-import { Link } from 'react-router-dom';
+import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import styles from './Auth.module.css';
+import { api } from '../../lib/axios';
 
 const Register = () => {
+  const navigate = useNavigate();
+  
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const handleRegister = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
+
+    try {
+      await api.post('/auth/register', {
+        email,
+        password,
+        name: `${firstName} ${lastName}`.trim()
+      });
+      navigate('/login');
+    } catch (err: any) {
+      setError(err.response?.data?.message || 'Registration failed. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className={styles.authPage}>
       <div className={styles.authContainer}>
@@ -21,20 +52,30 @@ const Register = () => {
           </Link>
         </div>
         
-        <form className={styles.authForm} onSubmit={e => e.preventDefault()}>
-          <div className={styles.formGroup}>
-            <label htmlFor="name">Full Name</label>
-            <input type="text" id="name" placeholder="John Doe" required />
+        {error && <div className={styles.errorMessage}>{error}</div>}
+
+        <form className={styles.authForm} onSubmit={handleRegister}>
+          <div className={styles.formGrid}>
+            <div className={styles.formGroup}>
+              <label htmlFor="firstName">First Name</label>
+              <input type="text" id="firstName" placeholder="John" value={firstName} onChange={e => setFirstName(e.target.value)} required />
+            </div>
+            <div className={styles.formGroup}>
+              <label htmlFor="lastName">Last Name</label>
+              <input type="text" id="lastName" placeholder="Doe" value={lastName} onChange={e => setLastName(e.target.value)} required />
+            </div>
           </div>
           <div className={styles.formGroup}>
             <label htmlFor="email">Email</label>
-            <input type="email" id="email" placeholder="john@example.com" required />
+            <input type="email" id="email" placeholder="john@example.com" value={email} onChange={e => setEmail(e.target.value)} required />
           </div>
           <div className={styles.formGroup}>
             <label htmlFor="password">Password</label>
-            <input type="password" id="password" placeholder="Create a password" required />
+            <input type="password" id="password" placeholder="Create a password" value={password} onChange={e => setPassword(e.target.value)} required />
           </div>
-          <button type="submit" className={styles.submitBtn}>Sign Up</button>
+          <button type="submit" className={styles.submitBtn} disabled={loading}>
+            {loading ? 'Signing Up...' : 'Sign Up'}
+          </button>
         </form>
         
         <div className={styles.authFooter}>

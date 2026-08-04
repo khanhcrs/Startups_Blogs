@@ -29,7 +29,7 @@ import {
   ResponsiveContainer 
 } from 'recharts';
 import styles from './UserProfile.module.css';
-import { MOCK_ARTICLES } from '../utils/mockData';
+import api from '../utils/api';
 
 type Tab = 'overview' | 'posts' | 'saved' | 'settings';
 type SubSettingsTab = 'profile' | 'social' | 'notifications';
@@ -39,61 +39,101 @@ const UserProfile = () => {
   const [following, setFollowing] = useState(false);
   const [activeTab, setActiveTab] = useState<Tab>('posts');
   const [settingsActiveTab, setSettingsActiveTab] = useState<SubSettingsTab>('profile');
-  const [forceRender, setForceRender] = useState(0);
   const [postSearchTerm, setPostSearchTerm] = useState('');
   const [postStatusFilter, setPostStatusFilter] = useState('ALL');
   const [postDateFrom, setPostDateFrom] = useState('');
   const [postDateTo, setPostDateTo] = useState('');
   const [chartTimeRange, setChartTimeRange] = useState('7days');
+  const [loading, setLoading] = useState(true);
+  
+  // Real Data State
+  const [authorInfo, setAuthorInfo] = useState<any>({});
+  const [authoredArticles, setAuthoredArticles] = useState<any[]>([]);
 
   // In a real app, this would come from an auth context
   const [isOwner, setIsOwner] = useState(false);
   
-  useEffect(() => {
-    // Basic mock check: if the requested ID matches the mock logged in user
-    // For simplicity, we just assume if they navigate to /user/u1 and they are logged in, it's them.
-    const loggedIn = localStorage.getItem('mockLoggedIn') === 'true';
-    setIsOwner(loggedIn && (id === 'u1' || !id)); 
-    
-    if (loggedIn && id === 'u1') {
-      setActiveTab('overview');
-    }
-  }, [id]);
-
-  const targetId = id || 'u1';
-  const authoredArticles = MOCK_ARTICLES.filter(a => a.author.id === targetId);
-  const authorInfo = authoredArticles.length > 0 ? {
-    ...authoredArticles[0].author,
-    location: 'Ho Chi Minh City, Vietnam',
-    joinedAt: 'August 2026'
-  } : {
-    id: targetId,
-    name: 'Lê Hoàng Nam',
-    bio: 'Co-Founder & CTO tại GreenFlow. Xây dựng nền tảng SaaS quản lý năng lượng thông minh cho nhà máy.',
-    businessId: 'b2',
-    businessName: 'GreenFlow',
-    followersCount: 1250,
-    location: 'Ho Chi Minh City, Vietnam',
-    joinedAt: 'August 2026'
-  };
+  // Settings Form State
+  const [settingsForm, setSettingsForm] = useState({
+    name: '',
+    bio: '',
+    location: ''
+  });
 
   const getInitials = (name: string) => {
+    if (!name) return 'U';
     return name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
   };
 
   const formatDate = (isoString: string) => {
+    if (!isoString) return '';
     const date = new Date(isoString);
     return new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', year: 'numeric' }).format(date);
   };
 
-  const handleDelete = (postId: string) => {
-    if (window.confirm('Bạn có chắc chắn muốn xóa bài viết này không? Bài viết sẽ được chuyển vào trạng thái chờ duyệt xóa.')) {
-      const article = MOCK_ARTICLES.find(a => a.id === postId);
-      if (article) {
-        article.status = 'PENDING_DELETE';
-        setForceRender(prev => prev + 1);
-        alert('Yêu cầu xóa đã được gửi cho Admin duyệt.');
+  useEffect(() => {
+    const fetchProfileData = async () => {
+      try {
+        setLoading(true);
+        // Basic check if token exists
+        const token = localStorage.getItem('token');
+        const isMyProfile = (!id || id === 'me'); // Assume 'me' or no ID means current user
+
+        if (token && isMyProfile) {
+          setIsOwner(true);
+          setActiveTab('overview');
+          
+          // Fetch my profile
+          const userRes = await api.get('/users/me');
+          setAuthorInfo(userRes.data);
+          setSettingsForm({
+            name: userRes.data.name || '',
+            bio: userRes.data.bio || '',
+            location: userRes.data.location || ''
+          });
+
+          // Fetch my articles
+          const articlesRes = await api.get('/articles/me');
+          setAuthoredArticles(articlesRes.data);
+        } else {
+          setIsOwner(false);
+          // In a fully integrated app, fetch other user's profile and published articles here.
+          // For now, keep it simple.
+          setAuthorInfo({
+            name: 'User ' + id,
+            bio: 'This is a public profile view.',
+            followersCount: 0
+          });
+          setAuthoredArticles([]);
+        }
+      } catch (err) {
+        console.error('Lỗi khi tải profile', err);
+      } finally {
+        setLoading(false);
       }
+    };
+    fetchProfileData();
+  }, [id]);
+
+  const handleDelete = async (postId: string) => {
+    if (window.confirm('Bạn có chắc chắn muốn xóa bài viết này không?')) {
+      try {
+        await api.delete(`/articles/${postId}`);
+        setAuthoredArticles(prev => prev.filter(a => a.id !== postId));
+        alert('Đã xóa bài viết thành công.');
+      } catch (err) {
+        alert('Lỗi khi xóa bài viết.');
+      }
+    }
+  };
+
+  const handleUpdateProfile = async () => {
+    try {
+      const res = await api.put('/users/me', settingsForm);
+      setAuthorInfo(res.data);
+      alert('Đã cập nhật thông tin thành công!');
+    } catch (err) {
+      alert('Có lỗi khi cập nhật thông tin.');
     }
   };
 
@@ -462,21 +502,17 @@ const UserProfile = () => {
                   <h2 className={styles.settingsTitle}>Profile Details</h2>
                   <div className={styles.formGroup}>
                     <label>Full Name</label>
-                    <input type="text" className={styles.inputField} defaultValue={authorInfo.name} />
+                    <input type="text" className={styles.inputField} value={settingsForm.name} onChange={(e) => setSettingsForm({...settingsForm, name: e.target.value})} />
                   </div>
                   <div className={styles.formGroup}>
-                    <label>Email Address</label>
-                    <input type="email" className={styles.inputField} defaultValue="nam.le@greenflow.vn" />
-                  </div>
-                  <div className={styles.formGroup}>
-                    <label>Role / Job Title</label>
-                    <input type="text" className={styles.inputField} defaultValue="Co-Founder & CTO" />
+                    <label>Location</label>
+                    <input type="text" className={styles.inputField} value={settingsForm.location} onChange={(e) => setSettingsForm({...settingsForm, location: e.target.value})} />
                   </div>
                   <div className={styles.formGroup}>
                     <label>Bio</label>
-                    <textarea className={styles.textareaField} rows={4} defaultValue={authorInfo.bio}></textarea>
+                    <textarea className={styles.textareaField} rows={4} value={settingsForm.bio} onChange={(e) => setSettingsForm({...settingsForm, bio: e.target.value})}></textarea>
                   </div>
-                  <button className={styles.primaryBtn} style={{marginTop: 16}}>Save Changes</button>
+                  <button className={styles.primaryBtn} style={{marginTop: 16}} onClick={handleUpdateProfile}>Save Changes</button>
                 </div>
               )}
 

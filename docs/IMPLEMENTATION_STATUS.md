@@ -56,16 +56,22 @@ Tài liệu này đóng vai trò như một "bộ nhớ vĩnh cửu" (Permanent 
 - **API Upload (`POST /upload`)**: Chặn kích thước file (tối đa 5MB) và chỉ cho phép định dạng ảnh (jpg, png, gif, webp). Trả về URL trực tiếp tới ảnh trên MinIO S3.
 - Rất dễ dàng chuyển sang AWS thật trên môi trường Production bằng cách thay thế biến môi trường trong `.env`.
 
+### 8. Kết nối Frontend (FE-BE Integration) (Phase 7)
+- Khởi tạo thư viện Axios với interceptors để đính kèm Token.
+- Quản lý Global State bằng Zustand (`authStore`).
+- Kết nối thành công luồng Đăng nhập / Đăng ký.
+- Tích hợp Load danh sách Doanh nghiệp (ExploreBusinesses) và chi tiết (BusinessDetail).
+- Tích hợp Upload Flow cho ảnh.
+- Tích hợp Articles Flow (load danh sách Blogs).
+- Tích hợp tạo/sửa Bài viết từ giao diện Frontend.
+- Tích hợp chức năng quản lý Profile doanh nghiệp trên giao diện.
+
 ---
 
 ## 🟡 Những Phần Đang Chờ Triển Khai (To-Do)
 
-### Phase 7: Kết nối Frontend (FE-BE Integration)
-- Khởi tạo thư viện Axios và quản lý Global State.
-- Kết nối luồng Đăng nhập / Đăng ký.
-- Kết nối các luồng Đăng bài, Quản lý Startup.
-- **[LƯU Ý DÀNH CHO AI TIẾP THEO]**: Hãy đọc kỹ file `docs/PHASE_7_PLAN.md` (Kế hoạch kết nối FE-BE). Trong đó có 2 câu hỏi chờ User chốt (Về cách lưu Token và thư viện State Management).
-- **AI mới hãy chào User và yêu cầu User trả lời 2 câu hỏi trong file Kế Hoạch trước khi bắt đầu code nhé!**
+### Phase 9: Kiểm thử & Tối ưu
+- Viết Test (E2E hoặc Unit) cho các luồng quan trọng.
 
 > [!NOTE]
 > Bất cứ khi nào bạn (User) trở lại với một AI mới, hãy yêu cầu AI: *"Hãy đọc file `docs/IMPLEMENTATION_STATUS.md` và `docs/PHASE_7_PLAN.md` để nắm bối cảnh dự án!"*

@@ -157,6 +157,8 @@ model Article {
   content     String    @db.Text
   status      String    @default("DRAFT")
   category    String
+  coverImage  String?
+  tags        String[]  @default([])
 
   authorId    String
   author      User      @relation(fields: [authorId], references: [id], onDelete: Restrict)

@@ -192,3 +192,14 @@
   border-color: var(--primary-400);
   color: var(--primary-600);
 }
+
+.errorMessage {
+  color: #dc2626;
+  background-color: #fef2f2;
+  padding: var(--spacing-3);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--spacing-4);
+  font-size: 0.875rem;
+  text-align: center;
+  border: 1px solid #f87171;
+}

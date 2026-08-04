@@ -4,7 +4,8 @@ import { Image as ImageIcon, Cloud, ArrowLeft } from 'lucide-react';
 import ReactQuill from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
 import styles from './CreateBlog.module.css';
-import { MOCK_ARTICLES } from '../utils/mockData';
+import api from '../utils/api';
+import ImageUploader from '../components/ImageUploader/ImageUploader';
 
 const CreateBlog = () => {
   const navigate = useNavigate();
@@ -76,87 +77,58 @@ const CreateBlog = () => {
     setStep('settings');
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (id) {
-      const articleToEdit = MOCK_ARTICLES.find(a => a.id === id);
-      if (articleToEdit) {
-        articleToEdit.title = formData.title;
-        articleToEdit.summary = formData.summary;
-        articleToEdit.content = formData.content;
-        articleToEdit.coverImage = formData.coverImage;
-        articleToEdit.status = 'PENDING';
-        articleToEdit.category = formData.category;
-        articleToEdit.tags = formData.tags.split(',').map(t => t.trim()).filter(t => t);
-      }
-      alert('Bài viết đã được cập nhật và gửi duyệt lại!');
-    } else {
-      const newArticle = {
-        id: 'a_' + Date.now(),
-        slug: 'new-article-' + Date.now(),
+    try {
+      const payload = {
         title: formData.title,
         summary: formData.summary,
         content: formData.content,
         coverImage: formData.coverImage,
-        status: 'PENDING' as const,
+        status: 'PENDING',
         category: formData.category,
         tags: formData.tags.split(',').map(t => t.trim()).filter(t => t),
-        author: {
-          id: 'u1',
-          name: 'Lê Hoàng Nam',
-        },
-        createdAt: new Date().toISOString(),
-        likesCount: 0,
-        bookmarksCount: 0,
-        commentsCount: 0,
-        viewCount: 0,
       };
-      MOCK_ARTICLES.unshift(newArticle);
-      alert('Bài viết đã được gửi cho Admin phê duyệt! Bạn có thể theo dõi trạng thái tại trang cá nhân.');
+
+      if (id) {
+        await api.put(`/articles/${id}`, payload);
+        alert('Bài viết đã được cập nhật và gửi duyệt lại!');
+      } else {
+        await api.post('/articles', payload);
+        alert('Bài viết đã được gửi cho Admin phê duyệt! Bạn có thể theo dõi trạng thái tại trang cá nhân.');
+      }
+      navigate('/user/u1'); // Ideally navigate to /profile
+    } catch (error) {
+      console.error('Lỗi khi đăng bài:', error);
+      alert('Có lỗi xảy ra, vui lòng thử lại.');
     }
-    
-    navigate('/user/u1');
   };
 
-  const handleSaveDraft = () => {
-    if (id) {
-      const articleToEdit = MOCK_ARTICLES.find(a => a.id === id);
-      if (articleToEdit) {
-        articleToEdit.title = formData.title || 'Untitled Draft';
-        articleToEdit.summary = formData.summary || '';
-        articleToEdit.content = formData.content;
-        articleToEdit.coverImage = formData.coverImage;
-        articleToEdit.status = 'DRAFT';
-        articleToEdit.category = formData.category;
-        articleToEdit.tags = formData.tags.split(',').map(t => t.trim()).filter(t => t);
-      }
-      alert('Bản nháp đã được cập nhật thành công!');
-    } else {
-      const newDraft = {
-        id: 'a_' + Date.now(),
-        slug: 'new-draft-' + Date.now(),
+  const handleSaveDraft = async () => {
+    try {
+      const payload = {
         title: formData.title || 'Untitled Draft',
         summary: formData.summary || '',
         content: formData.content,
         coverImage: formData.coverImage,
-        status: 'DRAFT' as const,
+        status: 'DRAFT',
         category: formData.category,
         tags: formData.tags.split(',').map(t => t.trim()).filter(t => t),
-        author: {
-          id: 'u1',
-          name: 'Lê Hoàng Nam',
-        },
-        createdAt: new Date().toISOString(),
-        likesCount: 0,
-        bookmarksCount: 0,
-        commentsCount: 0,
-        viewCount: 0,
       };
-      MOCK_ARTICLES.unshift(newDraft);
-      alert('Bản nháp đã được lưu thành công!');
+
+      if (id) {
+        await api.put(`/articles/${id}`, payload);
+        alert('Bản nháp đã được cập nhật thành công!');
+      } else {
+        await api.post('/articles', payload);
+        alert('Bản nháp đã được lưu thành công!');
+      }
+      navigate('/user/u1'); // Ideally navigate to /profile
+    } catch (error) {
+      console.error('Lỗi khi lưu nháp:', error);
+      alert('Có lỗi xảy ra, vui lòng thử lại.');
     }
-    navigate('/user/u1');
   };
 
   // ----------------------------------------------------
@@ -246,12 +218,10 @@ const CreateBlog = () => {
 
       <main className={styles.editorCanvas}>
         {!formData.coverImage ? (
-          <button 
-            className={styles.addCoverBtn}
-            onClick={() => setFormData({...formData, coverImage: 'https://images.unsplash.com/photo-1557804506-669a67965ba0?auto=format&fit=crop&w=1200&q=80'})}
-          >
-            <ImageIcon size={18} /> Thêm ảnh bìa
-          </button>
+          <ImageUploader 
+            label="Thêm ảnh bìa" 
+            onUploadSuccess={(url) => setFormData({...formData, coverImage: url})} 
+          />
         ) : (
           <div>
             <img src={formData.coverImage} alt="Cover" className={styles.coverImagePreview} />

@@ -32,6 +32,16 @@ export class ArticlesService {
     });
   }
 
+  async findMyArticles(authorId: string) {
+    return this.prisma.article.findMany({
+      where: { authorId },
+      orderBy: { createdAt: 'desc' },
+      include: {
+        business: { select: { id: true, name: true, logoUrl: true, slug: true } },
+      }
+    });
+  }
+
   async findAll(query: { category?: string; businessId?: string; skip?: number; take?: number }) {
     const { category, businessId, skip = 0, take = 10 } = query;
     const where: any = { status: 'PUBLISHED' };

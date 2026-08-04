@@ -20,6 +20,7 @@ import {
   getRelatedBusinesses 
 } from '../utils/filterHelpers';
 import { MOCK_ARTICLES } from '../utils/mockData';
+import { api } from '../lib/axios';
 
 const formatCurrency = (min: number, max: number, currency: string) => {
   if (currency === 'USD') {
@@ -39,8 +40,38 @@ const BusinessDetail = () => {
   const [isSaved, setIsSaved] = useState(false);
   const [isFollowing, setIsFollowing] = useState(false);
   const [contactNotice, setContactNotice] = useState(false);
+  const [business, setBusiness] = useState<any | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const business = slug ? getBusinessBySlug(slug) : undefined;
+  useEffect(() => {
+    if (slug) {
+      setIsLoading(true);
+      api.get(`/businesses/${slug}`)
+        .then(res => {
+          setBusiness(res.data);
+          setIsLoading(false);
+        })
+        .catch(err => {
+          console.error(err);
+          // Fallback to mock data if not found on BE
+          const mockBiz = getBusinessBySlug(slug);
+          if (mockBiz) {
+            setBusiness(mockBiz);
+          }
+          setIsLoading(false);
+        });
+    }
+  }, [slug]);
+
+  if (isLoading) {
+    return (
+      <div className={styles.pageWrapper}>
+        <div className="container" style={{ textAlign: 'center', padding: '4rem 0' }}>
+          Loading business details...
+        </div>
+      </div>
+    );
+  }
 
   if (!business) {
     return (

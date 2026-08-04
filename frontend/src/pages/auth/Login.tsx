@@ -1,19 +1,34 @@
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import styles from './Auth.module.css';
+import { api } from '../../lib/axios';
+import { useAuthStore } from '../../store/authStore';
 
 const Login = () => {
   const navigate = useNavigate();
+  const login = useAuthStore((state) => state.login);
+  
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    localStorage.setItem('mockLoggedIn', 'true');
-    // Force a tiny delay so the localStorage is saved before redirecting, 
-    // although it's synchronous, we do this so the page feels natural.
-    navigate('/');
-    // Refresh to let Header pick up the change if we want it instantly, 
-    // but React Router navigate works with our Header effect if it mounts, 
-    // actually Header is outside Routes so we should just force a window reload for this mock.
-    window.location.href = '/'; 
+    setError('');
+    setLoading(true);
+
+    try {
+      const response = await api.post('/auth/login', { email, password });
+      const { user, access_token } = response.data;
+      
+      login(user, access_token);
+      navigate('/');
+    } catch (err: any) {
+      setError(err.response?.data?.message || 'Login failed. Please check your credentials.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -24,14 +39,30 @@ const Login = () => {
           <p>Log in to your account to continue</p>
         </div>
         
+        {error && <div className={styles.errorMessage}>{error}</div>}
+        
         <form className={styles.authForm} onSubmit={handleLogin}>
           <div className={styles.formGroup}>
             <label htmlFor="email">Email</label>
-            <input type="email" id="email" placeholder="Enter your email" required />
+            <input 
+              type="email" 
+              id="email" 
+              placeholder="Enter your email" 
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required 
+            />
           </div>
           <div className={styles.formGroup}>
             <label htmlFor="password">Password</label>
-            <input type="password" id="password" placeholder="Enter your password" required />
+            <input 
+              type="password" 
+              id="password" 
+              placeholder="Enter your password" 
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required 
+            />
           </div>
           <div className={styles.formOptions}>
             <label className={styles.checkboxLabel}>
@@ -39,7 +70,9 @@ const Login = () => {
             </label>
             <Link to="/forgot-password" className={styles.forgotLink}>Forgot password?</Link>
           </div>
-          <button type="submit" className={styles.submitBtn}>Log In</button>
+          <button type="submit" className={styles.submitBtn} disabled={loading}>
+            {loading ? 'Logging in...' : 'Log In'}
+          </button>
         </form>
         
         <div className={styles.authFooter}>

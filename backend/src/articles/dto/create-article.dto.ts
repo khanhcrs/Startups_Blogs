@@ -24,4 +24,11 @@ export class CreateArticleDto {
   @IsString()
   @IsOptional()
   businessId?: string; // Nếu đăng dưới tư cách công ty
+
+  @IsString()
+  @IsOptional()
+  coverImage?: string;
+
+  @IsOptional()
+  tags?: string[];
 }

@@ -1,24 +1,27 @@
 import { Link, useLocation } from 'react-router-dom';
 import { Search, Bell, Sun, ChevronDown, User, Settings, LogOut, Edit, Briefcase } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import styles from './Header.module.css';
-
+import { useAuthStore } from '../../store/authStore';
 const Header = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const { user, isAuthenticated, logout } = useAuthStore();
   const [showDropdown, setShowDropdown] = useState(false);
   const [showNotif, setShowNotif] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Check if user is mock logged in
-    const status = localStorage.getItem('mockLoggedIn');
-    if (status === 'true') {
-      setIsLoggedIn(true);
-    }
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setShowDropdown(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
   const handleLogout = () => {
-    localStorage.removeItem('mockLoggedIn');
-    setIsLoggedIn(false);
+    logout();
+    setShowDropdown(false);
   };
 
   const location = useLocation();
@@ -45,13 +48,13 @@ const Header = () => {
         </nav>
 
         <div className={styles.actions}>
-          {!isLoggedIn && (
+          {!isAuthenticated && (
             <button className={styles.searchBtn} aria-label="Search">
               <Search size={20} />
             </button>
           )}
           
-          {isLoggedIn ? (
+          {isAuthenticated ? (
             <div className={styles.loggedInActions}>
               <button className={styles.iconBtn} aria-label="Theme">
                 <Sun size={20} />
@@ -94,14 +97,27 @@ const Header = () => {
                 )}
               </div>
 
-              <div className={styles.relativeBox}>
+              <div className={styles.relativeBox} ref={dropdownRef}>
                 <div className={styles.userMenu} onClick={() => setShowDropdown(!showDropdown)}>
-                  <img src="https://i.pravatar.cc/150?img=11" alt="Avatar" className={styles.avatarImg} />
+                  <div className={styles.avatarImg} style={{ 
+                    background: 'var(--primary-500)', 
+                    color: 'white', 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    justifyContent: 'center', 
+                    fontWeight: 'bold' 
+                  }}>
+                    {user?.firstName?.charAt(0) || 'U'}
+                  </div>
                   <ChevronDown size={16} className={styles.chevron} />
                 </div>
 
                 {showDropdown && (
                   <div className={styles.userDropdown}>
+                    <div style={{ padding: '0.75rem 1rem', borderBottom: '1px solid var(--border-color)', marginBottom: '0.5rem' }}>
+                      <p style={{ margin: 0, fontWeight: 600 }}>{user?.firstName} {user?.lastName}</p>
+                      <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-secondary)' }}>{user?.email}</p>
+                    </div>
                     <Link to="/user/u1" className={styles.dropdownItem} onClick={() => setShowDropdown(false)}>
                       <User size={16} /> Profile & Dashboard
                     </Link>

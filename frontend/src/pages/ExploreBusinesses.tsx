@@ -12,6 +12,7 @@ import {
   getUniqueLocations 
 } from '../utils/filterHelpers';
 import type { BusinessBrowseState } from '../types/business';
+import { api } from '../lib/axios';
 
 // Accessible Dropdown Component
 type DropdownProps = {
@@ -92,6 +93,7 @@ const ExploreBusinesses = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [showMoreFilters, setShowMoreFilters] = useState(false);
   const [searchInput, setSearchInput] = useState(searchParams.get('search') || '');
+  const [businesses, setBusinesses] = useState<any[]>([]);
 
   // Parse central state from URL search params
   const filters: BusinessBrowseState = useMemo(() => ({
@@ -110,10 +112,21 @@ const ExploreBusinesses = () => {
     page: parseInt(searchParams.get('page') || '1', 10),
   }), [searchParams]);
 
-  // Initial skeleton load simulation
   useEffect(() => {
-    const timer = setTimeout(() => setIsLoading(false), 500);
-    return () => clearTimeout(timer);
+    api.get('/businesses?take=100').then((res) => {
+      // Map backend Prisma structure to BusinessOpportunityRecord structure
+      const mapped = res.data.map((b: any) => ({
+        business: b,
+        opportunity: b.fundingOpportunities?.[0] // If they have an active funding opportunity
+      }));
+      // Merge with MOCK_RECORDS to keep UI rich for MVP if DB is empty
+      setBusinesses([...mapped, ...MOCK_RECORDS]);
+      setIsLoading(false);
+    }).catch(err => {
+      console.error('Failed to fetch businesses', err);
+      setBusinesses(MOCK_RECORDS);
+      setIsLoading(false);
+    });
   }, []);
 
   // Sync Search Input to URL with 300ms debounce
@@ -160,7 +173,7 @@ const ExploreBusinesses = () => {
     filters.sort !== 'newest';
 
   // Pure logic calculations
-  const filteredData = useMemo(() => filterBusinessRecords(MOCK_RECORDS, filters), [filters]);
+  const filteredData = useMemo(() => filterBusinessRecords(businesses, filters), [businesses, filters]);
   const sortedData = useMemo(() => sortBusinessRecords(filteredData, filters.sort, filters.tab), [filteredData, filters.sort, filters.tab]);
   
   const LIMIT = 9;
