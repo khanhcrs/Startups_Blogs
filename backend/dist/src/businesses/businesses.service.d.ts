@@ -1,0 +1,165 @@
+import { PrismaService } from '../prisma/prisma.service';
+import { CreateBusinessDto } from './dto/create-business.dto';
+import { UpdateBusinessDto } from './dto/update-business.dto';
+export declare class BusinessesService {
+    private prisma;
+    constructor(prisma: PrismaService);
+    create(createBusinessDto: CreateBusinessDto, ownerId: string): Promise<{
+        id: string;
+        name: string;
+        location: string;
+        slug: string;
+        legalName: string | null;
+        description: string;
+        detailedOverview: string | null;
+        businessType: string;
+        businessStage: string;
+        industry: string;
+        website: string | null;
+        logoUrl: string | null;
+        coverUrl: string | null;
+        status: string;
+        savedCount: number;
+        viewCount: number;
+        createdAt: Date;
+        ownerId: string;
+    }>;
+    findAll(skip?: number, take?: number): Promise<({
+        owner: {
+            id: string;
+            name: string;
+            avatarUrl: string | null;
+        };
+    } & {
+        id: string;
+        name: string;
+        location: string;
+        slug: string;
+        legalName: string | null;
+        description: string;
+        detailedOverview: string | null;
+        businessType: string;
+        businessStage: string;
+        industry: string;
+        website: string | null;
+        logoUrl: string | null;
+        coverUrl: string | null;
+        status: string;
+        savedCount: number;
+        viewCount: number;
+        createdAt: Date;
+        ownerId: string;
+    })[]>;
+    findAllForAdmin(skip?: number, take?: number, status?: string): Promise<({
+        owner: {
+            id: string;
+            name: string;
+            avatarUrl: string | null;
+        };
+    } & {
+        id: string;
+        name: string;
+        location: string;
+        slug: string;
+        legalName: string | null;
+        description: string;
+        detailedOverview: string | null;
+        businessType: string;
+        businessStage: string;
+        industry: string;
+        website: string | null;
+        logoUrl: string | null;
+        coverUrl: string | null;
+        status: string;
+        savedCount: number;
+        viewCount: number;
+        createdAt: Date;
+        ownerId: string;
+    })[]>;
+    updateStatus(id: string, status: string): Promise<{
+        id: string;
+        name: string;
+        location: string;
+        slug: string;
+        legalName: string | null;
+        description: string;
+        detailedOverview: string | null;
+        businessType: string;
+        businessStage: string;
+        industry: string;
+        website: string | null;
+        logoUrl: string | null;
+        coverUrl: string | null;
+        status: string;
+        savedCount: number;
+        viewCount: number;
+        createdAt: Date;
+        ownerId: string;
+    }>;
+    findOneBySlug(slug: string): Promise<{
+        owner: {
+            id: string;
+            name: string;
+            avatarUrl: string | null;
+        };
+    } & {
+        id: string;
+        name: string;
+        location: string;
+        slug: string;
+        legalName: string | null;
+        description: string;
+        detailedOverview: string | null;
+        businessType: string;
+        businessStage: string;
+        industry: string;
+        website: string | null;
+        logoUrl: string | null;
+        coverUrl: string | null;
+        status: string;
+        savedCount: number;
+        viewCount: number;
+        createdAt: Date;
+        ownerId: string;
+    }>;
+    update(id: string, updateBusinessDto: UpdateBusinessDto, ownerId: string): Promise<{
+        id: string;
+        name: string;
+        location: string;
+        slug: string;
+        legalName: string | null;
+        description: string;
+        detailedOverview: string | null;
+        businessType: string;
+        businessStage: string;
+        industry: string;
+        website: string | null;
+        logoUrl: string | null;
+        coverUrl: string | null;
+        status: string;
+        savedCount: number;
+        viewCount: number;
+        createdAt: Date;
+        ownerId: string;
+    }>;
+    remove(id: string, ownerId: string): Promise<{
+        id: string;
+        name: string;
+        location: string;
+        slug: string;
+        legalName: string | null;
+        description: string;
+        detailedOverview: string | null;
+        businessType: string;
+        businessStage: string;
+        industry: string;
+        website: string | null;
+        logoUrl: string | null;
+        coverUrl: string | null;
+        status: string;
+        savedCount: number;
+        viewCount: number;
+        createdAt: Date;
+        ownerId: string;
+    }>;
+}

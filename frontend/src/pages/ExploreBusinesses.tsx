@@ -1,9 +1,9 @@
 import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Search, ChevronDown, SlidersHorizontal, Lock } from 'lucide-react';
 import BusinessCard from '../components/business/BusinessCard';
+import BusinessSkeleton from '../components/business/BusinessSkeleton';
 import styles from './ExploreBusinesses.module.css';
-import { MOCK_RECORDS } from '../utils/mockData';
 import { 
   filterBusinessRecords, 
   sortBusinessRecords, 
@@ -12,89 +12,20 @@ import {
   getUniqueLocations 
 } from '../utils/filterHelpers';
 import type { BusinessBrowseState } from '../types/business';
-
-// Accessible Dropdown Component
-type DropdownProps = {
-  label: string;
-  value: string;
-  options: { label: string; value: string }[];
-  onChange: (value: string) => void;
-};
-
-const Dropdown = ({ label, value, options, onChange }: DropdownProps) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  const handleToggle = () => setIsOpen(!isOpen);
-  
-  const handleSelect = (val: string) => {
-    onChange(val);
-    setIsOpen(false);
-  };
-
-  const handleClickOutside = useCallback((e: MouseEvent) => {
-    if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
-      setIsOpen(false);
-    }
-  }, []);
-
-  const handleKeyDown = useCallback((e: KeyboardEvent) => {
-    if (e.key === 'Escape' && isOpen) {
-      setIsOpen(false);
-    }
-  }, [isOpen]);
-
-  useEffect(() => {
-    document.addEventListener('mousedown', handleClickOutside);
-    document.addEventListener('keydown', handleKeyDown);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-      document.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [handleClickOutside, handleKeyDown]);
-
-  const selectedOption = options.find(opt => opt.value === value);
-  const displayLabel = value === 'all' ? label : selectedOption?.label || label;
-
-  return (
-    <div className={styles.dropdownContainer} ref={containerRef}>
-      <button 
-        type="button"
-        className={`${styles.filterDropdown} ${value !== 'all' ? styles.activeFilterButton : ''}`}
-        onClick={handleToggle}
-        aria-haspopup="listbox"
-        aria-expanded={isOpen}
-      >
-        {displayLabel} <ChevronDown size={16}/>
-      </button>
-      {isOpen && (
-        <div className={styles.dropdownMenu} role="listbox">
-          {options.map((opt) => (
-            <button
-              key={opt.value}
-              type="button"
-              role="option"
-              aria-selected={value === opt.value}
-              className={`${styles.dropdownItem} ${value === opt.value ? styles.activeDropdownItem : ''}`}
-              onClick={() => handleSelect(opt.value)}
-            >
-              {opt.label}
-            </button>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-};
+import { api } from '../lib/axios';
+import toast from 'react-hot-toast';
+import FilterDropdown from '../components/FilterDropdown';
 
 const ExploreBusinesses = () => {
   const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
+  
+  const [businesses, setBusinesses] = useState<BusinessOpportunityRecord[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showMoreFilters, setShowMoreFilters] = useState(false);
   const [searchInput, setSearchInput] = useState(searchParams.get('search') || '');
-
-  // Parse central state from URL search params
-  const filters: BusinessBrowseState = useMemo(() => ({
+  
+  const filters = useMemo<BusinessBrowseState>(() => ({
     search: searchParams.get('search') || '',
     industry: searchParams.get('industry') || 'all',
     businessType: searchParams.get('businessType') || 'all',
@@ -104,16 +35,27 @@ const ExploreBusinesses = () => {
     fundingRange: searchParams.get('fundingRange') || 'all',
     location: searchParams.get('location') || 'all',
     verified: searchParams.get('verified') || 'all',
-    postedWithin: searchParams.get('postedWithin') || searchParams.get('posted') || 'all',
+    postedWithin: searchParams.get('postedWithin') || 'all',
     tab: (searchParams.get('tab') as BusinessBrowseState['tab']) || 'all',
     sort: searchParams.get('sort') || 'newest',
     page: parseInt(searchParams.get('page') || '1', 10),
   }), [searchParams]);
 
-  // Initial skeleton load simulation
   useEffect(() => {
-    const timer = setTimeout(() => setIsLoading(false), 500);
-    return () => clearTimeout(timer);
+    api.get('/businesses?take=100').then((res) => {
+      // Map backend Prisma structure to BusinessOpportunityRecord structure
+      const mapped = res.data.map((b: any) => ({
+        business: b,
+        opportunity: b.fundingOpportunities?.[0] // If they have an active funding opportunity
+      }));
+      setBusinesses(mapped);
+      setIsLoading(false);
+    }).catch(err => {
+      console.error('Failed to fetch businesses', err);
+      toast.error('Failed to load businesses. Please try again later.');
+      setBusinesses([]);
+      setIsLoading(false);
+    });
   }, []);
 
   // Sync Search Input to URL with 300ms debounce
@@ -131,18 +73,22 @@ const ExploreBusinesses = () => {
     if (value === 'all' || value === '' || value === 1) {
       newParams.delete(key);
     } else {
-      newParams.set(key, String(value));
+      newParams.set(key, value.toString());
     }
     
-    // Reset page to 1 on filter change
-    if (key !== 'page') newParams.delete('page');
+    if (key !== 'page' && key !== 'tab' && key !== 'sort') {
+      newParams.delete('page');
+    }
     
-    setSearchParams(newParams, { replace: true });
+    setSearchParams(newParams);
   };
 
   const handleClearAll = () => {
+    const newParams = new URLSearchParams();
+    if (searchParams.has('tab')) newParams.set('tab', searchParams.get('tab')!);
+    if (searchParams.has('sort')) newParams.set('sort', searchParams.get('sort')!);
+    setSearchParams(newParams);
     setSearchInput('');
-    setSearchParams(new URLSearchParams(), { replace: true });
   };
 
   const hasActiveFilters = 
@@ -160,7 +106,7 @@ const ExploreBusinesses = () => {
     filters.sort !== 'newest';
 
   // Pure logic calculations
-  const filteredData = useMemo(() => filterBusinessRecords(MOCK_RECORDS, filters), [filters]);
+  const filteredData = useMemo(() => filterBusinessRecords(businesses, filters), [businesses, filters]);
   const sortedData = useMemo(() => sortBusinessRecords(filteredData, filters.sort, filters.tab), [filteredData, filters.sort, filters.tab]);
   
   const LIMIT = 9;
@@ -178,7 +124,7 @@ const ExploreBusinesses = () => {
   // Derive filter dropdown options
   const industryOptions = [
     { label: 'All Industries', value: 'all' },
-    ...getUniqueIndustries(MOCK_RECORDS).map(ind => ({ label: ind, value: ind }))
+    ...getUniqueIndustries(businesses).map(ind => ({ label: ind, value: ind }))
   ];
 
   const typeOptions = [
@@ -212,21 +158,6 @@ const ExploreBusinesses = () => {
     { label: 'Product Development', value: 'Product Development' },
     { label: 'Marketing', value: 'Marketing' },
     { label: 'Digital Transformation', value: 'Digital Transformation' },
-    { label: 'Export Expansion', value: 'Export Expansion' },
-  ];
-
-  const rangeOptions = [
-    { label: 'All Funding Amounts', value: 'all' },
-    { label: 'Dưới 500 triệu VNĐ', value: 'under-500m' },
-    { label: '500 triệu – 1 tỷ VNĐ', value: '500m-1b' },
-    { label: '1 – 5 tỷ VNĐ', value: '1b-5b' },
-    { label: '5 – 20 tỷ VNĐ', value: '5b-20b' },
-    { label: 'Trên 20 tỷ VNĐ', value: 'over-20b' },
-  ];
-
-  const locationOptions = [
-    { label: 'All Locations', value: 'all' },
-    ...getUniqueLocations(MOCK_RECORDS).map(loc => ({ label: loc, value: loc }))
   ];
 
   const fundingTypeOptions = [
@@ -243,6 +174,19 @@ const ExploreBusinesses = () => {
   const verifiedOptions = [
     { label: 'All Verification', value: 'all' },
     { label: 'Verified Only', value: 'verified' },
+  ];
+
+  const rangeOptions = [
+    { label: 'Any Amount', value: 'all' },
+    { label: 'Under 1B VND', value: 'under-1b' },
+    { label: '1B - 5B VND', value: '1b-5b' },
+    { label: '5B - 10B VND', value: '5b-10b' },
+    { label: 'Over 10B VND', value: 'over-10b' },
+  ];
+
+  const locationOptions = [
+    { label: 'All Locations', value: 'all' },
+    ...getUniqueLocations(businesses).map(loc => ({ label: loc, value: loc }))
   ];
 
   const timeOptions = [
@@ -302,12 +246,12 @@ const ExploreBusinesses = () => {
         {/* Filter Toolbar */}
         <div className={styles.toolbar}>
           <div className={styles.filtersGroup}>
-            <Dropdown label="Industry" value={filters.industry} options={industryOptions} onChange={(v) => updateFilter('industry', v)} />
-            <Dropdown label="Business Type" value={filters.businessType} options={typeOptions} onChange={(v) => updateFilter('businessType', v)} />
-            <Dropdown label="Business Stage" value={filters.businessStage} options={stageOptions} onChange={(v) => updateFilter('businessStage', v)} />
-            <Dropdown label="Funding Purpose" value={filters.fundingPurpose} options={purposeOptions} onChange={(v) => updateFilter('fundingPurpose', v)} />
-            <Dropdown label="Funding Amount" value={filters.fundingRange} options={rangeOptions} onChange={(v) => updateFilter('fundingRange', v)} />
-            <Dropdown label="Location" value={filters.location} options={locationOptions} onChange={(v) => updateFilter('location', v)} />
+            <FilterDropdown label="Industry" value={filters.industry} options={industryOptions} onChange={(v) => updateFilter('industry', v)} />
+            <FilterDropdown label="Business Type" value={filters.businessType} options={typeOptions} onChange={(v) => updateFilter('businessType', v)} />
+            <FilterDropdown label="Business Stage" value={filters.businessStage} options={stageOptions} onChange={(v) => updateFilter('businessStage', v)} />
+            <FilterDropdown label="Funding Purpose" value={filters.fundingPurpose} options={purposeOptions} onChange={(v) => updateFilter('fundingPurpose', v)} />
+            <FilterDropdown label="Funding Amount" value={filters.fundingRange} options={rangeOptions} onChange={(v) => updateFilter('fundingRange', v)} />
+            <FilterDropdown label="Location" value={filters.location} options={locationOptions} onChange={(v) => updateFilter('location', v)} />
             
             <button 
               type="button" 
@@ -330,16 +274,16 @@ const ExploreBusinesses = () => {
           </div>
           <div className={styles.sortGroup}>
             <span className={styles.sortLabel}>Sort by:</span>
-            <Dropdown label="Sort" value={filters.sort} options={sortOptions} onChange={(v) => updateFilter('sort', v)} />
+            <FilterDropdown label="Sort" value={filters.sort} options={sortOptions} onChange={(v) => updateFilter('sort', v)} />
           </div>
         </div>
 
         {/* Secondary Filter Row */}
         {showMoreFilters && (
           <div className={styles.secondaryToolbar} style={{ display: 'flex', gap: 'var(--spacing-3)', marginBottom: 'var(--spacing-6)', padding: 'var(--spacing-4)', backgroundColor: 'var(--bg-secondary)', borderRadius: 'var(--radius-lg)' }}>
-            <Dropdown label="Funding Type" value={filters.fundingType} options={fundingTypeOptions} onChange={(v) => updateFilter('fundingType', v)} />
-            <Dropdown label="Verified Status" value={filters.verified} options={verifiedOptions} onChange={(v) => updateFilter('verified', v)} />
-            <Dropdown label="Time Posted" value={filters.postedWithin} options={timeOptions} onChange={(v) => updateFilter('postedWithin', v)} />
+            <FilterDropdown label="Funding Type" value={filters.fundingType} options={fundingTypeOptions} onChange={(v) => updateFilter('fundingType', v)} />
+            <FilterDropdown label="Verified Status" value={filters.verified} options={verifiedOptions} onChange={(v) => updateFilter('verified', v)} />
+            <FilterDropdown label="Time Posted" value={filters.postedWithin} options={timeOptions} onChange={(v) => updateFilter('postedWithin', v)} />
           </div>
         )}
 
@@ -374,9 +318,10 @@ const ExploreBusinesses = () => {
         {/* Grid & States */}
         <div className={styles.gridContainer}>
           {isLoading ? (
-            <div className={styles.loadingState}>
-              <div className={styles.spinner}></div>
-              <p>Loading businesses...</p>
+            <div className={styles.grid}>
+              {Array.from({ length: 6 }).map((_, idx) => (
+                <BusinessSkeleton key={idx} />
+              ))}
             </div>
           ) : filters.tab === 'following' ? (
             <div className={styles.emptyState}>

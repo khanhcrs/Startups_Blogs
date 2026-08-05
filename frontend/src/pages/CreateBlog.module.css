@@ -1,0 +1,340 @@
+.pageWrapper {
+  min-height: 100vh;
+  background: white;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Topbar */
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--border-color);
+  padding: var(--spacing-4) var(--spacing-8);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.topbarLeft {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-4);
+}
+
+.logo {
+  font-weight: 700;
+  font-size: 1.25rem;
+  color: var(--text-primary);
+  text-decoration: none;
+}
+
+.topbarRight {
+  display: flex;
+  gap: var(--spacing-4);
+  align-items: center;
+}
+
+/* Editor Canvas */
+.editorCanvas {
+  max-width: 800px;
+  width: 100%;
+  margin: 0 auto;
+  padding: var(--spacing-8) var(--spacing-6) 120px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-6);
+  background: white;
+}
+
+.editorHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: var(--spacing-4);
+  margin-bottom: var(--spacing-4);
+}
+
+.draftStatus {
+  color: var(--text-tertiary);
+  font-size: 0.875rem;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.actions {
+  display: flex;
+  gap: var(--spacing-4);
+  align-items: center;
+}
+
+.btnSecondary {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  font-weight: 500;
+  cursor: pointer;
+  padding: var(--spacing-2) var(--spacing-4);
+}
+
+.btnSecondary:hover {
+  color: var(--text-primary);
+}
+
+.btnPrimary {
+  background: var(--primary-600);
+  color: white;
+  border: none;
+  border-radius: 20px;
+  padding: var(--spacing-2) var(--spacing-6);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btnPrimary:hover {
+  background: var(--primary-700);
+}
+
+.addCoverBtn {
+  align-self: flex-start;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  padding: var(--spacing-2) var(--spacing-4);
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  font-size: 0.875rem;
+  transition: all 0.2s;
+}
+
+.addCoverBtn:hover {
+  border-color: var(--text-secondary);
+  color: var(--text-primary);
+}
+
+.coverImagePreview {
+  width: 100%;
+  height: 300px;
+  object-fit: cover;
+  border-radius: var(--radius-md);
+  margin-bottom: var(--spacing-4);
+}
+
+.removeCoverBtn {
+  margin-top: var(--spacing-2);
+  color: var(--danger-500);
+  background: transparent;
+  border: none;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+
+/* Inputs */
+.titleInput {
+  width: 100%;
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  border: none;
+  outline: none;
+  background: transparent;
+  resize: none;
+  overflow: hidden;
+  font-family: inherit;
+  line-height: 1.2;
+}
+
+.titleInput::placeholder {
+  color: var(--text-tertiary);
+  font-weight: 400;
+}
+
+.contentInput {
+  width: 100%;
+  font-size: 1.25rem;
+  color: var(--text-secondary);
+  border: none;
+  outline: none;
+  background: transparent;
+  resize: vertical;
+  min-height: 50vh;
+  font-family: inherit;
+  line-height: 1.8;
+}
+
+.contentInput::placeholder {
+  color: var(--text-tertiary);
+}
+
+/* Quill Customization */
+.quillEditor {
+  width: 100%;
+}
+
+.quillEditor .ql-toolbar.ql-snow {
+  border: none;
+  border-bottom: 1px solid var(--border-color);
+  padding: 8px 0;
+  margin-bottom: var(--spacing-4);
+  position: sticky;
+  top: 80px; 
+  background: white;
+  z-index: 10;
+}
+
+.quillEditor .ql-container.ql-snow {
+  border: none;
+  font-family: inherit;
+  font-size: 1.25rem;
+  line-height: 1.8;
+  color: var(--text-secondary);
+}
+
+.quillEditor .ql-editor {
+  padding: 0;
+  min-height: 50vh;
+}
+
+.quillEditor .ql-editor.ql-blank::before {
+  left: 0;
+  font-style: normal;
+  color: var(--text-tertiary);
+}
+
+/* Settings Modal/Overlay */
+.settingsOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.98);
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+.settingsHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-6) var(--spacing-8);
+  max-width: 800px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.settingsTitle {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.closeBtn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.closeBtn:hover {
+  color: var(--text-primary);
+}
+
+.settingsContent {
+  max-width: 600px;
+  width: 100%;
+  margin: var(--spacing-8) auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-8);
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3);
+}
+
+.label {
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: 1.125rem;
+}
+
+.helpText {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  margin-top: -8px;
+}
+
+.input, .select, .textarea {
+  width: 100%;
+  padding: var(--spacing-3) 0;
+  border: none;
+  border-bottom: 1px solid var(--border-color);
+  font-family: inherit;
+  font-size: 1rem;
+  background: transparent;
+  transition: all 0.2s;
+  border-radius: 0;
+}
+
+.input:focus, .select:focus, .textarea:focus {
+  outline: none;
+  border-color: var(--primary-500);
+}
+
+.textarea {
+  resize: vertical;
+  min-height: 100px;
+  line-height: 1.6;
+}
+
+.submitActions {
+  display: flex;
+  gap: var(--spacing-4);
+  margin-top: var(--spacing-4);
+}
+
+.btnSubmitOverlay {
+  flex: 1;
+  padding: var(--spacing-4);
+  background: var(--primary-600);
+  color: white;
+  border: none;
+  border-radius: var(--radius-full);
+  font-weight: 600;
+  font-size: 1.125rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btnSubmitOverlay:hover {
+  background: var(--primary-700);
+}
+
+.btnCancel {
+  flex: 1;
+  padding: var(--spacing-4);
+  background: var(--surface-color);
+  color: var(--text-secondary);
+  border: none;
+  border-radius: var(--radius-full);
+  font-weight: 600;
+  font-size: 1.125rem;
+  cursor: pointer;
+}
+
+.btnCancel:hover {
+  background: var(--border-color);
+}

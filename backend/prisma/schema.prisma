@@ -1,0 +1,205 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// -----------------------------------------------------------------------------
+// 1. NGƯỜI DÙNG & TƯƠNG TÁC
+// -----------------------------------------------------------------------------
+
+enum Role {
+  USER
+  ADMIN
+  MODERATOR
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  name      String
+  bio       String?
+  location  String?
+  joinedAt  DateTime @default(now())
+  avatarUrl String?
+  role      Role     @default(USER)
+
+  // Quan hệ
+  ownedBusinesses Business[]
+  articles        Article[]
+  comments        Comment[]
+  bookmarks       Bookmark[]
+  teamMembers     TeamMember[]
+
+  // Tự tham chiếu cho hệ thống Follow
+  followers Follow[] @relation("UserFollowers")
+  following Follow[] @relation("UserFollowing")
+}
+
+model Follow {
+  id          String   @id @default(uuid())
+  followerId  String
+  followingId String
+  createdAt   DateTime @default(now())
+
+  follower  User @relation("UserFollowing", fields: [followerId], references: [id], onDelete: Cascade)
+  following User @relation("UserFollowers", fields: [followingId], references: [id], onDelete: Cascade)
+
+  @@unique([followerId, followingId])
+}
+
+model Bookmark {
+  id        String   @id @default(uuid())
+  userId    String
+  articleId String
+  createdAt DateTime @default(now())
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  article Article @relation(fields: [articleId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, articleId])
+}
+
+// -----------------------------------------------------------------------------
+// 2. DOANH NGHIỆP
+// -----------------------------------------------------------------------------
+
+model Business {
+  id               String   @id @default(uuid())
+  slug             String   @unique
+  name             String
+  legalName        String?
+  description      String
+  detailedOverview String?
+  businessType     String
+  businessStage    String
+  industry         String
+  location         String
+  website          String?
+  logoUrl          String?
+  coverUrl         String?
+  status           String   @default("PENDING")
+
+  // Owner Relation
+  ownerId String
+  owner   User   @relation(fields: [ownerId], references: [id], onDelete: Restrict)
+
+  // Sub-models
+  teamMembers   TeamMember[]
+  fundingRounds FundingRound[]
+  opportunities FundingOpportunity[]
+  articles      Article[]
+
+  // Stats
+  savedCount Int      @default(0)
+  viewCount  Int      @default(0)
+  createdAt  DateTime @default(now())
+
+  @@index([ownerId])
+}
+
+model TeamMember {
+  id         String  @id @default(uuid())
+  name       String
+  role       String
+  bio        String?
+  avatarUrl  String?
+  
+  userId     String?
+  user       User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  businessId String
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+}
+
+model FundingRound {
+  id         String   @id @default(uuid())
+  roundName  String
+  amount     Float
+  currency   String   @default("USD")
+  date       DateTime
+  investors  String
+  isVerified Boolean  @default(false)
+  
+  businessId String
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+}
+
+model FundingOpportunity {
+  id               String   @id @default(uuid())
+  slug             String   @unique
+  title            String
+  shortDescription String
+  detailedOverview String?
+  fundingAmountMin Float
+  fundingAmountMax Float
+  currency         String   @default("USD")
+  fundingPurpose   String
+  fundingType      String
+  status           String   @default("Pending Review") // Draft, Pending Review, Published
+  publishedAt      DateTime?
+  deadline         DateTime?
+  
+  businessId       String
+  business         Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  
+  createdAt        DateTime @default(now())
+}
+
+// -----------------------------------------------------------------------------
+// 3. BÀI VIẾT & BÌNH LUẬN
+// -----------------------------------------------------------------------------
+
+model Article {
+  id          String    @id @default(uuid())
+  slug        String    @unique
+  title       String
+  summary     String
+  content     String    @db.Text
+  status      String    @default("DRAFT")
+  category    String
+  coverImage  String?
+  tags        String[]  @default([])
+
+  authorId    String
+  author      User      @relation(fields: [authorId], references: [id], onDelete: Restrict)
+
+  businessId  String?
+  business    Business? @relation(fields: [businessId], references: [id], onDelete: SetNull)
+
+  comments    Comment[]
+  bookmarks   Bookmark[]
+  
+  viewCount   Int       @default(0)
+  likesCount  Int       @default(0)
+  createdAt   DateTime  @default(now())
+  publishedAt DateTime?
+
+  @@index([authorId])
+  @@index([status])
+}
+
+model Comment {
+  id        String   @id @default(uuid())
+  content   String   @db.Text
+  
+  authorId  String
+  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  
+  articleId String
+  article   Article  @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  
+  parentId  String?
+  parent    Comment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies   Comment[] @relation("CommentReplies")
+  
+  createdAt DateTime @default(now())
+
+  @@index([articleId])
+}

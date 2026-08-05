@@ -65,6 +65,16 @@ export type PublicFinancialHighlights = {
   selfReported: boolean;
 };
 
+export type FundingRound = {
+  id: string;
+  roundName: string; // e.g. Pre-Seed, Seed, Series A
+  amount: number;
+  currency: 'VND' | 'USD';
+  date: string;
+  investors: string;
+  isVerified: boolean;
+};
+
 export type Business = {
   id: string;
   slug: string;
@@ -93,6 +103,7 @@ export type Business = {
   viewCount: number;
   teamMembers?: TeamMember[];
   financialHighlights?: PublicFinancialHighlights;
+  fundingRounds?: FundingRound[];
 };
 
 export type UseOfFundsItem = {
