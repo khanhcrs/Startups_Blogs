@@ -68,6 +68,7 @@
   align-items: center;
 }
 
+.iconBtn,
 .loginBtn {
   font-weight: 500;
   font-size: var(--font-size-sm);
@@ -75,6 +76,14 @@
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
   color: var(--text-dark);
+  background: var(--bg-main);
+}
+
+.iconBtn {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--spacing-2);
+  cursor: pointer;
 }
 
 .primaryBtn {

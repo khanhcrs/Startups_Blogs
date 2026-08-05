@@ -9,6 +9,9 @@ import Blogs from './pages/Blogs';
 import Investors from './pages/Investors';
 import PostIdea from './pages/PostIdea';
 import InvestmentDisclaimer from './pages/InvestmentDisclaimer';
+import AuthPage from './pages/auth/AuthPage';
+import AuthCallback from './pages/auth/AuthCallback';
+import Dashboard from './pages/auth/Dashboard';
 
 function LegacyRedirect({ to }: { to: string }) {
   const location = useLocation();
@@ -41,6 +44,10 @@ function App() {
           <Route path="raise-capital" element={<PostIdea />} />
           <Route path="post-idea" element={<LegacyRedirect to="/raise-capital" />} />
           <Route path="investment-disclaimer" element={<InvestmentDisclaimer />} />
+          <Route path="login" element={<AuthPage mode="login" />} />
+          <Route path="signup" element={<AuthPage mode="signup" />} />
+          <Route path="auth/callback" element={<AuthCallback />} />
+          <Route path="dashboard" element={<Dashboard />} />
         </Route>
       </Routes>
     </Router>

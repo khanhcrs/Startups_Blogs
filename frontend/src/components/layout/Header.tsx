@@ -1,10 +1,12 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Search } from 'lucide-react';
+import { LogOut, Search } from 'lucide-react';
 import styles from './Header.module.css';
+import { getSession, signOut } from '../../services/auth';
 
 const Header = () => {
   const location = useLocation();
   const path = location.pathname;
+  const isAuthenticated = Boolean(getSession());
 
   return (
     <header className={styles.header}>
@@ -30,7 +32,19 @@ const Header = () => {
           <button className={styles.searchBtn} aria-label="Search">
             <Search size={20} />
           </button>
-          <Link to="/login" className={styles.loginBtn}>Log in</Link>
+          {isAuthenticated ? (
+            <>
+              <Link to="/dashboard" className={styles.loginBtn}>Dashboard</Link>
+              <button type="button" className={styles.iconBtn} aria-label="Log out" onClick={signOut}>
+                <LogOut size={18} />
+              </button>
+            </>
+          ) : (
+            <>
+              <Link to="/login" className={styles.loginBtn}>Log in</Link>
+              <Link to="/signup" className={styles.loginBtn}>Sign up</Link>
+            </>
+          )}
           <Link to="/raise-capital" className={styles.primaryBtn}>Raise Capital</Link>
         </div>
       </div>
