@@ -29,6 +29,18 @@ let BusinessesController = class BusinessesController {
     findAll(skip, take) {
         return this.businessesService.findAll(skip ? +skip : 0, take ? +take : 10);
     }
+    findAllForAdmin(req, skip, take, status) {
+        if (req.user.role !== 'ADMIN') {
+            throw new common_1.ForbiddenException('Only admin can access this route');
+        }
+        return this.businessesService.findAllForAdmin(skip ? +skip : 0, take ? +take : 10, status);
+    }
+    updateStatus(id, status, req) {
+        if (req.user.role !== 'ADMIN') {
+            throw new common_1.ForbiddenException('Only admin can access this route');
+        }
+        return this.businessesService.updateStatus(id, status);
+    }
     findOne(slug) {
         return this.businessesService.findOneBySlug(slug);
     }
@@ -57,6 +69,27 @@ __decorate([
     __metadata("design:paramtypes", [String, String]),
     __metadata("design:returntype", void 0)
 ], BusinessesController.prototype, "findAll", null);
+__decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, common_1.Get)('admin/all'),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Query)('skip')),
+    __param(2, (0, common_1.Query)('take')),
+    __param(3, (0, common_1.Query)('status')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String, String, String]),
+    __metadata("design:returntype", void 0)
+], BusinessesController.prototype, "findAllForAdmin", null);
+__decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, common_1.Put)('admin/:id/status'),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Body)('status')),
+    __param(2, (0, common_1.Request)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String, Object]),
+    __metadata("design:returntype", void 0)
+], BusinessesController.prototype, "updateStatus", null);
 __decorate([
     (0, common_1.Get)(':slug'),
     __param(0, (0, common_1.Param)('slug')),

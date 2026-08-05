@@ -5,8 +5,8 @@ export declare class CommentsController {
     constructor(commentsService: CommentsService);
     create(articleId: string, createCommentDto: CreateCommentDto, req: any): Promise<{
         author: {
-            name: string;
             id: string;
+            name: string;
             avatarUrl: string | null;
         };
     } & {
@@ -19,14 +19,14 @@ export declare class CommentsController {
     }>;
     findAll(articleId: string): Promise<({
         author: {
-            name: string;
             id: string;
+            name: string;
             avatarUrl: string | null;
         };
         replies: ({
             author: {
-                name: string;
                 id: string;
+                name: string;
                 avatarUrl: string | null;
             };
         } & {

@@ -31,6 +31,7 @@ Lưu trữ thông tin cốt lõi của một Doanh nghiệp.
 - `businessStage` (String - VD: Seed, Series A...)
 - `industry` (String - Ngành nghề: AI, Fintech...)
 - `location` (String - Trụ sở)
+- `status` (Enum: `PENDING`, `APPROVED`, `REJECTED` - Trạng thái duyệt của Admin)
 - `website`, `logoUrl`, `coverUrl` (String - Tùy chọn)
 - `ownerId` (String - Trỏ về người tạo ra Startup này)
 
@@ -43,6 +44,7 @@ Lưu trữ thông tin cốt lõi của một Doanh nghiệp.
 ## 3. Các Bảng Phụ của Business
 ### a. `TeamMember`
 - `name`, `role`, `bio`, `avatarUrl`
+- `userId` (Trỏ về tài khoản `User` của hệ thống - Tùy chọn)
 - `businessId` (Khóa ngoại trỏ về `Business`)
 
 ### b. `FundingRound` (Lịch sử)
@@ -51,14 +53,15 @@ Lưu trữ thông tin cốt lõi của một Doanh nghiệp.
 - `businessId` (Khóa ngoại)
 
 ### c. `FundingOpportunity` (Đang gọi vốn)
-- `title`, `shortDescription`, `fundingAmountMin`, `fundingAmountMax`, `currency`
+- `title`, `shortDescription`, `detailedOverview`, `fundingAmountMin`, `fundingAmountMax`, `currency`
 - `fundingPurpose`, `fundingType` (Cổ phần, Khoản vay...)
 - `status` (Draft, Pending Review, Published)
 - `businessId` (Khóa ngoại)
 
 ## 4. Bảng Bài viết & Tương tác
-### a. `Article` (Bài đăng/Blog)
+### a. `Article` (Bài đăng/Blog/News)
 - `title`, `summary`, `content`, `category`, `status`
+- `likesCount`, `viewCount` (Thống kê số liệu)
 - `authorId` (Trỏ về `User`)
 - `businessId` (Tùy chọn - nếu bài viết này đại diện cho công ty)
 

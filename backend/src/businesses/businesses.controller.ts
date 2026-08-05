@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Put, Param, Delete, UseGuards, Request, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Put, Param, Delete, UseGuards, Request, Query, ForbiddenException } from '@nestjs/common';
 import { BusinessesService } from './businesses.service';
 import { CreateBusinessDto } from './dto/create-business.dto';
 import { UpdateBusinessDto } from './dto/update-business.dto';
@@ -17,6 +17,33 @@ export class BusinessesController {
   @Get()
   findAll(@Query('skip') skip?: string, @Query('take') take?: string) {
     return this.businessesService.findAll(skip ? +skip : 0, take ? +take : 10);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('admin/all')
+  findAllForAdmin(
+    @Request() req: any,
+    @Query('skip') skip?: string,
+    @Query('take') take?: string,
+    @Query('status') status?: string,
+  ) {
+    if (req.user.role !== 'ADMIN') {
+      throw new ForbiddenException('Only admin can access this route');
+    }
+    return this.businessesService.findAllForAdmin(skip ? +skip : 0, take ? +take : 10, status);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Put('admin/:id/status')
+  updateStatus(
+    @Param('id') id: string,
+    @Body('status') status: string,
+    @Request() req: any,
+  ) {
+    if (req.user.role !== 'ADMIN') {
+      throw new ForbiddenException('Only admin can access this route');
+    }
+    return this.businessesService.updateStatus(id, status);
   }
 
   @Get(':slug')

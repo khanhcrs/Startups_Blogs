@@ -18,6 +18,8 @@ class CreateArticleDto {
     category;
     status;
     businessId;
+    coverImage;
+    tags;
 }
 exports.CreateArticleDto = CreateArticleDto;
 __decorate([
@@ -50,4 +52,13 @@ __decorate([
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
 ], CreateArticleDto.prototype, "businessId", void 0);
+__decorate([
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], CreateArticleDto.prototype, "coverImage", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", Array)
+], CreateArticleDto.prototype, "tags", void 0);
 //# sourceMappingURL=create-article.dto.js.map

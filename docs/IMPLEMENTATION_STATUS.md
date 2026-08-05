@@ -74,4 +74,4 @@ Tài liệu này đóng vai trò như một "bộ nhớ vĩnh cửu" (Permanent 
 - Viết Test (E2E hoặc Unit) cho các luồng quan trọng.
 
 > [!NOTE]
-> Bất cứ khi nào bạn (User) trở lại với một AI mới, hãy yêu cầu AI: *"Hãy đọc file `docs/IMPLEMENTATION_STATUS.md` và `docs/PHASE_7_PLAN.md` để nắm bối cảnh dự án!"*
+> Bất cứ khi nào bạn (User) trở lại với một AI mới, hãy yêu cầu AI: *"Hãy đọc file `docs/IMPLEMENTATION_STATUS.md` để nắm bối cảnh dự án!"*

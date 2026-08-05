@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { 
   Utensils, 
@@ -15,11 +15,30 @@ import {
 } from 'lucide-react';
 import BusinessCard from '../components/business/BusinessCard';
 import styles from './Home.module.css';
-import { MOCK_BUSINESSES, MOCK_ARTICLES } from '../utils/mockData';
+import { api } from '../lib/axios';
 
 const Home = () => {
   const navigate = useNavigate();
   const [searchInput, setSearchInput] = useState('');
+  
+  const [featuredBusiness, setFeaturedBusiness] = useState<any>(null);
+  const [latestBusinesses, setLatestBusinesses] = useState<any[]>([]);
+  const [latestArticles, setLatestArticles] = useState<any[]>([]);
+
+  useEffect(() => {
+    // Fetch businesses
+    api.get('/businesses?take=7').then(res => {
+      if (res.data && res.data.length > 0) {
+        setFeaturedBusiness(res.data[0]); 
+        setLatestBusinesses(res.data.slice(1, 7));
+      }
+    }).catch(err => console.error(err));
+
+    // Fetch articles
+    api.get('/articles').then(res => {
+      setLatestArticles(res.data.slice(0, 3));
+    }).catch(err => console.error(err));
+  }, []);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,9 +52,6 @@ const Home = () => {
   const handleIndustryClick = (industryName: string) => {
     navigate(`/businesses?industry=${encodeURIComponent(industryName)}`);
   };
-
-  const featuredBusiness = MOCK_BUSINESSES[0]; // An Nam Culinary
-  const latestBusinesses = MOCK_BUSINESSES.slice(0, 6);
 
   const industries = [
     { name: 'Food & Beverage', icon: <Utensils size={28} />, color: 'var(--cat-food)' },
@@ -88,8 +104,12 @@ const Home = () => {
             <div className={styles.featuredCard} style={{ backgroundColor: 'white', borderRadius: 'var(--radius-xl)', padding: 'var(--spacing-8)', border: '1px solid var(--border-color)', display: 'flex', gap: 'var(--spacing-8)', flexWrap: 'wrap' }}>
               <div style={{ flex: '1 1 300px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-3)', marginBottom: 'var(--spacing-3)' }}>
-                  <div style={{ width: '44px', height: '44px', borderRadius: 'var(--radius-md)', backgroundColor: 'var(--primary-50)', color: 'var(--primary-500)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700 }}>
-                    {featuredBusiness.name.charAt(0)}
+                  <div style={{ width: '44px', height: '44px', borderRadius: 'var(--radius-md)', backgroundColor: 'var(--primary-50)', color: 'var(--primary-500)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, overflow: 'hidden' }}>
+                    {featuredBusiness.logoUrl ? (
+                      <img src={featuredBusiness.logoUrl} alt={featuredBusiness.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    ) : (
+                      featuredBusiness.name.charAt(0)
+                    )}
                   </div>
                   <div>
                     <h3 style={{ fontSize: 'var(--font-size-xl)', fontWeight: 700, margin: 0, display: 'flex', alignItems: 'center', gap: 'var(--spacing-2)' }}>
@@ -228,7 +248,7 @@ const Home = () => {
             <Link to="/blogs" style={{ color: 'var(--primary-500)', fontWeight: 500 }}>View all articles &rarr;</Link>
           </div>
           <div className={styles.newsGrid} style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))' }}>
-            {MOCK_ARTICLES.slice(0, 3).map(article => (
+            {latestArticles.map(article => (
               <div key={article.id} className={styles.newsCard} style={{ backgroundColor: 'white' }}>
                 <div className={styles.newsImg} style={{ backgroundImage: `url(${article.coverImage})`, backgroundSize: 'cover', backgroundPosition: 'center' }} />
                 <div className={styles.newsContent}>

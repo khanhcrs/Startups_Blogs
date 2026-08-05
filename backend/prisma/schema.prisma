@@ -35,6 +35,7 @@ model User {
   articles        Article[]
   comments        Comment[]
   bookmarks       Bookmark[]
+  teamMembers     TeamMember[]
 
   // Tự tham chiếu cho hệ thống Follow
   followers Follow[] @relation("UserFollowers")
@@ -83,6 +84,7 @@ model Business {
   website          String?
   logoUrl          String?
   coverUrl         String?
+  status           String   @default("PENDING")
 
   // Owner Relation
   ownerId String
@@ -98,6 +100,8 @@ model Business {
   savedCount Int      @default(0)
   viewCount  Int      @default(0)
   createdAt  DateTime @default(now())
+
+  @@index([ownerId])
 }
 
 model TeamMember {
@@ -107,6 +111,9 @@ model TeamMember {
   bio        String?
   avatarUrl  String?
   
+  userId     String?
+  user       User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
   businessId String
   business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
 }
@@ -170,8 +177,12 @@ model Article {
   bookmarks   Bookmark[]
   
   viewCount   Int       @default(0)
+  likesCount  Int       @default(0)
   createdAt   DateTime  @default(now())
   publishedAt DateTime?
+
+  @@index([authorId])
+  @@index([status])
 }
 
 model Comment {
@@ -189,4 +200,6 @@ model Comment {
   replies   Comment[] @relation("CommentReplies")
   
   createdAt DateTime @default(now())
+
+  @@index([articleId])
 }

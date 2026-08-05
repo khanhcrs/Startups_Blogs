@@ -16,8 +16,8 @@ export declare class FollowsController {
     }>;
     getFollowers(req: any): Promise<({
         follower: {
-            name: string;
             id: string;
+            name: string;
             avatarUrl: string | null;
         };
     } & {
@@ -28,8 +28,8 @@ export declare class FollowsController {
     })[]>;
     getFollowing(req: any): Promise<({
         following: {
-            name: string;
             id: string;
+            name: string;
             avatarUrl: string | null;
         };
     } & {

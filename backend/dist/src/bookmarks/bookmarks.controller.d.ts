@@ -5,14 +5,14 @@ export declare class BookmarksController {
     create(articleId: string, req: any): Promise<{
         id: string;
         createdAt: Date;
-        articleId: string;
         userId: string;
+        articleId: string;
     }>;
     remove(articleId: string, req: any): Promise<{
         id: string;
         createdAt: Date;
-        articleId: string;
         userId: string;
+        articleId: string;
     }>;
     findAll(req: any): Promise<({
         article: {
@@ -25,7 +25,7 @@ export declare class BookmarksController {
     } & {
         id: string;
         createdAt: Date;
-        articleId: string;
         userId: string;
+        articleId: string;
     })[]>;
 }

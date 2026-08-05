@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { 
   CheckCircle2, 
@@ -19,7 +19,6 @@ import {
   getBusinessBySlug, 
   getRelatedBusinesses 
 } from '../utils/filterHelpers';
-import { MOCK_ARTICLES } from '../utils/mockData';
 import { api } from '../lib/axios';
 
 const formatCurrency = (min: number, max: number, currency: string) => {
@@ -41,25 +40,45 @@ const BusinessDetail = () => {
   const [isFollowing, setIsFollowing] = useState(false);
   const [contactNotice, setContactNotice] = useState(false);
   const [business, setBusiness] = useState<any | null>(null);
+  const [businessArticles, setBusinessArticles] = useState<any[]>([]);
+  const [relatedRecords, setRelatedRecords] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     if (slug) {
       setIsLoading(true);
-      api.get(`/businesses/${slug}`)
-        .then(res => {
-          setBusiness(res.data);
-          setIsLoading(false);
-        })
-        .catch(err => {
-          console.error(err);
-          // Fallback to mock data if not found on BE
-          const mockBiz = getBusinessBySlug(slug);
-          if (mockBiz) {
-            setBusiness(mockBiz);
+      
+      const fetchAll = async () => {
+        try {
+          const bizRes = await api.get(`/businesses/${slug}`);
+          setBusiness(bizRes.data);
+          
+          // Try to fetch articles
+          try {
+            const artRes = await api.get('/articles');
+            const bizArticles = artRes.data.filter((a: any) => a.author?.businessId === bizRes.data.id || a.businessId === bizRes.data.id);
+            setBusinessArticles(bizArticles);
+          } catch (e) {
+            console.error('Failed to fetch articles', e);
           }
+
+          // Try to fetch related
+          try {
+            const allBizRes = await api.get('/businesses?take=20');
+            const mapped = allBizRes.data.map((b: any) => ({ business: b, opportunity: null }));
+            setRelatedRecords(getRelatedBusinesses(mapped, bizRes.data, 3));
+          } catch (e) {
+            console.error('Failed to fetch related', e);
+          }
+          
+        } catch (err) {
+          console.error(err);
+        } finally {
           setIsLoading(false);
-        });
+        }
+      };
+
+      fetchAll();
     }
   }, [slug]);
 
@@ -90,9 +109,7 @@ const BusinessDetail = () => {
     );
   }
 
-  // funding opportunities removed
-  const relatedRecords = getRelatedBusinesses(business, 3);
-  const businessArticles = MOCK_ARTICLES.filter(a => a.author.businessId === business.id);
+  // variables populated by state
 
   return (
     <div className={styles.pageWrapper}>
@@ -110,10 +127,18 @@ const BusinessDetail = () => {
         </nav>
 
         {/* Business Header */}
-        <div className={styles.headerCard}>
-          <div className={styles.headerTop}>
-            <div className={styles.logoBox}>
-              <span className={styles.logoInitial}>{business.name.charAt(0)}</span>
+        <div className={styles.headerCard} style={{ overflow: 'hidden', padding: 0 }}>
+          {business.coverUrl && (
+            <div style={{ width: '100%', height: '240px', backgroundImage: `url(${business.coverUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' }}></div>
+          )}
+          <div style={{ padding: 'var(--spacing-8)' }}>
+            <div className={styles.headerTop}>
+              <div className={styles.logoBox} style={{ overflow: 'hidden', marginTop: business.coverUrl ? '-64px' : '0', border: '4px solid var(--surface-color)', backgroundColor: 'var(--surface-color)' }}>
+              {business.logoUrl ? (
+                <img src={business.logoUrl} alt={business.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              ) : (
+                <span className={styles.logoInitial}>{business.name.charAt(0)}</span>
+              )}
             </div>
             <div className={styles.headerInfo}>
               <div className={styles.nameRow}>
@@ -188,6 +213,7 @@ const BusinessDetail = () => {
                 <Globe size={16} /> Website
               </a>
             )}
+          </div>
           </div>
         </div>
 
@@ -407,7 +433,13 @@ const BusinessDetail = () => {
                   <div className={styles.teamGrid}>
                     {business.teamMembers.map(member => (
                       <div key={member.id} className={styles.teamCard}>
-                        <div className={styles.avatarBox}>{member.name.charAt(0)}</div>
+                        <div className={styles.avatarBox} style={{ overflow: 'hidden' }}>
+                          {member.avatarUrl ? (
+                            <img src={member.avatarUrl} alt={member.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                          ) : (
+                            member.name.charAt(0)
+                          )}
+                        </div>
                         <div>
                           <h3 className={styles.memberName}>{member.name}</h3>
                           <span className={styles.memberRole}>{member.role}</span>

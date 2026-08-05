@@ -65,10 +65,15 @@ let AuthService = class AuthService {
             password: hashedPassword,
             name: registerDto.name,
         });
-        const payload = { sub: user.id, email: user.email };
+        const payload = { email: user.email, sub: user.id, role: user.role };
         return {
-            access_token: await this.jwtService.signAsync(payload),
-            user: { id: user.id, email: user.email, name: user.name },
+            access_token: this.jwtService.sign(payload),
+            user: {
+                id: user.id,
+                email: user.email,
+                name: user.name,
+                role: user.role,
+            }
         };
     }
     async login(loginDto) {
@@ -80,10 +85,10 @@ let AuthService = class AuthService {
         if (!isPasswordValid) {
             throw new common_1.UnauthorizedException('Invalid credentials');
         }
-        const payload = { sub: user.id, email: user.email };
+        const payload = { sub: user.id, email: user.email, role: user.role };
         return {
             access_token: await this.jwtService.signAsync(payload),
-            user: { id: user.id, email: user.email, name: user.name },
+            user: { id: user.id, email: user.email, name: user.name, role: user.role },
         };
     }
 };

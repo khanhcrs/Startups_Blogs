@@ -2,6 +2,13 @@
 
 Tài liệu này tổng hợp bối cảnh kinh doanh, các luồng tương tác (Flows) và mô hình hoạt động của nền tảng **Startups Blogs**. Tài liệu đóng vai trò là "Kim chỉ nam" để tra cứu nhanh khi phát triển các tính năng mới hoặc onboarding thành viên mới.
 
+- **Articles & News (Bài viết & Tin tức)**:
+  - `User` có thể viết và đăng các Blog / Phân tích chuyên sâu (Category = Blog, Technology, v.v.).
+  - Các bài viết `News` (Tin tức) được thiết kế đặc thù chỉ cho phép các `User` mang role `ADMIN` đăng để đảm bảo tính xác thực.
+  - Mỗi bài viết có thể gắn `businessId` nếu bài viết đại diện cho doanh nghiệp (ví dụ như bài PR hoặc thông cáo báo chí).
+  - Khách truy cập hoặc User khác có thể đọc (View), thích (Like), bình luận (Comment), chia sẻ, và đánh dấu (Bookmark) bài viết.
+  - Bình luận hỗ trợ lồng nhau (Replies).
+
 ---
 
 ## 1. Bối cảnh Kinh doanh (Business Context)

@@ -26,6 +26,9 @@ let ArticlesController = class ArticlesController {
     create(createArticleDto, req) {
         return this.articlesService.create(createArticleDto, req.user.userId);
     }
+    findMyArticles(req) {
+        return this.articlesService.findMyArticles(req.user.userId);
+    }
     findAll(category, businessId, skip, take) {
         return this.articlesService.findAll({
             category,
@@ -34,8 +37,8 @@ let ArticlesController = class ArticlesController {
             take: take ? +take : 10,
         });
     }
-    findOne(slug) {
-        return this.articlesService.findOneBySlug(slug);
+    findOne(idOrSlug) {
+        return this.articlesService.findOne(idOrSlug);
     }
     update(id, updateArticleDto, req) {
         return this.articlesService.update(id, updateArticleDto, req.user.userId);
@@ -55,6 +58,14 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], ArticlesController.prototype, "create", null);
 __decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, common_1.Get)('me'),
+    __param(0, (0, common_1.Request)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", void 0)
+], ArticlesController.prototype, "findMyArticles", null);
+__decorate([
     (0, common_1.Get)(),
     __param(0, (0, common_1.Query)('category')),
     __param(1, (0, common_1.Query)('businessId')),
@@ -65,8 +76,8 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], ArticlesController.prototype, "findAll", null);
 __decorate([
-    (0, common_1.Get)(':slug'),
-    __param(0, (0, common_1.Param)('slug')),
+    (0, common_1.Get)(':idOrSlug'),
+    __param(0, (0, common_1.Param)('idOrSlug')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", void 0)

@@ -8,6 +8,13 @@ export class ArticlesService {
   constructor(private prisma: PrismaService) {}
 
   async create(createArticleDto: CreateArticleDto, authorId: string) {
+    if (createArticleDto.category === 'News') {
+      const user = await this.prisma.user.findUnique({ where: { id: authorId } });
+      if (user?.role !== 'ADMIN' && user?.role !== 'MODERATOR') {
+        throw new ForbiddenException('Only admins or moderators can post News');
+      }
+    }
+
     if (createArticleDto.businessId) {
       // Option A Secure check: Ensure author owns this business
       const business = await this.prisma.business.findUnique({
@@ -61,9 +68,11 @@ export class ArticlesService {
     });
   }
 
-  async findOneBySlug(slug: string) {
-    const article = await this.prisma.article.findUnique({
-      where: { slug },
+  async findOne(idOrSlug: string) {
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(idOrSlug);
+    
+    const article = await this.prisma.article.findFirst({
+      where: isUuid ? { id: idOrSlug } : { slug: idOrSlug },
       include: {
         author: { select: { id: true, name: true, avatarUrl: true } },
         business: { select: { id: true, name: true, logoUrl: true, slug: true } },
@@ -86,6 +95,13 @@ export class ArticlesService {
     if (!article) throw new NotFoundException('Article not found');
     if (article.authorId !== authorId) {
       throw new ForbiddenException('You can only update your own articles');
+    }
+
+    if (updateArticleDto.category === 'News') {
+      const user = await this.prisma.user.findUnique({ where: { id: authorId } });
+      if (user?.role !== 'ADMIN' && user?.role !== 'MODERATOR') {
+        throw new ForbiddenException('Only admins or moderators can categorize an article as News');
+      }
     }
 
     if (updateArticleDto.businessId && updateArticleDto.businessId !== article.businessId) {

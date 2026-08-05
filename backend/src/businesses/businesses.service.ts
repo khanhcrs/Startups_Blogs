@@ -21,10 +21,34 @@ export class BusinessesService {
 
   async findAll(skip: number = 0, take: number = 10) {
     return this.prisma.business.findMany({
+      where: { status: 'APPROVED' },
       skip,
       take,
       include: { owner: { select: { id: true, name: true, avatarUrl: true } } },
       orderBy: { createdAt: 'desc' },
+    });
+  }
+
+  async findAllForAdmin(skip: number = 0, take: number = 10, status?: string) {
+    const where = status ? { status } : {};
+    return this.prisma.business.findMany({
+      where,
+      skip,
+      take,
+      include: { owner: { select: { id: true, name: true, avatarUrl: true } } },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
+  async updateStatus(id: string, status: string) {
+    const business = await this.prisma.business.findUnique({ where: { id } });
+    if (!business) {
+      throw new NotFoundException(`Business with id ${id} not found`);
+    }
+
+    return this.prisma.business.update({
+      where: { id },
+      data: { status },
     });
   }
 

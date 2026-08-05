@@ -25,10 +25,15 @@ export class AuthService {
       name: registerDto.name,
     });
 
-    const payload = { sub: user.id, email: user.email };
+    const payload = { email: user.email, sub: user.id, role: user.role };
     return {
-      access_token: await this.jwtService.signAsync(payload),
-      user: { id: user.id, email: user.email, name: user.name },
+      access_token: this.jwtService.sign(payload),
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        role: user.role,
+      }
     };
   }
 
@@ -43,10 +48,10 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    const payload = { sub: user.id, email: user.email };
+    const payload = { sub: user.id, email: user.email, role: user.role };
     return {
       access_token: await this.jwtService.signAsync(payload),
-      user: { id: user.id, email: user.email, name: user.name },
+      user: { id: user.id, email: user.email, name: user.name, role: user.role },
     };
   }
 }

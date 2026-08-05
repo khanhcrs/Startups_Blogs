@@ -5,8 +5,8 @@ export declare class CommentsService {
     constructor(prisma: PrismaService);
     create(articleId: string, createCommentDto: CreateCommentDto, authorId: string): Promise<{
         author: {
-            name: string;
             id: string;
+            name: string;
             avatarUrl: string | null;
         };
     } & {
@@ -19,14 +19,14 @@ export declare class CommentsService {
     }>;
     findAllByArticle(articleId: string): Promise<({
         author: {
-            name: string;
             id: string;
+            name: string;
             avatarUrl: string | null;
         };
         replies: ({
             author: {
-                name: string;
                 id: string;
+                name: string;
                 avatarUrl: string | null;
             };
         } & {

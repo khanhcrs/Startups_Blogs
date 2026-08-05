@@ -35,9 +35,9 @@ export class ArticlesController {
     });
   }
 
-  @Get(':slug')
-  findOne(@Param('slug') slug: string) {
-    return this.articlesService.findOneBySlug(slug);
+  @Get(':idOrSlug')
+  findOne(@Param('idOrSlug') idOrSlug: string) {
+    return this.articlesService.findOne(idOrSlug);
   }
 
   @UseGuards(JwtAuthGuard)

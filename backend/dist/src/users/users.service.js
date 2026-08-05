@@ -18,6 +18,8 @@ let UsersService = class UsersService {
         this.prisma = prisma;
     }
     async findByEmail(email) {
+        if (!email)
+            return null;
         return this.prisma.user.findUnique({
             where: { email },
         });
@@ -25,10 +27,17 @@ let UsersService = class UsersService {
     async findById(id) {
         return this.prisma.user.findUnique({
             where: { id },
+            include: { ownedBusinesses: true },
         });
     }
     async createUser(data) {
         return this.prisma.user.create({
+            data,
+        });
+    }
+    async updateUser(id, data) {
+        return this.prisma.user.update({
+            where: { id },
             data,
         });
     }

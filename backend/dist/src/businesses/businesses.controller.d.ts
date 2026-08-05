@@ -5,8 +5,8 @@ export declare class BusinessesController {
     private readonly businessesService;
     constructor(businessesService: BusinessesService);
     create(createBusinessDto: CreateBusinessDto, req: any): Promise<{
-        name: string;
         id: string;
+        name: string;
         location: string;
         slug: string;
         legalName: string | null;
@@ -18,6 +18,7 @@ export declare class BusinessesController {
         website: string | null;
         logoUrl: string | null;
         coverUrl: string | null;
+        status: string;
         savedCount: number;
         viewCount: number;
         createdAt: Date;
@@ -25,13 +26,13 @@ export declare class BusinessesController {
     }>;
     findAll(skip?: string, take?: string): Promise<({
         owner: {
-            name: string;
             id: string;
+            name: string;
             avatarUrl: string | null;
         };
     } & {
-        name: string;
         id: string;
+        name: string;
         location: string;
         slug: string;
         legalName: string | null;
@@ -43,20 +44,21 @@ export declare class BusinessesController {
         website: string | null;
         logoUrl: string | null;
         coverUrl: string | null;
+        status: string;
         savedCount: number;
         viewCount: number;
         createdAt: Date;
         ownerId: string;
     })[]>;
-    findOne(slug: string): Promise<{
+    findAllForAdmin(req: any, skip?: string, take?: string, status?: string): Promise<({
         owner: {
-            name: string;
             id: string;
+            name: string;
             avatarUrl: string | null;
         };
     } & {
-        name: string;
         id: string;
+        name: string;
         location: string;
         slug: string;
         legalName: string | null;
@@ -68,14 +70,61 @@ export declare class BusinessesController {
         website: string | null;
         logoUrl: string | null;
         coverUrl: string | null;
+        status: string;
+        savedCount: number;
+        viewCount: number;
+        createdAt: Date;
+        ownerId: string;
+    })[]>;
+    updateStatus(id: string, status: string, req: any): Promise<{
+        id: string;
+        name: string;
+        location: string;
+        slug: string;
+        legalName: string | null;
+        description: string;
+        detailedOverview: string | null;
+        businessType: string;
+        businessStage: string;
+        industry: string;
+        website: string | null;
+        logoUrl: string | null;
+        coverUrl: string | null;
+        status: string;
+        savedCount: number;
+        viewCount: number;
+        createdAt: Date;
+        ownerId: string;
+    }>;
+    findOne(slug: string): Promise<{
+        owner: {
+            id: string;
+            name: string;
+            avatarUrl: string | null;
+        };
+    } & {
+        id: string;
+        name: string;
+        location: string;
+        slug: string;
+        legalName: string | null;
+        description: string;
+        detailedOverview: string | null;
+        businessType: string;
+        businessStage: string;
+        industry: string;
+        website: string | null;
+        logoUrl: string | null;
+        coverUrl: string | null;
+        status: string;
         savedCount: number;
         viewCount: number;
         createdAt: Date;
         ownerId: string;
     }>;
     update(id: string, updateBusinessDto: UpdateBusinessDto, req: any): Promise<{
-        name: string;
         id: string;
+        name: string;
         location: string;
         slug: string;
         legalName: string | null;
@@ -87,14 +136,15 @@ export declare class BusinessesController {
         website: string | null;
         logoUrl: string | null;
         coverUrl: string | null;
+        status: string;
         savedCount: number;
         viewCount: number;
         createdAt: Date;
         ownerId: string;
     }>;
     remove(id: string, req: any): Promise<{
-        name: string;
         id: string;
+        name: string;
         location: string;
         slug: string;
         legalName: string | null;
@@ -106,6 +156,7 @@ export declare class BusinessesController {
         website: string | null;
         logoUrl: string | null;
         coverUrl: string | null;
+        status: string;
         savedCount: number;
         viewCount: number;
         createdAt: Date;

@@ -5,35 +5,39 @@ export declare class TeamMembersController {
     private readonly teamMembersService;
     constructor(teamMembersService: TeamMembersService);
     create(businessId: string, createTeamMemberDto: CreateTeamMemberDto, req: any): Promise<{
-        name: string;
         id: string;
+        name: string;
         bio: string | null;
         avatarUrl: string | null;
         role: string;
+        userId: string | null;
         businessId: string;
     }>;
     findAll(businessId: string): Promise<{
-        name: string;
         id: string;
+        name: string;
         bio: string | null;
         avatarUrl: string | null;
         role: string;
+        userId: string | null;
         businessId: string;
     }[]>;
     update(businessId: string, id: string, updateTeamMemberDto: UpdateTeamMemberDto, req: any): Promise<{
-        name: string;
         id: string;
+        name: string;
         bio: string | null;
         avatarUrl: string | null;
         role: string;
+        userId: string | null;
         businessId: string;
     }>;
     remove(businessId: string, id: string, req: any): Promise<{
-        name: string;
         id: string;
+        name: string;
         bio: string | null;
         avatarUrl: string | null;
         role: string;
+        userId: string | null;
         businessId: string;
     }>;
 }

@@ -3,9 +3,10 @@ import { useNavigate, useParams, Link } from 'react-router-dom';
 import { Image as ImageIcon, Cloud, ArrowLeft } from 'lucide-react';
 import ReactQuill from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
+import { toast } from 'sonner';
 import styles from './CreateBlog.module.css';
-import api from '../utils/api';
-import ImageUploader from '../components/ImageUploader/ImageUploader';
+import { api } from '../lib/axios';
+import ImageUploader from '../components/ImageUploader';
 
 const CreateBlog = () => {
   const navigate = useNavigate();
@@ -16,24 +17,38 @@ const CreateBlog = () => {
     title: '',
     content: '',
     coverImage: '',
-    category: 'Startup Guide',
+    topic: 'Startup Guide',
     tags: '',
     summary: ''
   });
 
   useEffect(() => {
     if (id) {
-      const articleToEdit = MOCK_ARTICLES.find(a => a.id === id);
-      if (articleToEdit) {
-        setFormData({
-          title: articleToEdit.title,
-          content: articleToEdit.content,
-          summary: articleToEdit.summary,
-          category: articleToEdit.category,
-          tags: Array.isArray(articleToEdit.tags) ? articleToEdit.tags.join(', ') : articleToEdit.tags,
-          coverImage: articleToEdit.coverImage || ''
-        });
-      }
+      const fetchArticle = async () => {
+        try {
+          const res = await api.get(`/articles/${id}`);
+          const articleToEdit = res.data;
+          
+          // Try to extract topic from tags if possible, or default
+          const defaultTopics = ['Startup Guide', 'Funding', 'Growth', 'Product', 'Community'];
+          const existingTags = Array.isArray(articleToEdit.tags) ? articleToEdit.tags : [];
+          const foundTopic = existingTags.find((t: string) => defaultTopics.includes(t)) || 'Startup Guide';
+          const remainingTags = existingTags.filter((t: string) => !defaultTopics.includes(t)).join(', ');
+
+          setFormData({
+            title: articleToEdit.title,
+            content: articleToEdit.content,
+            summary: articleToEdit.summary || '',
+            topic: foundTopic,
+            tags: remainingTags,
+            coverImage: articleToEdit.coverImage || ''
+          });
+        } catch (error) {
+          console.error("Lỗi khi tải bài viết", error);
+          toast.error("Không thể tải dữ liệu bài viết.");
+        }
+      };
+      fetchArticle();
     }
   }, [id]);
 
@@ -71,10 +86,19 @@ const CreateBlog = () => {
 
   const handleNext = () => {
     if (!formData.title.trim() || !formData.content.trim()) {
-      alert('Vui lòng nhập tiêu đề và nội dung bài viết trước khi tiếp tục!');
+      toast.warning('Vui lòng nhập tiêu đề và nội dung bài viết trước khi tiếp tục!');
       return;
     }
     setStep('settings');
+  };
+
+  const getProcessedTags = () => {
+    const customTags = formData.tags.split(',').map(t => t.trim()).filter(t => t);
+    // Include the selected topic as a tag
+    if (!customTags.includes(formData.topic)) {
+      customTags.unshift(formData.topic);
+    }
+    return customTags;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -87,21 +111,21 @@ const CreateBlog = () => {
         content: formData.content,
         coverImage: formData.coverImage,
         status: 'PENDING',
-        category: formData.category,
-        tags: formData.tags.split(',').map(t => t.trim()).filter(t => t),
+        category: 'Blog', // Fixed category for user articles
+        tags: getProcessedTags(),
       };
 
       if (id) {
         await api.put(`/articles/${id}`, payload);
-        alert('Bài viết đã được cập nhật và gửi duyệt lại!');
+        toast.success('Bài viết đã được cập nhật và gửi duyệt lại!');
       } else {
         await api.post('/articles', payload);
-        alert('Bài viết đã được gửi cho Admin phê duyệt! Bạn có thể theo dõi trạng thái tại trang cá nhân.');
+        toast.success('Bài viết đã được gửi cho Admin phê duyệt! Bạn có thể theo dõi trạng thái tại trang cá nhân.');
       }
-      navigate('/user/u1'); // Ideally navigate to /profile
+      navigate('/user/me');
     } catch (error) {
       console.error('Lỗi khi đăng bài:', error);
-      alert('Có lỗi xảy ra, vui lòng thử lại.');
+      toast.error('Có lỗi xảy ra, vui lòng thử lại.');
     }
   };
 
@@ -113,21 +137,21 @@ const CreateBlog = () => {
         content: formData.content,
         coverImage: formData.coverImage,
         status: 'DRAFT',
-        category: formData.category,
-        tags: formData.tags.split(',').map(t => t.trim()).filter(t => t),
+        category: 'Blog', // Fixed category for user articles
+        tags: getProcessedTags(),
       };
 
       if (id) {
         await api.put(`/articles/${id}`, payload);
-        alert('Bản nháp đã được cập nhật thành công!');
+        toast.success('Bản nháp đã được cập nhật thành công!');
       } else {
         await api.post('/articles', payload);
-        alert('Bản nháp đã được lưu thành công!');
+        toast.success('Bản nháp đã được lưu thành công!');
       }
-      navigate('/user/u1'); // Ideally navigate to /profile
+      navigate('/user/me');
     } catch (error) {
       console.error('Lỗi khi lưu nháp:', error);
-      alert('Có lỗi xảy ra, vui lòng thử lại.');
+      toast.error('Có lỗi xảy ra, vui lòng thử lại.');
     }
   };
 
@@ -161,11 +185,11 @@ const CreateBlog = () => {
           </div>
 
           <div className={styles.formGroup}>
-            <label className={styles.label}>Chuyên mục (Category)</label>
+            <label className={styles.label}>Chủ đề (Topic)</label>
             <select 
-              name="category" 
+              name="topic" 
               className={styles.select}
-              value={formData.category}
+              value={formData.topic}
               onChange={handleChange}
             >
               <option value="Startup Guide">Startup Guide</option>

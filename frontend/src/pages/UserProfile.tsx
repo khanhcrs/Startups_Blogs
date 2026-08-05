@@ -17,6 +17,7 @@ import {
   Eye,
   Building2
 } from 'lucide-react';
+import { toast } from 'sonner';
 import { 
   ComposedChart, 
   Line, 
@@ -29,9 +30,10 @@ import {
   ResponsiveContainer 
 } from 'recharts';
 import styles from './UserProfile.module.css';
-import api from '../utils/api';
+import { api } from '../lib/axios';
+import { useAuthStore } from '../store/authStore';
 
-type Tab = 'overview' | 'posts' | 'saved' | 'settings';
+type Tab = 'overview' | 'posts' | 'businesses' | 'saved' | 'settings';
 type SubSettingsTab = 'profile' | 'social' | 'notifications';
 
 const UserProfile = () => {
@@ -60,6 +62,8 @@ const UserProfile = () => {
     location: ''
   });
 
+  const { isAuthenticated, user } = useAuthStore();
+
   const getInitials = (name: string) => {
     if (!name) return 'U';
     return name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
@@ -75,11 +79,9 @@ const UserProfile = () => {
     const fetchProfileData = async () => {
       try {
         setLoading(true);
-        // Basic check if token exists
-        const token = localStorage.getItem('token');
         const isMyProfile = (!id || id === 'me'); // Assume 'me' or no ID means current user
 
-        if (token && isMyProfile) {
+        if (isAuthenticated && isMyProfile) {
           setIsOwner(true);
           setActiveTab('overview');
           
@@ -95,6 +97,13 @@ const UserProfile = () => {
           // Fetch my articles
           const articlesRes = await api.get('/articles/me');
           setAuthoredArticles(articlesRes.data);
+          
+          if (userRes.data.ownedBusinesses) {
+            setAuthorInfo(prev => ({
+              ...prev,
+              ownedBusinesses: userRes.data.ownedBusinesses
+            }));
+          }
         } else {
           setIsOwner(false);
           // In a fully integrated app, fetch other user's profile and published articles here.
@@ -120,9 +129,9 @@ const UserProfile = () => {
       try {
         await api.delete(`/articles/${postId}`);
         setAuthoredArticles(prev => prev.filter(a => a.id !== postId));
-        alert('Đã xóa bài viết thành công.');
-      } catch (err) {
-        alert('Lỗi khi xóa bài viết.');
+        toast.success('Đã xóa bài viết thành công.');
+      } catch (error) {
+        toast.error('Lỗi khi xóa bài viết.');
       }
     }
   };
@@ -131,9 +140,9 @@ const UserProfile = () => {
     try {
       const res = await api.put('/users/me', settingsForm);
       setAuthorInfo(res.data);
-      alert('Đã cập nhật thông tin thành công!');
-    } catch (err) {
-      alert('Có lỗi khi cập nhật thông tin.');
+      toast.success('Đã cập nhật thông tin thành công!');
+    } catch (error) {
+      toast.error('Có lỗi khi cập nhật thông tin.');
     }
   };
 
@@ -262,6 +271,12 @@ const UserProfile = () => {
                 <FileText size={20} /> Posts Management
               </button>
               <button 
+                className={`${styles.tab} ${activeTab === 'businesses' ? styles.activeTab : ''}`}
+                onClick={() => setActiveTab('businesses')}
+              >
+                <Building2 size={20} /> My Businesses
+              </button>
+              <button 
                 className={`${styles.tab} ${activeTab === 'saved' ? styles.activeTab : ''}`}
                 onClick={() => setActiveTab('saved')}
               >
@@ -284,6 +299,13 @@ const UserProfile = () => {
         {/* TAB CONTENTS */}
         {activeTab === 'overview' && isOwner && (
           <div className={styles.chartCard}>
+            <div className={styles.chartHeader}>
+              <h2>Overview Analytics (Coming Soon)</h2>
+            </div>
+            <div style={{ padding: '20px', color: 'var(--text-muted)' }}>
+              Biểu đồ thống kê lượt xem và tương tác sẽ được cập nhật khi có API.
+            </div>
+            {/* Analytics chart hidden until backend API is ready
             <div className={styles.chartHeader}>
               <h2>Engagement Over Time</h2>
               <select 
@@ -310,6 +332,7 @@ const UserProfile = () => {
                 </ComposedChart>
               </ResponsiveContainer>
             </div>
+            */}
           </div>
         )}
 
@@ -462,6 +485,60 @@ const UserProfile = () => {
               )}
             </>
           )
+        )}
+        
+        {activeTab === 'businesses' && isOwner && (
+          <div className={styles.tableContainer}>
+             <div className={styles.tableHeader} style={{padding: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+               <h2 style={{margin: 0}}>My Startups & Businesses</h2>
+               <Link to="/raise-capital" className={styles.primaryBtn}>+ Register Business</Link>
+             </div>
+             
+             {authorInfo.ownedBusinesses && authorInfo.ownedBusinesses.length > 0 ? (
+               <div className={styles.tableScrollWrapper}>
+                 <table className={styles.postsTable}>
+                   <thead>
+                     <tr>
+                       <th>Name</th>
+                       <th>Industry</th>
+                       <th>Status</th>
+                       <th>Created At</th>
+                     </tr>
+                   </thead>
+                   <tbody>
+                     {authorInfo.ownedBusinesses.map((b: any) => (
+                       <tr key={b.id}>
+                         <td className={styles.postTitleCell}>
+                            <Link to={`/businesses/${b.slug}`} style={{color: 'inherit', textDecoration: 'none', fontWeight: 600}}>
+                              {b.name}
+                            </Link>
+                         </td>
+                         <td>{b.industry}</td>
+                         <td>
+                           <span style={{
+                             backgroundColor: b.status === 'APPROVED' ? '#dcfce7' : b.status === 'PENDING' ? '#fef08a' : '#fee2e2',
+                             color: b.status === 'APPROVED' ? '#166534' : b.status === 'PENDING' ? '#854d0e' : '#991b1b',
+                             padding: '4px 8px',
+                             borderRadius: '4px',
+                             fontSize: '12px',
+                             fontWeight: 600
+                           }}>
+                             {b.status}
+                           </span>
+                         </td>
+                         <td>{formatDate(b.createdAt)}</td>
+                       </tr>
+                     ))}
+                   </tbody>
+                 </table>
+               </div>
+             ) : (
+               <div className={styles.emptyState}>
+                 <Building2 size={48} style={{margin: '0 auto 16px', color: '#CBD5E1'}} />
+                 <p>You haven't registered any businesses yet.</p>
+               </div>
+             )}
+          </div>
         )}
 
         {activeTab === 'saved' && isOwner && (

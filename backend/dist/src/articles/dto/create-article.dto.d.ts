@@ -5,4 +5,6 @@ export declare class CreateArticleDto {
     category: string;
     status?: string;
     businessId?: string;
+    coverImage?: string;
+    tags?: string[];
 }

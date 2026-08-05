@@ -7,95 +7,134 @@ export declare class ArticlesController {
     create(createArticleDto: CreateArticleDto, req: any): Promise<{
         id: string;
         slug: string;
+        status: string;
         viewCount: number;
         createdAt: Date;
+        category: string;
         title: string;
         summary: string;
         content: string;
-        status: string;
-        category: string;
+        coverImage: string | null;
+        tags: string[];
+        likesCount: number;
         publishedAt: Date | null;
-        businessId: string | null;
         authorId: string;
+        businessId: string | null;
     }>;
+    findMyArticles(req: any): Promise<({
+        business: {
+            id: string;
+            name: string;
+            slug: string;
+            logoUrl: string | null;
+        } | null;
+    } & {
+        id: string;
+        slug: string;
+        status: string;
+        viewCount: number;
+        createdAt: Date;
+        category: string;
+        title: string;
+        summary: string;
+        content: string;
+        coverImage: string | null;
+        tags: string[];
+        likesCount: number;
+        publishedAt: Date | null;
+        authorId: string;
+        businessId: string | null;
+    })[]>;
     findAll(category?: string, businessId?: string, skip?: string, take?: string): Promise<({
         business: {
-            name: string;
             id: string;
+            name: string;
             slug: string;
             logoUrl: string | null;
         } | null;
         author: {
-            name: string;
             id: string;
+            name: string;
             avatarUrl: string | null;
         };
     } & {
         id: string;
         slug: string;
+        status: string;
         viewCount: number;
         createdAt: Date;
+        category: string;
         title: string;
         summary: string;
         content: string;
-        status: string;
-        category: string;
+        coverImage: string | null;
+        tags: string[];
+        likesCount: number;
         publishedAt: Date | null;
-        businessId: string | null;
         authorId: string;
+        businessId: string | null;
     })[]>;
-    findOne(slug: string): Promise<{
+    findOne(idOrSlug: string): Promise<{
         business: {
-            name: string;
             id: string;
+            name: string;
             slug: string;
             logoUrl: string | null;
         } | null;
         author: {
-            name: string;
             id: string;
+            name: string;
             avatarUrl: string | null;
         };
     } & {
         id: string;
         slug: string;
+        status: string;
         viewCount: number;
         createdAt: Date;
+        category: string;
         title: string;
         summary: string;
         content: string;
-        status: string;
-        category: string;
+        coverImage: string | null;
+        tags: string[];
+        likesCount: number;
         publishedAt: Date | null;
-        businessId: string | null;
         authorId: string;
+        businessId: string | null;
     }>;
     update(id: string, updateArticleDto: UpdateArticleDto, req: any): Promise<{
         id: string;
         slug: string;
+        status: string;
         viewCount: number;
         createdAt: Date;
+        category: string;
         title: string;
         summary: string;
         content: string;
-        status: string;
-        category: string;
+        coverImage: string | null;
+        tags: string[];
+        likesCount: number;
         publishedAt: Date | null;
-        businessId: string | null;
         authorId: string;
+        businessId: string | null;
     }>;
     remove(id: string, req: any): Promise<{
         id: string;
         slug: string;
+        status: string;
         viewCount: number;
         createdAt: Date;
+        category: string;
         title: string;
         summary: string;
         content: string;
-        status: string;
-        category: string;
+        coverImage: string | null;
+        tags: string[];
+        likesCount: number;
         publishedAt: Date | null;
-        businessId: string | null;
         authorId: string;
+        businessId: string | null;
     }>;
 }

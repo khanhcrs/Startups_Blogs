@@ -6,35 +6,39 @@ export declare class TeamMembersService {
     constructor(prisma: PrismaService);
     private checkBusinessOwnership;
     create(businessId: string, createTeamMemberDto: CreateTeamMemberDto, ownerId: string): Promise<{
-        name: string;
         id: string;
+        name: string;
         bio: string | null;
         avatarUrl: string | null;
         role: string;
+        userId: string | null;
         businessId: string;
     }>;
     findAll(businessId: string): Promise<{
-        name: string;
         id: string;
+        name: string;
         bio: string | null;
         avatarUrl: string | null;
         role: string;
+        userId: string | null;
         businessId: string;
     }[]>;
     update(businessId: string, id: string, updateTeamMemberDto: UpdateTeamMemberDto, ownerId: string): Promise<{
-        name: string;
         id: string;
+        name: string;
         bio: string | null;
         avatarUrl: string | null;
         role: string;
+        userId: string | null;
         businessId: string;
     }>;
     remove(businessId: string, id: string, ownerId: string): Promise<{
-        name: string;
         id: string;
+        name: string;
         bio: string | null;
         avatarUrl: string | null;
         role: string;
+        userId: string | null;
         businessId: string;
     }>;
 }

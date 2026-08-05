@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react';
 import { Upload, X, Loader2, Image as ImageIcon } from 'lucide-react';
-import { api } from '../../lib/axios';
+import { api } from '../lib/axios';
 import styles from './ImageUploader.module.css';
 
 interface ImageUploaderProps {

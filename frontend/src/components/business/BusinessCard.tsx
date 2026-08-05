@@ -15,7 +15,11 @@ const BusinessCard = ({ business, onSave }: BusinessCardProps) => {
     <div className={styles.card}>
       <div className={styles.cardHeader}>
         <div className={styles.logoContainer}>
-          <span className={styles.logoInitial}>{name.charAt(0)}</span>
+          {business.logoUrl ? (
+            <img src={business.logoUrl} alt={name} className={styles.logoImg} />
+          ) : (
+            <span className={styles.logoInitial}>{name.charAt(0)}</span>
+          )}
         </div>
         <div className={styles.titleInfo}>
           <div className={styles.nameRow}>

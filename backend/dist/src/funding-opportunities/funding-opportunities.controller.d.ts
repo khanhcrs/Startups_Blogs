@@ -8,9 +8,9 @@ export declare class FundingOpportunitiesController {
         id: string;
         slug: string;
         detailedOverview: string | null;
+        status: string;
         createdAt: Date;
         title: string;
-        status: string;
         publishedAt: Date | null;
         businessId: string;
         currency: string;
@@ -25,9 +25,9 @@ export declare class FundingOpportunitiesController {
         id: string;
         slug: string;
         detailedOverview: string | null;
+        status: string;
         createdAt: Date;
         title: string;
-        status: string;
         publishedAt: Date | null;
         businessId: string;
         currency: string;
@@ -42,9 +42,9 @@ export declare class FundingOpportunitiesController {
         id: string;
         slug: string;
         detailedOverview: string | null;
+        status: string;
         createdAt: Date;
         title: string;
-        status: string;
         publishedAt: Date | null;
         businessId: string;
         currency: string;
@@ -59,9 +59,9 @@ export declare class FundingOpportunitiesController {
         id: string;
         slug: string;
         detailedOverview: string | null;
+        status: string;
         createdAt: Date;
         title: string;
-        status: string;
         publishedAt: Date | null;
         businessId: string;
         currency: string;

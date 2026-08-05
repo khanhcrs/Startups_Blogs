@@ -46,14 +46,14 @@
   border-radius: var(--radius-lg);
   overflow: hidden;
   border: 1px solid var(--border-color);
-  transition: all 0.2s;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
   background: var(--surface-color);
 }
 
 .featuredCard:hover {
-  transform: translateY(-2px);
+  transform: translateY(-4px);
   box-shadow: var(--shadow-md);
-  border-color: var(--primary-200);
+  border-color: var(--primary-300);
 }
 
 .featuredImage {
@@ -125,16 +125,18 @@
 .articleCard {
   display: flex;
   gap: var(--spacing-6);
-  padding: var(--spacing-6) 0;
+  padding: var(--spacing-6);
   border-bottom: 1px solid var(--border-color);
   text-decoration: none;
   color: inherit;
   align-items: center;
-  transition: opacity 0.2s;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+  border-radius: var(--radius-md);
 }
 
 .articleCard:hover {
-  opacity: 0.8;
+  transform: translateX(4px);
+  background-color: var(--surface-hover);
 }
 
 .articleInfo {

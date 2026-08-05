@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Search, Bell, Sun, ChevronDown, User, Settings, LogOut, Edit, Briefcase } from 'lucide-react';
+import { Search, Bell, Sun, ChevronDown, User, Settings, LogOut, Edit, Briefcase, Shield } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 import styles from './Header.module.css';
 import { useAuthStore } from '../../store/authStore';
@@ -118,7 +118,7 @@ const Header = () => {
                       <p style={{ margin: 0, fontWeight: 600 }}>{user?.firstName} {user?.lastName}</p>
                       <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-secondary)' }}>{user?.email}</p>
                     </div>
-                    <Link to="/user/u1" className={styles.dropdownItem} onClick={() => setShowDropdown(false)}>
+                    <Link to="/user/me" className={styles.dropdownItem} onClick={() => setShowDropdown(false)}>
                       <User size={16} /> Profile & Dashboard
                     </Link>
                     
@@ -130,6 +130,12 @@ const Header = () => {
                     <Link to="/raise-capital" className={styles.dropdownItem} onClick={() => setShowDropdown(false)}>
                       <Briefcase size={16} /> Raise Capital
                     </Link>
+                    
+                    {user?.role === 'ADMIN' && (
+                      <Link to="/admin/dashboard" className={styles.dropdownItem} onClick={() => setShowDropdown(false)}>
+                        <Shield size={16} /> Admin Dashboard
+                      </Link>
+                    )}
                     
                     <div className={styles.dropdownDivider}></div>
                     
