@@ -7,17 +7,16 @@ Dự án Frontend được setup bằng React 19, TypeScript, và Vite.
 ```text
 src/
 ├── assets/          # Hình ảnh tĩnh, SVG, font chữ
-├── components/      # Các component tái sử dụng được chia theo tính năng
-│   ├── ui/          # Các component nhỏ gọn (Button, Input, Modal, Badge...)
-│   ├── layout/      # Header, Footer, Sidebar, Layout chính
-│   └── [feature]/   # Component dành riêng cho một tính năng (vd: business, idea)
-├── hooks/           # Custom React hooks (vd: useAuth, useDebounce)
-├── pages/           # Các trang tương ứng với Route (Home, BusinessDetail, ...)
-├── services/        # Các file gọi API Backend (axios, fetch fetchers)
-├── store/           # Quản lý Global State (TanStack Query context, Zustand/Context API)
-├── styles/          # File CSS toàn cục (variables.css, reset.css)
-├── types/           # Các Interface, Type dùng chung toàn dự án
-├── utils/           # Các hàm hỗ trợ (formatDate, formatCurrency, validation...)
+├── components/      # Các component dùng chung toàn cục (UI cơ bản, Layout)
+├── features/        # Phân chia theo module/tính năng (Admin, Auth, Articles, Businesses...)
+│   └── [feature]/   # Mỗi feature sẽ có riêng components, hooks, api, types của nó
+├── hooks/           # Custom React hooks dùng chung (useDebounce, useClickOutside)
+├── lib/             # Các cấu hình thư viện bên thứ 3 (axios interceptors, etc.)
+├── pages/           # Các trang cấp cao (để map với React Router)
+├── store/           # Quản lý Global State (Zustand)
+├── styles/          # File CSS toàn cục (variables.css, global.css)
+├── types/           # Interface dùng chung toàn dự án (không thuộc feature cụ thể)
+├── utils/           # Các hàm tiện ích thuần túy (formatDate, formatCurrency)
 ├── App.tsx          # Định nghĩa Routes
 └── main.tsx         # Entry point
 ```

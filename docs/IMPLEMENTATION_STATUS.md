@@ -80,8 +80,12 @@ Tài liệu này đóng vai trò như một "bộ nhớ vĩnh cửu" (Permanent 
   - **Overview**: Thống kê số lượng (Users, Businesses, Articles, Pending).
   - **Businesses**: Phê duyệt hoặc Từ chối Startup.
   - **Users**: Xem danh sách toàn hệ thống, cấp quyền (USER, MODERATOR, ADMIN).
-  - **Articles**: Xem danh sách bài viết, chuyển trạng thái (DRAFT/PUBLISHED) và xóa bài vi phạm.
-- Thiết lập Backend API cho các thao tác Admin bảo mật.
+  - **Articles**: Quản lý danh sách bài viết chuyên sâu:
+    - Chuyển trạng thái (DRAFT/PUBLISHED) và xóa bài vi phạm.
+    - Modal Xem trước chi tiết bài viết (Preview) tích hợp Biểu đồ Thống kê (Views/Likes) bằng `recharts`.
+    - Tính năng bộ lọc nâng cao (Advanced Filters): Lọc theo Tag, Khoảng thời gian (From/To), Danh mục (Blogs/News), Tìm kiếm.
+    - Quản trị Bình luận (Comment Moderation): Quyền tối thượng của Admin để xóa ngay bình luận rác/vi phạm trực tiếp từ Modal xem trước.
+- Thiết lập Backend API cho các thao tác Admin bảo mật (Ví dụ: `DELETE /comments/admin/:id`, `GET /articles/tags`).
 
 ---
 
