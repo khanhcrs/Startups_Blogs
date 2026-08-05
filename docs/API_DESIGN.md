@@ -5,7 +5,8 @@ Tài liệu này quy định các tiêu chuẩn khi giao tiếp giữa Frontend 
 ## 1. Thông tin chung
 - **Prefix:** `/api/v1`
 - **Content-Type mặc định:** `application/json`
-- **Xác thực:** Dùng header `Authorization: Bearer <JWT_TOKEN>` (Token lấy từ AWS Cognito).
+- **Xác thực:** Dùng header `Authorization: Bearer <JWT_TOKEN>`. 
+  > **Note:** Mục tiêu dài hạn là sử dụng AWS Cognito để cấp Token. Tuy nhiên, trong giai đoạn MVP hiện tại, dự án đang dùng Local JWT + bcrypt (xử lý trực tiếp trên Backend Node.js) để tối ưu thời gian phát triển.
 
 ## 2. Tiêu chuẩn Response
 
@@ -32,15 +33,18 @@ Mọi phản hồi từ server (kể cả lỗi) đều trả về một cấu t
 }
 ```
 
-## 3. Tiêu chuẩn Pagination & Filter
+## 3. Tiêu chuẩn Pagination & Filter (Phân trang và Lọc)
 
-Đối với các API lấy danh sách (`GET /api/v1/startups`), Frontend truyền thông số qua Query String.
+Đối với các API lấy danh sách (VD: `GET /businesses` hoặc `GET /articles`), Frontend truyền thông số qua Query String.
 
 - `page`: Trang hiện tại (Mặc định: 1)
-- `limit`: Số lượng kết quả mỗi trang (Mặc định: 10, Tối đa: 50)
-- `sort`: Trường cần sắp xếp, thêm prefix `-` để xếp giảm dần (VD: `-createdAt`)
-- `search`: Chuỗi tìm kiếm (Full-text hoặc ILIKE)
-- `filter[field]`: Lọc theo trường cụ thể (VD: `filter[industry]=Technology`)
+- `limit`: Số lượng kết quả mỗi trang (Mặc định: 10)
+- `sort`: Trường cần sắp xếp (VD: `createdAt`, `viewCount`)
+- `search`: Chuỗi tìm kiếm (Full-text hoặc ILIKE theo Title/Name)
+- Các tham số lọc tùy chỉnh (Advanced Filters): Truyền trực tiếp dưới dạng query, ví dụ:
+  - `category=Blogs`
+  - `tag=Technology`
+  - `startDate=2026-08-01` & `endDate=2026-08-31`
 
 **Response cho danh sách có phân trang:**
 ```json
@@ -56,11 +60,11 @@ Mọi phản hồi từ server (kể cả lỗi) đều trả về một cấu t
 }
 ```
 
-## 4. Quản lý File & Upload (Presigned URL)
+## 4. Quản lý File & Upload (MinIO / S3)
 
-Backend **không** trực tiếp nhận file qua form-data.
+Backend **không** trực tiếp nhận file qua form-data để lưu vào ổ cứng local nhằm dễ dàng scale.
 Quy trình:
-1. Frontend gọi `POST /api/v1/storage/upload-url` truyền `fileName`, `fileType`.
-2. Backend gọi S3 SDK tạo Presigned URL và trả về cho Frontend.
-3. Frontend dùng phương thức `PUT` upload trực tiếp file lên URL đó.
-4. Frontend gửi `S3 Object Key` lại cho Backend để lưu vào database (trong bảng Profile, Idea...).
+1. Frontend gọi `POST /upload` (body là multipart form-data) nếu dùng upload trực tiếp, HOẶC gọi API lấy Presigned URL. 
+   *(Lưu ý: Hiện tại MVP đang dùng `POST /upload` upload thẳng file thông qua `UploadController` sử dụng `Multer` và AWS S3 SDK đẩy lên MinIO)*.
+2. Backend lưu file lên MinIO (S3 clone) và trả về URL trực tiếp của file.
+3. Frontend dùng URL đó (`https://.../bucket/file.png`) để lưu vào Database.

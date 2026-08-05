@@ -68,23 +68,46 @@ Tài liệu này đóng vai trò như một "bộ nhớ vĩnh cửu" (Permanent 
 
 ---
 
-### Phase 8: Admin Approval Workflow (Vừa hoàn thiện)
-- Bổ sung trường `status` (PENDING, APPROVED, REJECTED) cho bảng `Business`.
-- Viết API dành riêng cho Admin (`GET /businesses/admin/all` và `PUT /businesses/admin/:id/status`).
-- Thiết kế giao diện **Admin Dashboard** trên Frontend để duyệt hoặc từ chối Startups.
-- Tích hợp kiểm tra quyền (Role `ADMIN`) trong cả Backend và Frontend.
-- Ẩn các Startups chưa được duyệt khỏi trang chủ (Explore).
+### Phase 8: Blogs & News (Hoàn thiện)
+- Viết API Quản lý Bài viết (Tạo, Sửa, Xóa, Đọc). Phân quyền Tác giả/Công ty.
+- Tích hợp bộ lọc (Filter) tìm kiếm và ngày tháng nâng cao cho Blogs và News trên Frontend.
+- Nâng cấp giao diện trang Blogs và News với phong cách chuyên nghiệp (Hero Section, Search bar).
+
+### Phase 9: Contact Request & Admin Dashboard (Hoàn thiện)
+- **Contact Request:** Tạo bảng `ContactRequest`. Bổ sung Modal liên hệ và tab Inbox cho Founder.
+- **Admin Dashboard:** Cấu trúc lại trang Admin với giao diện Sidebar Layout chuyên nghiệp.
+- Bổ sung các module quản trị:
+  - **Overview**: Thống kê số lượng (Users, Businesses, Articles, Pending).
+  - **Businesses**: Phê duyệt hoặc Từ chối Startup.
+  - **Users**: Xem danh sách toàn hệ thống, cấp quyền (USER, MODERATOR, ADMIN).
+  - **Articles**: Quản lý danh sách bài viết chuyên sâu:
+    - Chuyển trạng thái (DRAFT/PUBLISHED) và xóa bài vi phạm.
+    - Modal Xem trước chi tiết bài viết (Preview) tích hợp Biểu đồ Thống kê (Views/Likes) bằng `recharts`.
+    - Tính năng bộ lọc nâng cao (Advanced Filters): Lọc theo Tag, Khoảng thời gian (From/To), Danh mục (Blogs/News), Tìm kiếm.
+    - Quản trị Bình luận (Comment Moderation): Quyền tối thượng của Admin để xóa ngay bình luận rác/vi phạm trực tiếp từ Modal xem trước.
+- Thiết lập Backend API cho các thao tác Admin bảo mật (Ví dụ: `DELETE /comments/admin/:id`, `GET /articles/tags`).
 
 ---
 
 ## 🟡 Những Phần Đang Chờ Triển Khai (To-Do)
 
-### Phase 9: Contact Request & Tính năng phụ của MVP
-- Xây dựng API gửi Yêu cầu liên hệ (Contact Request) từ Nhà đầu tư đến Startup.
-- Hoàn thiện UI cho tính năng gửi tin nhắn/Email nội bộ.
-- Xây dựng luồng phê duyệt tin đăng gọi vốn (Funding Opportunities) tương tự như duyệt Startup.
+### Phase 10: Admin Change Proposal (Review & Merge Workflow)
+- **Database:** Bổ sung mô hình `ChangeProposal` để lưu lại những thay đổi dưới dạng JSON. (Đã xong)
+- **Giao diện Admin:** Xây dựng Form chỉnh sửa toàn diện cho Business và Article, sử dụng phương thức "Tạo đề xuất thay đổi" thay vì lưu trực tiếp. (Đang thực hiện)
+- **Giao diện Owner:** Cần xây dựng màn hình Diff/Merge để Owner xem thay đổi và nhấn Approve/Reject.
 
-### Phase 10: Kiểm thử & Tối ưu
+### Phase 11: Hệ Thống Thông Báo (Notifications)
+- Thay thế dữ liệu mock trên giao diện bằng hệ thống Notification thực tế.
+- Khi Admin tạo ChangeProposal, tự động sinh ra một Notification nhắc nhở Owner vào phê duyệt.
+- Xây dựng Notification schema trong cơ sở dữ liệu.
+- Xây dựng API (Lấy danh sách thông báo, đánh dấu đã đọc).
+- Cập nhật UI hiển thị Notification động (chuông thông báo, trang Notifications).
+
+### Phase 12: Phê Duyệt Gọi Vốn & Các Tính Năng Phụ
+- Xây dựng luồng phê duyệt tin đăng gọi vốn (Funding Opportunities) tương tự như duyệt Startup.
+- Cải thiện quản lý trạng thái của nội dung.
+
+### Phase 13: Kiểm thử & Tối ưu
 - Viết Test (E2E hoặc Unit) cho các luồng quan trọng.
 
 > [!NOTE]

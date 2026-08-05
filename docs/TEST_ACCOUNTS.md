@@ -1,24 +1,29 @@
 # Danh sách Tài khoản Kiểm thử (Test Accounts)
 
-Dưới đây là các tài khoản mẫu (Mock Accounts) để bạn có thể sử dụng khi Đăng nhập và Test các luồng tính năng trên Frontend (hiện tại) và Backend (sau này).
+Dưới đây là các tài khoản mẫu (Mock Accounts) được khởi tạo tự động trong Database (thông qua `seed.ts`). Tất cả tài khoản đều sử dụng chung một mật khẩu để tiện lợi cho việc kiểm thử.
 
-## 1. Tài khoản Độc giả / Người dùng (User / Reader)
-Tài khoản này dùng để đọc báo, thích (like), bình luận (comment), và theo dõi (follow) các doanh nghiệp/tác giả.
+**Mật khẩu chung cho tất cả tài khoản:** `password123`
 
-- **Email:** `user@gmail.com`
-- **Password:** `User@123456`
-- **Họ và tên:** Nguyễn Văn Độc Giả
+## 1. Tài khoản Quản trị (Admin)
+Tài khoản có quyền cao nhất hệ thống, truy cập được trang Admin Dashboard để duyệt Startup, xóa bài viết, xóa bình luận rác và thống kê toàn cục.
+
+- **Email:** `admin@startups.vn`
+- **Họ và tên:** Quản Trị Viên
+- **Vai trò:** `ADMIN`
+
+## 2. Tài khoản Độc giả / Nhà đầu tư (User)
+Tài khoản người dùng thông thường dùng để đọc tin tức, thích (like), bình luận (comment), lưu bài (bookmark) và theo dõi (follow).
+
+- **Email:** `user@startups.vn`
+- **Họ và tên:** Nhà Đầu Tư Angel
 - **Vai trò:** `USER`
 
-## 2. Tài khoản Doanh nghiệp / Startup (Business)
-Tài khoản này dùng để đăng bài viết PR (Blogs), đăng tin tuyển dụng, gọi vốn, và cập nhật hồ sơ doanh nghiệp.
+## 3. Tài khoản Người sáng lập (Founders / Business Owners)
+Có tổng cộng 12 tài khoản Founder. Mỗi tài khoản này là chủ sở hữu (Owner) của một Startup cụ thể trong hệ thống. Dùng để đăng bài viết PR (Blogs/News), đăng tin gọi vốn, quản lý Team Members, v.v.
 
-- **Email:** `founder@greenflow.vn`
-- **Password:** `Startup@123456`
-- **Họ và tên người đại diện:** Trần Founder
-- **Tên doanh nghiệp:** GreenFlow Tech JSC
-- **Mã số thuế:** `0101234567`
-- **Vai trò:** `BUSINESS` (Đã được duyệt / Verified)
+- **Email:** `founder1@startups.vn` (Tương tự từ `founder1` đến `founder12`)
+- **Họ và tên:** Founder 1 (đến Founder 12)
+- **Vai trò:** `USER` (Tuy nhiên họ đóng vai trò là Chủ sở hữu của các Business tương ứng)
 
 ---
-*Lưu ý: Khi ráp Backend, chúng ta sẽ viết script để seed tự động các tài khoản này vào Database thực tế.*
+*Lưu ý: Nếu bạn vô tình làm hỏng dữ liệu hoặc quên tài khoản, bạn có thể chạy lệnh `npm run db:seed` ở thư mục Backend để khôi phục toàn bộ dữ liệu mẫu này lại từ đầu.*

@@ -55,7 +55,11 @@ export class BusinessesService {
   async findOneBySlug(slug: string) {
     const business = await this.prisma.business.findUnique({
       where: { slug },
-      include: { owner: { select: { id: true, name: true, avatarUrl: true } } },
+      include: { 
+        owner: { select: { id: true, name: true, avatarUrl: true } },
+        teamMembers: true,
+        fundingRounds: true
+      },
     });
     if (!business) {
       throw new NotFoundException(`Business with slug ${slug} not found`);

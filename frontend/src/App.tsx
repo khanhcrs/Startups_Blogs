@@ -17,11 +17,17 @@ import RegisterBusiness from './pages/auth/RegisterBusiness';
 import PendingVerification from './pages/auth/PendingVerification';
 import About from './pages/About';
 import Contact from './pages/Contact';
-import AdminDashboard from './pages/AdminDashboard';
+import AccessDenied from './pages/AccessDenied';
+import AdminLayout from './features/admin/layouts/AdminLayout';
+import AdminOverview from './features/admin/pages/AdminOverview';
+import AdminUsers from './features/admin/pages/AdminUsers';
+import AdminBusinesses from './features/admin/pages/AdminBusinesses';
+import AdminArticles from './features/admin/pages/AdminArticles';
+import AdminEditBusiness from './features/admin/pages/AdminEditBusiness';
+import AdminEditArticle from './features/admin/pages/AdminEditArticle';
 
 function LegacyRedirect({ to }: { to: string }) {
   const location = useLocation();
-
   return (
     <Navigate
       to={{
@@ -58,7 +64,17 @@ function App() {
             <Route path="user/:id" element={<UserProfile />} />
             <Route path="about" element={<About />} />
             <Route path="contact" element={<Contact />} />
-            <Route path="admin/dashboard" element={<AdminDashboard />} />
+            <Route path="admin" element={<AdminLayout />}>
+              <Route index element={<LegacyRedirect to="/admin/overview" />} />
+              <Route path="dashboard" element={<LegacyRedirect to="/admin/overview" />} />
+              <Route path="overview" element={<AdminOverview />} />
+              <Route path="users" element={<AdminUsers />} />
+              <Route path="businesses" element={<AdminBusinesses />} />
+              <Route path="businesses/:id/edit" element={<AdminEditBusiness />} />
+              <Route path="articles" element={<AdminArticles />} />
+              <Route path="articles/:id/edit" element={<AdminEditArticle />} />
+            </Route>
+            <Route path="403" element={<AccessDenied />} />
           </Route>
           <Route path="/create-blog" element={<CreateBlog />} />
           <Route path="/edit-blog/:id" element={<CreateBlog />} />

@@ -1,0 +1,64 @@
+.container {
+  display: flex;
+  height: calc(100vh - 64px);
+  overflow: hidden;
+  background-color: var(--bg-body, #f9fafb);
+}
+
+.sidebar {
+  width: 250px;
+  background-color: var(--bg-surface, #ffffff);
+  border-right: 1px solid var(--border-color, #e5e7eb);
+  padding: 1.5rem 1rem;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+.sidebarTitle {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-primary, #111827);
+  margin-bottom: 2rem;
+  padding-left: 0.5rem;
+}
+
+.menuItem {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  margin-bottom: 0.5rem;
+  border-radius: 0.5rem;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary, #4b5563);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+}
+
+.menuItem:hover {
+  background-color: var(--bg-hover, #f3f4f6);
+  color: var(--text-primary, #111827);
+}
+
+.activeMenuItem {
+  background-color: var(--primary-color, #2563eb);
+  color: white;
+}
+
+.activeMenuItem:hover {
+  background-color: var(--primary-color, #2563eb);
+  color: white;
+}
+
+.mainContent {
+  flex: 1;
+  padding: 2rem;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}

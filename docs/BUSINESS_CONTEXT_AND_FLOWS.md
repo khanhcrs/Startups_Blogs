@@ -68,10 +68,19 @@ Thay vì chỉ là một danh bạ công ty khô khan, Startups Blogs tập trun
 5. Sau khi submit, cơ hội gọi vốn chuyển sang trạng thái `Pending Review`.
 6. Moderator (Admin) duyệt. Nếu được duyệt, trạng thái chuyển sang `Published` và hiển thị công khai trên hồ sơ của Business.
 
+### Flow 6: Quy trình Đề xuất Thay đổi (Change Proposals & Moderation)
+Để bảo vệ tính xác thực của nền tảng, hệ thống áp dụng cơ chế "Đề xuất thay đổi" thay vì cho phép sửa trực tiếp.
+1. Founder chỉnh sửa thông tin Doanh nghiệp (Business) hoặc Tác giả sửa Bài viết (Article).
+2. Dữ liệu mới thay vì ghi đè thẳng vào Database, sẽ được lưu vào bảng `ChangeProposal` dưới định dạng JSON với trạng thái `PENDING`.
+3. Admin nhận được thông báo, vào trang Admin Dashboard để xem xét sự khác biệt (Diff) giữa bản cũ và bản mới.
+4. Nếu Admin chọn **Approve (Phê duyệt)**, JSON mới được hợp nhất (Merge) vào dữ liệu gốc và cập nhật trạng thái. Nếu **Reject**, bản nháp bị hủy bỏ.
+5. Xuyên suốt quá trình này, bản gốc đang chạy Live (Published) vẫn không bị ảnh hưởng cho đến khi có quyết định cuối cùng từ Admin.
+
 ---
 
 ## 3. Quản lý Trạng thái & Dữ liệu (Data Flow & Logic)
 
 *   **Tính xác thực (Verification):** Các Funding Rounds và Startups có thể có cờ `isVerified: boolean`. Backend/Admin sẽ cấp cờ này sau khi xác minh giấy tờ, giúp tăng uy tín trong mắt nhà đầu tư.
+*   **Quản trị Nội dung (Moderation):** Admin có "quyền tối thượng" (Root privilege) trong việc kiểm duyệt không chỉ Startup/Bài viết mà còn ở cấp độ vi mô như Xóa trực tiếp mọi **Bình luận rác (Spam Comments)** hoặc thay đổi trạng thái ẩn/hiện mà không cần thông qua người dùng.
 *   **Bộ đếm (Counters):** Lượt View (viewCount), Follow (followersCount), và Saved (savedCount) được cập nhật liên tục thông qua các API tương tác. Để tránh quá tải Database, có thể dùng Redis Cache để debounce lượt view trước khi ghi vào PostgreSQL.
 *   **Phân quyền (RBAC):** Backend (NestJS) áp dụng Guards/Interceptors để chặn quyền truy cập. FE (React) sẽ ẩn các nút Edit/Delete nếu `isOwner === false` hoặc `role !== ADMIN`. Mọi quyết định cuối cùng về dữ liệu phải nằm ở Backend.

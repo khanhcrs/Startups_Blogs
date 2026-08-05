@@ -49,23 +49,38 @@ export class ArticlesService {
     });
   }
 
-  async findAll(query: { category?: string; businessId?: string; skip?: number; take?: number }) {
-    const { category, businessId, skip = 0, take = 10 } = query;
+  async findAll(query: { category?: string; businessId?: string; authorId?: string; tag?: string; search?: string; startDate?: string; endDate?: string; skip?: number; take?: number }) {
+    const { category, businessId, authorId, tag, search, startDate, endDate, skip = 0, take = 10 } = query;
     const where: any = { status: 'PUBLISHED' };
 
     if (category) where.category = category;
     if (businessId) where.businessId = businessId;
+    if (authorId) where.authorId = authorId;
+    if (tag) where.tags = { has: tag };
+    if (search) {
+      where.title = { contains: search, mode: 'insensitive' };
+    }
+    if (startDate || endDate) {
+      where.createdAt = {};
+      if (startDate) where.createdAt.gte = new Date(startDate);
+      if (endDate) where.createdAt.lte = new Date(endDate);
+    }
 
-    return this.prisma.article.findMany({
-      where,
-      skip,
-      take,
-      orderBy: { id: 'desc' }, // Should optimally sort by a createdAt if it exists, otherwise id
-      include: {
-        author: { select: { id: true, name: true, avatarUrl: true } },
-        business: { select: { id: true, name: true, logoUrl: true, slug: true } },
-      }
-    });
+    const [data, total] = await Promise.all([
+      this.prisma.article.findMany({
+        where,
+        skip,
+        take,
+        orderBy: { createdAt: 'desc' },
+        include: {
+          author: { select: { id: true, name: true, avatarUrl: true } },
+          business: { select: { id: true, name: true, logoUrl: true, slug: true } },
+        }
+      }),
+      this.prisma.article.count({ where })
+    ]);
+
+    return { data, total };
   }
 
   async findOne(idOrSlug: string) {
@@ -126,6 +141,87 @@ export class ArticlesService {
       throw new ForbiddenException('You can only delete your own articles');
     }
 
+    return this.prisma.article.delete({
+      where: { id },
+    });
+  }
+
+  async getAllTags() {
+    const articles = await this.prisma.article.findMany({ select: { tags: true } });
+    const allTags = articles.flatMap(a => a.tags);
+    return [...new Set(allTags)].filter(tag => tag && tag.trim().length > 0).sort();
+  }
+
+  // Admin methods
+  async getAllArticles(
+    page: number = 1, 
+    limit: number = 10, 
+    category?: string, 
+    search?: string,
+    tag?: string,
+    startDate?: string,
+    endDate?: string
+  ) {
+    const skip = (page - 1) * limit;
+    
+    const where: any = {};
+    if (category) {
+      where.category = category;
+    }
+    if (search) {
+      where.title = { contains: search, mode: 'insensitive' };
+    }
+    if (tag) {
+      where.tags = { has: tag };
+    }
+    if (startDate || endDate) {
+      where.createdAt = {};
+      if (startDate) where.createdAt.gte = new Date(startDate);
+      if (endDate) {
+        const end = new Date(endDate);
+        end.setHours(23, 59, 59, 999);
+        where.createdAt.lte = end;
+      }
+    }
+
+    const [data, total] = await Promise.all([
+      this.prisma.article.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: { createdAt: 'desc' },
+        include: {
+          author: { select: { id: true, name: true, email: true } },
+          comments: {
+            include: {
+              author: { select: { id: true, name: true } }
+            },
+            orderBy: { createdAt: 'desc' }
+          }
+        }
+      }),
+      this.prisma.article.count({ where }),
+    ]);
+
+    return {
+      data,
+      meta: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit)
+      }
+    };
+  }
+
+  async updateArticleStatus(id: string, status: string) {
+    return this.prisma.article.update({
+      where: { id },
+      data: { status: status as any },
+    });
+  }
+
+  async deleteArticleAdmin(id: string) {
     return this.prisma.article.delete({
       where: { id },
     });
