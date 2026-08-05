@@ -68,9 +68,23 @@ Tài liệu này đóng vai trò như một "bộ nhớ vĩnh cửu" (Permanent 
 
 ---
 
+### Phase 8: Admin Approval Workflow (Vừa hoàn thiện)
+- Bổ sung trường `status` (PENDING, APPROVED, REJECTED) cho bảng `Business`.
+- Viết API dành riêng cho Admin (`GET /businesses/admin/all` và `PUT /businesses/admin/:id/status`).
+- Thiết kế giao diện **Admin Dashboard** trên Frontend để duyệt hoặc từ chối Startups.
+- Tích hợp kiểm tra quyền (Role `ADMIN`) trong cả Backend và Frontend.
+- Ẩn các Startups chưa được duyệt khỏi trang chủ (Explore).
+
+---
+
 ## 🟡 Những Phần Đang Chờ Triển Khai (To-Do)
 
-### Phase 9: Kiểm thử & Tối ưu
+### Phase 9: Contact Request & Tính năng phụ của MVP
+- Xây dựng API gửi Yêu cầu liên hệ (Contact Request) từ Nhà đầu tư đến Startup.
+- Hoàn thiện UI cho tính năng gửi tin nhắn/Email nội bộ.
+- Xây dựng luồng phê duyệt tin đăng gọi vốn (Funding Opportunities) tương tự như duyệt Startup.
+
+### Phase 10: Kiểm thử & Tối ưu
 - Viết Test (E2E hoặc Unit) cho các luồng quan trọng.
 
 > [!NOTE]
