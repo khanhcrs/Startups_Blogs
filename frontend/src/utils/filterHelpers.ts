@@ -4,8 +4,6 @@ import type {
   BusinessOpportunityRecord, 
   BusinessBrowseState 
 } from '../types/business';
-import { MOCK_BUSINESSES, MOCK_FUNDING_OPPORTUNITIES, MOCK_RECORDS } from './mockData';
-
 export const DEFAULT_BROWSE_STATE: BusinessBrowseState = {
   search: '',
   industry: 'all',
@@ -23,31 +21,31 @@ export const DEFAULT_BROWSE_STATE: BusinessBrowseState = {
 };
 
 // Pure lookup helpers
-export const getBusinessBySlug = (slug: string): Business | undefined => {
-  return MOCK_BUSINESSES.find(b => b.slug === slug || b.id === slug);
+export const getBusinessBySlug = (businesses: Business[], slug: string): Business | undefined => {
+  return businesses.find(b => b.slug === slug || b.id === slug);
 };
 
-export const getBusinessById = (id: string): Business | undefined => {
-  return MOCK_BUSINESSES.find(b => b.id === id);
+export const getBusinessById = (businesses: Business[], id: string): Business | undefined => {
+  return businesses.find(b => b.id === id);
 };
 
-export const getFundingOpportunityBySlug = (slug: string): FundingOpportunity | undefined => {
-  return MOCK_FUNDING_OPPORTUNITIES.find(f => f.slug === slug || f.id === slug);
+export const getFundingOpportunityBySlug = (opportunities: FundingOpportunity[], slug: string): FundingOpportunity | undefined => {
+  return opportunities.find(f => f.slug === slug || f.id === slug);
 };
 
-export const getFundingOpportunitiesByBusinessId = (businessId: string): FundingOpportunity[] => {
-  return MOCK_FUNDING_OPPORTUNITIES.filter(f => f.businessId === businessId);
+export const getFundingOpportunitiesByBusinessId = (opportunities: FundingOpportunity[], businessId: string): FundingOpportunity[] => {
+  return opportunities.filter(f => f.businessId === businessId);
 };
 
-export const getPublishedFundingOpportunitiesByBusinessId = (businessId: string): FundingOpportunity[] => {
+export const getPublishedFundingOpportunitiesByBusinessId = (opportunities: FundingOpportunity[], businessId: string): FundingOpportunity[] => {
   const allowedStatuses = ['Published', 'Closed', 'Funded', 'Archived'];
-  return MOCK_FUNDING_OPPORTUNITIES.filter(
+  return opportunities.filter(
     f => f.businessId === businessId && allowedStatuses.includes(f.status)
   );
 };
 
-export const getRelatedBusinesses = (currentBusiness: Business, limit: number = 3): BusinessOpportunityRecord[] => {
-  return MOCK_RECORDS
+export const getRelatedBusinesses = (records: BusinessOpportunityRecord[], currentBusiness: Business, limit: number = 3): BusinessOpportunityRecord[] => {
+  return records
     .filter(r => r.business.id !== currentBusiness.id)
     .sort((a, b) => {
       let scoreA = 0;
@@ -65,11 +63,11 @@ export const getRelatedBusinesses = (currentBusiness: Business, limit: number = 
     .slice(0, limit);
 };
 
-export const getRelatedFundingOpportunities = (currentOpp: FundingOpportunity, limit: number = 3): FundingOpportunity[] => {
+export const getRelatedFundingOpportunities = (opportunities: FundingOpportunity[], businesses: Business[], currentOpp: FundingOpportunity, limit: number = 3): FundingOpportunity[] => {
   const publicStatuses = ['Published', 'Closed', 'Funded'];
-  const currentBusiness = getBusinessById(currentOpp.businessId);
+  const currentBusiness = getBusinessById(businesses, currentOpp.businessId);
 
-  return MOCK_FUNDING_OPPORTUNITIES
+  return opportunities
     .filter(f => f.id !== currentOpp.id && publicStatuses.includes(f.status))
     .sort((a, b) => {
       let scoreA = 0;
@@ -77,8 +75,8 @@ export const getRelatedFundingOpportunities = (currentOpp: FundingOpportunity, l
       if (a.fundingPurpose === currentOpp.fundingPurpose) scoreA += 4;
       if (b.fundingPurpose === currentOpp.fundingPurpose) scoreB += 4;
       
-      const bizA = getBusinessById(a.businessId);
-      const bizB = getBusinessById(b.businessId);
+      const bizA = getBusinessById(businesses, a.businessId);
+      const bizB = getBusinessById(businesses, b.businessId);
       
       if (currentBusiness && bizA && bizA.industry === currentBusiness.industry) scoreA += 3;
       if (currentBusiness && bizB && bizB.industry === currentBusiness.industry) scoreB += 3;

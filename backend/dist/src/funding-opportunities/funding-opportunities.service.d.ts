@@ -1,0 +1,76 @@
+import { PrismaService } from '../prisma/prisma.service';
+import { CreateFundingOpportunityDto } from './dto/create-funding-opportunity.dto';
+import { UpdateFundingOpportunityDto } from './dto/update-funding-opportunity.dto';
+export declare class FundingOpportunitiesService {
+    private prisma;
+    constructor(prisma: PrismaService);
+    private checkBusinessOwnership;
+    create(businessId: string, createFundingOpportunityDto: CreateFundingOpportunityDto, ownerId: string): Promise<{
+        id: string;
+        slug: string;
+        detailedOverview: string | null;
+        status: string;
+        createdAt: Date;
+        title: string;
+        publishedAt: Date | null;
+        businessId: string;
+        currency: string;
+        shortDescription: string;
+        fundingAmountMin: number;
+        fundingAmountMax: number;
+        fundingPurpose: string;
+        fundingType: string;
+        deadline: Date | null;
+    }>;
+    findAll(businessId: string): Promise<{
+        id: string;
+        slug: string;
+        detailedOverview: string | null;
+        status: string;
+        createdAt: Date;
+        title: string;
+        publishedAt: Date | null;
+        businessId: string;
+        currency: string;
+        shortDescription: string;
+        fundingAmountMin: number;
+        fundingAmountMax: number;
+        fundingPurpose: string;
+        fundingType: string;
+        deadline: Date | null;
+    }[]>;
+    update(businessId: string, id: string, updateFundingOpportunityDto: UpdateFundingOpportunityDto, ownerId: string): Promise<{
+        id: string;
+        slug: string;
+        detailedOverview: string | null;
+        status: string;
+        createdAt: Date;
+        title: string;
+        publishedAt: Date | null;
+        businessId: string;
+        currency: string;
+        shortDescription: string;
+        fundingAmountMin: number;
+        fundingAmountMax: number;
+        fundingPurpose: string;
+        fundingType: string;
+        deadline: Date | null;
+    }>;
+    remove(businessId: string, id: string, ownerId: string): Promise<{
+        id: string;
+        slug: string;
+        detailedOverview: string | null;
+        status: string;
+        createdAt: Date;
+        title: string;
+        publishedAt: Date | null;
+        businessId: string;
+        currency: string;
+        shortDescription: string;
+        fundingAmountMin: number;
+        fundingAmountMax: number;
+        fundingPurpose: string;
+        fundingType: string;
+        deadline: Date | null;
+    }>;
+}

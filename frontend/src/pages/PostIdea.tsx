@@ -5,7 +5,7 @@ const PostIdea = () => {
     <div className="section">
       <div className="container">
         <h1 className={styles.title}>Post Your Idea</h1>
-        <p className={styles.subtitle}>Showcase to investors and partners.</p>
+        <p className={styles.subtitle}>Showcase to partners and community.</p>
 
         <div className={styles.layout}>
           {/* Left Sidebar - Steps */}
@@ -92,7 +92,7 @@ const PostIdea = () => {
             <ul className={styles.tipsList}>
               <li>Be clear and concise about your idea.</li>
               <li>Use simple language everyone can understand.</li>
-              <li>A great profile gets more attention from investors.</li>
+              <li>A great profile gets more attention from the community.</li>
             </ul>
             <div className={styles.illustration}>
               <img src="/images/post_idea_illustration.jpg" alt="Rocket launching from laptop" className={styles.tipsImg} />

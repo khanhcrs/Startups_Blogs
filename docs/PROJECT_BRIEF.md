@@ -21,7 +21,7 @@ Tăng khả năng được nhà đầu tư và doanh nghiệp phát hiện.
 
 Nhận yêu cầu liên hệ mà không phải công khai email cá nhân.
 
-Dành cho nhà đầu tư/doanh nghiệp
+Dành cho người dùng (Khách/Thành viên)
 
 Duyệt startup theo lĩnh vực, giai đoạn và nhu cầu vốn.
 
@@ -37,9 +37,7 @@ Guest: người chưa đăng nhập.
 
 Founder: quản lý startup và ý tưởng.
 
-Investor: tìm kiếm, lưu và liên hệ startup.
-
-Enterprise: tìm startup để đầu tư, hợp tác, mua giải pháp hoặc M&A.
+User (Đã đăng nhập): tìm kiếm, lưu và liên hệ startup.
 
 Editor: quản lý News và Blogs.
 
@@ -57,15 +55,11 @@ Browse Startups, search, filter, sort, pagination.
 
 Startup Detail.
 
-Investor Directory và Investor Detail.
-
 News và Blogs.
 
 Đăng ký/đăng nhập bằng Cognito.
 
 Startup Profile CRUD.
-
-Investor Profile CRUD.
 
 Post Your Idea theo nhiều bước.
 
@@ -183,9 +177,9 @@ Người dùng hoàn thành hồ sơ startup.
 
 Founder đăng và gửi duyệt ý tưởng.
 
-Investor tìm và lưu startup.
+Người dùng đăng nhập tìm và lưu startup.
 
-Investor gửi contact request.
+Người dùng gửi contact request.
 
 Moderator xử lý ý tưởng chờ duyệt.
 
