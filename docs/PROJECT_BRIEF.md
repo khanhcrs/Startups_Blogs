@@ -133,9 +133,10 @@ PostgreSQL.
 
 OpenAPI/Swagger.
 
-AWS
+AWS (Mục tiêu dài hạn)
 
-Cognito User Pool: identity, email verification, forgot password và JWT.
+Cognito User Pool: identity, email verification, forgot password và JWT. 
+*(Note: Trong bản MVP hiện tại, dự án đang tạm sử dụng Local JWT + bcrypt thay cho Cognito để phát triển nhanh. Sẽ migrate sang Cognito ở Phase sau).*
 
 RDS PostgreSQL: dữ liệu nghiệp vụ.
 

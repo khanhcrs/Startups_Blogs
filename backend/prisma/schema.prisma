@@ -36,6 +36,9 @@ model User {
   comments        Comment[]
   bookmarks       Bookmark[]
   teamMembers     TeamMember[]
+  contactRequests ContactRequest[] @relation("UserContactRequests")
+  notifications   Notification[]
+  changeProposals ChangeProposal[] @relation("UserChangeProposals")
 
   // Tự tham chiếu cho hệ thống Follow
   followers Follow[] @relation("UserFollowers")
@@ -85,21 +88,31 @@ model Business {
   logoUrl          String?
   coverUrl         String?
   status           String   @default("PENDING")
+  isVerified       Boolean  @default(false)
+  foundedYear      Int?
+  employeeRange    String?
+  businessModel    String?
+  productsOrServices String?
+  operatingRegions String[] @default([])
+  mainMarket       String?
+  financialHighlights Json?
 
   // Owner Relation
   ownerId String
   owner   User   @relation(fields: [ownerId], references: [id], onDelete: Restrict)
 
   // Sub-models
-  teamMembers   TeamMember[]
-  fundingRounds FundingRound[]
-  opportunities FundingOpportunity[]
-  articles      Article[]
+  teamMembers     TeamMember[]
+  fundingRounds   FundingRound[]
+  opportunities   FundingOpportunity[]
+  articles        Article[]
+  contactRequests ContactRequest[] @relation("BusinessContactRequests")
 
   // Stats
-  savedCount Int      @default(0)
-  viewCount  Int      @default(0)
-  createdAt  DateTime @default(now())
+  savedCount   Int      @default(0)
+  viewCount    Int      @default(0)
+  commentCount Int      @default(0)
+  createdAt    DateTime @default(now())
 
   @@index([ownerId])
 }
@@ -202,4 +215,68 @@ model Comment {
   createdAt DateTime @default(now())
 
   @@index([articleId])
+}
+
+// -----------------------------------------------------------------------------
+// 4. LIÊN HỆ & TƯƠNG TÁC DOANH NGHIỆP
+// -----------------------------------------------------------------------------
+
+model ContactRequest {
+  id         String   @id @default(uuid())
+  title      String
+  message    String   @db.Text
+  status     String   @default("PENDING") // PENDING, REPLIED, SPAM
+  
+  senderId   String
+  sender     User     @relation("UserContactRequests", fields: [senderId], references: [id], onDelete: Cascade)
+  
+  businessId String
+  business   Business @relation("BusinessContactRequests", fields: [businessId], references: [id], onDelete: Cascade)
+  
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([businessId])
+  @@index([senderId])
+}
+
+enum NotificationType {
+  ANNOUNCEMENT
+  SYSTEM
+  CONTACT_REQUEST
+  GENERAL
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  title     String
+  message   String
+  type      NotificationType @default(GENERAL)
+  isRead    Boolean  @default(false)
+  linkUrl   String?
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// -----------------------------------------------------------------------------
+// 5. QUẢN TRỊ & PHÊ DUYỆT THAY ĐỔI
+// -----------------------------------------------------------------------------
+
+model ChangeProposal {
+  id              String   @id @default(uuid())
+  entityType      String   // "ARTICLE" or "BUSINESS"
+  entityId        String
+  proposedChanges Json     // Lưu cấu trúc JSON chứa dữ liệu thay đổi
+  status          String   @default("PENDING") // PENDING, APPROVED, REJECTED
+  
+  proposerId      String
+  proposer        User     @relation("UserChangeProposals", fields: [proposerId], references: [id], onDelete: Cascade)
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([entityType, entityId])
+  @@index([proposerId])
 }

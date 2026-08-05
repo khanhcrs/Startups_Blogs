@@ -5,7 +5,8 @@ Tài liệu này quy định các tiêu chuẩn khi giao tiếp giữa Frontend 
 ## 1. Thông tin chung
 - **Prefix:** `/api/v1`
 - **Content-Type mặc định:** `application/json`
-- **Xác thực:** Dùng header `Authorization: Bearer <JWT_TOKEN>` (Token lấy từ AWS Cognito).
+- **Xác thực:** Dùng header `Authorization: Bearer <JWT_TOKEN>`. 
+  > **Note:** Mục tiêu dài hạn là sử dụng AWS Cognito để cấp Token. Tuy nhiên, trong giai đoạn MVP hiện tại, dự án đang dùng Local JWT + bcrypt (xử lý trực tiếp trên Backend Node.js) để tối ưu thời gian phát triển.
 
 ## 2. Tiêu chuẩn Response
 

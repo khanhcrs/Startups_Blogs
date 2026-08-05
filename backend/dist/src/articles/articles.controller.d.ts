@@ -7,16 +7,16 @@ export declare class ArticlesController {
     create(createArticleDto: CreateArticleDto, req: any): Promise<{
         id: string;
         slug: string;
-        status: string;
-        viewCount: number;
-        createdAt: Date;
-        category: string;
         title: string;
         summary: string;
         content: string;
+        status: string;
+        category: string;
         coverImage: string | null;
         tags: string[];
+        viewCount: number;
         likesCount: number;
+        createdAt: Date;
         publishedAt: Date | null;
         authorId: string;
         businessId: string | null;
@@ -24,81 +24,153 @@ export declare class ArticlesController {
     findMyArticles(req: any): Promise<({
         business: {
             id: string;
-            name: string;
             slug: string;
+            name: string;
             logoUrl: string | null;
         } | null;
     } & {
         id: string;
         slug: string;
-        status: string;
-        viewCount: number;
-        createdAt: Date;
-        category: string;
         title: string;
         summary: string;
         content: string;
+        status: string;
+        category: string;
         coverImage: string | null;
         tags: string[];
+        viewCount: number;
         likesCount: number;
+        createdAt: Date;
         publishedAt: Date | null;
         authorId: string;
         businessId: string | null;
     })[]>;
-    findAll(category?: string, businessId?: string, skip?: string, take?: string): Promise<({
-        business: {
+    findAll(category?: string, businessId?: string, authorId?: string, tag?: string, search?: string, startDate?: string, endDate?: string, skip?: string, take?: string): Promise<{
+        data: ({
+            author: {
+                id: string;
+                name: string;
+                avatarUrl: string | null;
+            };
+            business: {
+                id: string;
+                slug: string;
+                name: string;
+                logoUrl: string | null;
+            } | null;
+        } & {
             id: string;
-            name: string;
             slug: string;
-            logoUrl: string | null;
-        } | null;
-        author: {
+            title: string;
+            summary: string;
+            content: string;
+            status: string;
+            category: string;
+            coverImage: string | null;
+            tags: string[];
+            viewCount: number;
+            likesCount: number;
+            createdAt: Date;
+            publishedAt: Date | null;
+            authorId: string;
+            businessId: string | null;
+        })[];
+        total: number;
+    }>;
+    getAllTags(): Promise<string[]>;
+    getAllArticles(page?: string, limit?: string, category?: string, search?: string, tag?: string, startDate?: string, endDate?: string): Promise<{
+        data: ({
+            comments: ({
+                author: {
+                    id: string;
+                    name: string;
+                };
+            } & {
+                id: string;
+                content: string;
+                createdAt: Date;
+                authorId: string;
+                articleId: string;
+                parentId: string | null;
+            })[];
+            author: {
+                id: string;
+                name: string;
+                email: string;
+            };
+        } & {
             id: string;
-            name: string;
-            avatarUrl: string | null;
+            slug: string;
+            title: string;
+            summary: string;
+            content: string;
+            status: string;
+            category: string;
+            coverImage: string | null;
+            tags: string[];
+            viewCount: number;
+            likesCount: number;
+            createdAt: Date;
+            publishedAt: Date | null;
+            authorId: string;
+            businessId: string | null;
+        })[];
+        meta: {
+            total: number;
+            page: number;
+            limit: number;
+            totalPages: number;
         };
-    } & {
-        id: string;
-        slug: string;
-        status: string;
-        viewCount: number;
-        createdAt: Date;
-        category: string;
-        title: string;
-        summary: string;
-        content: string;
-        coverImage: string | null;
-        tags: string[];
-        likesCount: number;
-        publishedAt: Date | null;
-        authorId: string;
-        businessId: string | null;
-    })[]>;
+    }>;
+    updateArticleStatus(id: string, status: string): Promise<{
+        success: boolean;
+        data: {
+            id: string;
+            slug: string;
+            title: string;
+            summary: string;
+            content: string;
+            status: string;
+            category: string;
+            coverImage: string | null;
+            tags: string[];
+            viewCount: number;
+            likesCount: number;
+            createdAt: Date;
+            publishedAt: Date | null;
+            authorId: string;
+            businessId: string | null;
+        };
+    }>;
+    deleteArticleAdmin(id: string): Promise<{
+        success: boolean;
+        message: string;
+    }>;
     findOne(idOrSlug: string): Promise<{
-        business: {
-            id: string;
-            name: string;
-            slug: string;
-            logoUrl: string | null;
-        } | null;
         author: {
             id: string;
             name: string;
             avatarUrl: string | null;
         };
+        business: {
+            id: string;
+            slug: string;
+            name: string;
+            logoUrl: string | null;
+        } | null;
     } & {
         id: string;
         slug: string;
-        status: string;
-        viewCount: number;
-        createdAt: Date;
-        category: string;
         title: string;
         summary: string;
         content: string;
+        status: string;
+        category: string;
         coverImage: string | null;
         tags: string[];
+        viewCount: number;
         likesCount: number;
+        createdAt: Date;
         publishedAt: Date | null;
         authorId: string;
         businessId: string | null;
@@ -106,16 +178,16 @@ export declare class ArticlesController {
     update(id: string, updateArticleDto: UpdateArticleDto, req: any): Promise<{
         id: string;
         slug: string;
-        status: string;
-        viewCount: number;
-        createdAt: Date;
-        category: string;
         title: string;
         summary: string;
         content: string;
+        status: string;
+        category: string;
         coverImage: string | null;
         tags: string[];
+        viewCount: number;
         likesCount: number;
+        createdAt: Date;
         publishedAt: Date | null;
         authorId: string;
         businessId: string | null;
@@ -123,16 +195,16 @@ export declare class ArticlesController {
     remove(id: string, req: any): Promise<{
         id: string;
         slug: string;
-        status: string;
-        viewCount: number;
-        createdAt: Date;
-        category: string;
         title: string;
         summary: string;
         content: string;
+        status: string;
+        category: string;
         coverImage: string | null;
         tags: string[];
+        viewCount: number;
         likesCount: number;
+        createdAt: Date;
         publishedAt: Date | null;
         authorId: string;
         businessId: string | null;

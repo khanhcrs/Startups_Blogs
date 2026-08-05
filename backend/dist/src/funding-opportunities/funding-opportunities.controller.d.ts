@@ -10,10 +10,10 @@ export declare class FundingOpportunitiesController {
         detailedOverview: string | null;
         status: string;
         createdAt: Date;
+        currency: string;
         title: string;
         publishedAt: Date | null;
         businessId: string;
-        currency: string;
         shortDescription: string;
         fundingAmountMin: number;
         fundingAmountMax: number;
@@ -27,10 +27,10 @@ export declare class FundingOpportunitiesController {
         detailedOverview: string | null;
         status: string;
         createdAt: Date;
+        currency: string;
         title: string;
         publishedAt: Date | null;
         businessId: string;
-        currency: string;
         shortDescription: string;
         fundingAmountMin: number;
         fundingAmountMax: number;
@@ -44,10 +44,10 @@ export declare class FundingOpportunitiesController {
         detailedOverview: string | null;
         status: string;
         createdAt: Date;
+        currency: string;
         title: string;
         publishedAt: Date | null;
         businessId: string;
-        currency: string;
         shortDescription: string;
         fundingAmountMin: number;
         fundingAmountMax: number;
@@ -61,10 +61,10 @@ export declare class FundingOpportunitiesController {
         detailedOverview: string | null;
         status: string;
         createdAt: Date;
+        currency: string;
         title: string;
         publishedAt: Date | null;
         businessId: string;
-        currency: string;
         shortDescription: string;
         fundingAmountMin: number;
         fundingAmountMax: number;

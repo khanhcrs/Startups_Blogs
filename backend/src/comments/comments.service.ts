@@ -44,11 +44,38 @@ export class CommentsService {
     });
   }
 
-  async remove(id: string, authorId: string) {
+  async update(id: string, content: string, authorId: string) {
     const comment = await this.prisma.comment.findUnique({ where: { id } });
     if (!comment) throw new NotFoundException('Comment not found');
     if (comment.authorId !== authorId) {
-      throw new ForbiddenException('You can only delete your own comments');
+      throw new ForbiddenException('You can only edit your own comments');
+    }
+
+    return this.prisma.comment.update({
+      where: { id },
+      data: { content },
+    });
+  }
+
+  async removeAdmin(id: string) {
+    const comment = await this.prisma.comment.findUnique({ where: { id } });
+    if (!comment) throw new NotFoundException('Comment not found');
+    return this.prisma.comment.delete({ where: { id } });
+  }
+
+  async remove(id: string, requesterId: string) {
+    const comment = await this.prisma.comment.findUnique({ 
+      where: { id },
+      include: { article: { select: { authorId: true } } }
+    });
+    
+    if (!comment) throw new NotFoundException('Comment not found');
+    
+    const isCommentAuthor = comment.authorId === requesterId;
+    const isArticleAuthor = comment.article.authorId === requesterId;
+
+    if (!isCommentAuthor && !isArticleAuthor) {
+      throw new ForbiddenException('You are not allowed to delete this comment');
     }
 
     return this.prisma.comment.delete({ where: { id } });

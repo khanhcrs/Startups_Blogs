@@ -6,42 +6,42 @@ export declare class FundingRoundsController {
     constructor(fundingRoundsService: FundingRoundsService);
     create(businessId: string, createFundingRoundDto: CreateFundingRoundDto, req: any): Promise<{
         id: string;
-        businessId: string;
+        isVerified: boolean;
         roundName: string;
         amount: number;
         currency: string;
         date: Date;
         investors: string;
-        isVerified: boolean;
+        businessId: string;
     }>;
     findAll(businessId: string): Promise<{
         id: string;
-        businessId: string;
+        isVerified: boolean;
         roundName: string;
         amount: number;
         currency: string;
         date: Date;
         investors: string;
-        isVerified: boolean;
+        businessId: string;
     }[]>;
     update(businessId: string, id: string, updateFundingRoundDto: UpdateFundingRoundDto, req: any): Promise<{
         id: string;
-        businessId: string;
+        isVerified: boolean;
         roundName: string;
         amount: number;
         currency: string;
         date: Date;
         investors: string;
-        isVerified: boolean;
+        businessId: string;
     }>;
     remove(businessId: string, id: string, req: any): Promise<{
         id: string;
-        businessId: string;
+        isVerified: boolean;
         roundName: string;
         amount: number;
         currency: string;
         date: Date;
         investors: string;
-        isVerified: boolean;
+        businessId: string;
     }>;
 }
