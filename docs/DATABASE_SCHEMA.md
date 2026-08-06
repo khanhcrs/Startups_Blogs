@@ -34,6 +34,7 @@ Lưu trữ thông tin cốt lõi của một Doanh nghiệp.
 - `status` (Enum: `PENDING`, `APPROVED`, `REJECTED` - Trạng thái duyệt của Admin)
 - `website`, `logoUrl`, `coverUrl` (String - Tùy chọn)
 - `ownerId` (String - Trỏ về người tạo ra Startup này)
+- `viewCount`, `savedCount`, `commentCount` (Int - Thống kê tự động)
 
 **Liên kết (Relations):**
 - Chứa nhiều `TeamMember` (Thành viên đội ngũ).

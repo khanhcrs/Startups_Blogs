@@ -8,6 +8,7 @@ export declare class BusinessesController {
         id: string;
         name: string;
         location: string;
+        status: string;
         slug: string;
         legalName: string | null;
         description: string;
@@ -18,7 +19,6 @@ export declare class BusinessesController {
         website: string | null;
         logoUrl: string | null;
         coverUrl: string | null;
-        status: string;
         isVerified: boolean;
         foundedYear: number | null;
         employeeRange: string | null;
@@ -43,6 +43,7 @@ export declare class BusinessesController {
         id: string;
         name: string;
         location: string;
+        status: string;
         slug: string;
         legalName: string | null;
         description: string;
@@ -53,7 +54,6 @@ export declare class BusinessesController {
         website: string | null;
         logoUrl: string | null;
         coverUrl: string | null;
-        status: string;
         isVerified: boolean;
         foundedYear: number | null;
         employeeRange: string | null;
@@ -68,45 +68,52 @@ export declare class BusinessesController {
         createdAt: Date;
         ownerId: string;
     })[]>;
-    findAllForAdmin(req: any, skip?: string, take?: string, status?: string): Promise<({
-        owner: {
+    findAllForAdmin(req: any, skip?: string, take?: string, status?: string, search?: string, stage?: string, industry?: string, startDate?: string, endDate?: string): Promise<{
+        data: ({
+            owner: {
+                id: string;
+                name: string;
+                avatarUrl: string | null;
+            };
+        } & {
             id: string;
             name: string;
-            avatarUrl: string | null;
+            location: string;
+            status: string;
+            slug: string;
+            legalName: string | null;
+            description: string;
+            detailedOverview: string | null;
+            businessType: string;
+            businessStage: string;
+            industry: string;
+            website: string | null;
+            logoUrl: string | null;
+            coverUrl: string | null;
+            isVerified: boolean;
+            foundedYear: number | null;
+            employeeRange: string | null;
+            businessModel: string | null;
+            productsOrServices: string | null;
+            operatingRegions: string[];
+            mainMarket: string | null;
+            financialHighlights: import("@prisma/client/runtime/client").JsonValue | null;
+            savedCount: number;
+            viewCount: number;
+            commentCount: number;
+            createdAt: Date;
+            ownerId: string;
+        })[];
+        meta: {
+            total: number;
+            totalPages: number;
         };
-    } & {
-        id: string;
-        name: string;
-        location: string;
-        slug: string;
-        legalName: string | null;
-        description: string;
-        detailedOverview: string | null;
-        businessType: string;
-        businessStage: string;
-        industry: string;
-        website: string | null;
-        logoUrl: string | null;
-        coverUrl: string | null;
-        status: string;
-        isVerified: boolean;
-        foundedYear: number | null;
-        employeeRange: string | null;
-        businessModel: string | null;
-        productsOrServices: string | null;
-        operatingRegions: string[];
-        mainMarket: string | null;
-        financialHighlights: import("@prisma/client/runtime/client").JsonValue | null;
-        savedCount: number;
-        viewCount: number;
-        commentCount: number;
-        createdAt: Date;
-        ownerId: string;
-    })[]>;
+    }>;
     updateStatus(id: string, status: string, req: any): Promise<{
         id: string;
         name: string;
         location: string;
+        status: string;
         slug: string;
         legalName: string | null;
         description: string;
@@ -117,7 +124,90 @@ export declare class BusinessesController {
         website: string | null;
         logoUrl: string | null;
         coverUrl: string | null;
+        isVerified: boolean;
+        foundedYear: number | null;
+        employeeRange: string | null;
+        businessModel: string | null;
+        productsOrServices: string | null;
+        operatingRegions: string[];
+        mainMarket: string | null;
+        financialHighlights: import("@prisma/client/runtime/client").JsonValue | null;
+        savedCount: number;
+        viewCount: number;
+        commentCount: number;
+        createdAt: Date;
+        ownerId: string;
+    }>;
+    findOneForAdmin(id: string, req: any): Promise<{
+        teamMembers: {
+            id: string;
+            name: string;
+            bio: string | null;
+            avatarUrl: string | null;
+            role: string;
+            userId: string | null;
+            businessId: string;
+        }[];
+        owner: {
+            id: string;
+            email: string;
+            name: string;
+            avatarUrl: string | null;
+        };
+        fundingRounds: {
+            id: string;
+            isVerified: boolean;
+            roundName: string;
+            amount: number;
+            currency: string;
+            date: Date;
+            investors: string;
+            businessId: string;
+        }[];
+    } & {
+        id: string;
+        name: string;
+        location: string;
         status: string;
+        slug: string;
+        legalName: string | null;
+        description: string;
+        detailedOverview: string | null;
+        businessType: string;
+        businessStage: string;
+        industry: string;
+        website: string | null;
+        logoUrl: string | null;
+        coverUrl: string | null;
+        isVerified: boolean;
+        foundedYear: number | null;
+        employeeRange: string | null;
+        businessModel: string | null;
+        productsOrServices: string | null;
+        operatingRegions: string[];
+        mainMarket: string | null;
+        financialHighlights: import("@prisma/client/runtime/client").JsonValue | null;
+        savedCount: number;
+        viewCount: number;
+        commentCount: number;
+        createdAt: Date;
+        ownerId: string;
+    }>;
+    updateAsAdmin(id: string, updateBusinessDto: any, req: any): Promise<{
+        id: string;
+        name: string;
+        location: string;
+        status: string;
+        slug: string;
+        legalName: string | null;
+        description: string;
+        detailedOverview: string | null;
+        businessType: string;
+        businessStage: string;
+        industry: string;
+        website: string | null;
+        logoUrl: string | null;
+        coverUrl: string | null;
         isVerified: boolean;
         foundedYear: number | null;
         employeeRange: string | null;
@@ -161,6 +251,7 @@ export declare class BusinessesController {
         id: string;
         name: string;
         location: string;
+        status: string;
         slug: string;
         legalName: string | null;
         description: string;
@@ -171,7 +262,6 @@ export declare class BusinessesController {
         website: string | null;
         logoUrl: string | null;
         coverUrl: string | null;
-        status: string;
         isVerified: boolean;
         foundedYear: number | null;
         employeeRange: string | null;
@@ -190,6 +280,7 @@ export declare class BusinessesController {
         id: string;
         name: string;
         location: string;
+        status: string;
         slug: string;
         legalName: string | null;
         description: string;
@@ -200,7 +291,6 @@ export declare class BusinessesController {
         website: string | null;
         logoUrl: string | null;
         coverUrl: string | null;
-        status: string;
         isVerified: boolean;
         foundedYear: number | null;
         employeeRange: string | null;
@@ -219,6 +309,7 @@ export declare class BusinessesController {
         id: string;
         name: string;
         location: string;
+        status: string;
         slug: string;
         legalName: string | null;
         description: string;
@@ -229,7 +320,6 @@ export declare class BusinessesController {
         website: string | null;
         logoUrl: string | null;
         coverUrl: string | null;
-        status: string;
         isVerified: boolean;
         foundedYear: number | null;
         employeeRange: string | null;

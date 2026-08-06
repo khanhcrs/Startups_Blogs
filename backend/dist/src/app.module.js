@@ -25,6 +25,7 @@ const upload_module_1 = require("./upload/upload.module");
 const contact_requests_module_1 = require("./contact-requests/contact-requests.module");
 const notifications_module_1 = require("./notifications/notifications.module");
 const admin_module_1 = require("./admin/admin.module");
+const proposals_module_1 = require("./proposals/proposals.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -45,7 +46,8 @@ exports.AppModule = AppModule = __decorate([
             upload_module_1.UploadModule,
             contact_requests_module_1.ContactRequestsModule,
             notifications_module_1.NotificationsModule,
-            admin_module_1.AdminModule
+            admin_module_1.AdminModule,
+            proposals_module_1.ProposalsModule
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService],

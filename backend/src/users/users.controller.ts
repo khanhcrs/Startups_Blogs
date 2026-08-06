@@ -13,8 +13,12 @@ export class UsersController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
   @Get('admin/all')
-  async getAllUsers(@Query('page') page: string = '1', @Query('limit') limit: string = '10') {
-    return this.usersService.getAllUsers(Number(page), Number(limit));
+  async getAllUsers(
+    @Query('page') page: string = '1', 
+    @Query('limit') limit: string = '10',
+    @Query('role') role?: string
+  ) {
+    return this.usersService.getAllUsers(Number(page), Number(limit), role);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
@@ -23,6 +27,30 @@ export class UsersController {
   async updateUserRole(@Param('id') id: string, @Body('role') role: string) {
     const data = await this.usersService.updateUserRole(id, role);
     return { success: true, data };
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  @Put('admin/:id/status')
+  async updateUserStatus(@Param('id') id: string, @Body('status') status: string) {
+    const data = await this.usersService.updateUserStatus(id, status);
+    return { success: true, data };
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  @Get('admin/:id')
+  async getAdminUserDetails(@Param('id') id: string) {
+    return this.usersService.getAdminUserDetails(id);
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  @Put('admin/:id')
+  async adminUpdateUser(@Param('id') id: string, @Body() updateProfileDto: UpdateProfileDto) {
+    const user = await this.usersService.updateUser(id, updateProfileDto);
+    const { password, ...result } = user;
+    return result;
   }
 
   @UseGuards(JwtAuthGuard)

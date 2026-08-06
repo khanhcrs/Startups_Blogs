@@ -2,18 +2,35 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import commonStyles from '../AdminCommon.module.css';
+import ImageUploader from '../../../components/ImageUploader';
+import { useAdminTabsStore } from '../../../store/adminTabsStore';
+import { useLocation } from 'react-router-dom';
 
-export default function AdminEditBusiness() {
-  const { id } = useParams();
+export default function AdminEditBusiness({ businessId }: { businessId?: string }) {
+  const params = useParams();
+  const location = useLocation();
+  const updateTabTitle = useAdminTabsStore(state => state.updateTabTitle);
+  const id = businessId || params.id;
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [formData, setFormData] = useState<any>({
     name: '',
+    legalName: '',
     description: '',
+    detailedOverview: '',
     industry: '',
     businessStage: '',
     businessType: '',
+    location: '',
+    website: '',
+    logoUrl: '',
+    coverUrl: '',
+    foundedYear: '',
+    employeeRange: '',
+    businessModel: '',
+    productsOrServices: '',
+    mainMarket: ''
   });
 
   useEffect(() => {
@@ -23,24 +40,35 @@ export default function AdminEditBusiness() {
   const fetchBusiness = async () => {
     try {
       const token = localStorage.getItem('token');
-      // We need to fetch the business details. The public endpoint is /businesses/:slug, 
-      // but we might only have ID. Let's use /businesses/admin/all and filter, or a new admin endpoint.
-      // Wait, there is no GET /businesses/:id for admin yet? Let's assume we can fetch by slug if we know it.
-      // For now, let's just fetch all and find it, since it's a quick fix.
+      // For now, we fetch all businesses and find the one with the correct ID.
+      // This is a workaround since there's no single business admin endpoint yet.
       const res = await fetch(`http://localhost:3000/businesses/admin/all?status=`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (res.ok) {
         const data = await res.json();
-        const b = data.find((x: any) => x.id === id);
+        const b = data.data ? data.data.find((x: any) => x.id === id) : data.find((x: any) => x.id === id);
         if (b) {
           setFormData({
-            name: b.name,
-            description: b.description,
-            industry: b.industry,
-            businessStage: b.businessStage,
-            businessType: b.businessType,
+            name: b.name || '',
+            legalName: b.legalName || '',
+            description: b.description || '',
+            detailedOverview: b.detailedOverview || '',
+            industry: b.industry || '',
+            businessStage: b.businessStage || 'Idea',
+            businessType: b.businessType || 'B2B',
+            location: b.location || '',
+            website: b.website || '',
+            logoUrl: b.logoUrl || '',
+            coverUrl: b.coverUrl || '',
+            foundedYear: b.foundedYear || '',
+            employeeRange: b.employeeRange || '',
+            businessModel: b.businessModel || '',
+            productsOrServices: b.productsOrServices || '',
+            mainMarket: b.mainMarket || ''
           });
+          
+          updateTabTitle(location.pathname, `Edit: ${b.name.length > 20 ? b.name.substring(0, 20) + '...' : b.name}`);
         }
       }
     } catch (error) {
@@ -54,19 +82,19 @@ export default function AdminEditBusiness() {
     e.preventDefault();
     setSubmitting(true);
     try {
-      const res = await fetch(`http://localhost:3000/admin/proposals/business/${id}`, {
-        method: 'POST',
+      const res = await fetch(`http://localhost:3000/businesses/admin/${id}`, {
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         },
         body: JSON.stringify(formData)
       });
-      if (!res.ok) throw new Error('Failed to propose changes');
-      toast.success('Change proposal created and sent to owner for review!');
+      if (!res.ok) throw new Error('Failed to update business');
+      toast.success('Business updated successfully! (Direct Force Update)');
       navigate('/admin/businesses');
     } catch (error) {
-      toast.error('Error creating proposal');
+      toast.error('Error updating business');
     } finally {
       setSubmitting(false);
     }
@@ -76,91 +104,137 @@ export default function AdminEditBusiness() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  const handleImageUpload = (field: 'logoUrl' | 'coverUrl', url: string) => {
+    setFormData({ ...formData, [field]: url });
+  };
+
   if (loading) return <div className={commonStyles.loading}>Loading...</div>;
 
   return (
     <div>
       <header className={commonStyles.header}>
-        <h1>Propose Edits to Business</h1>
-        <p>Your changes will be submitted as a proposal for the owner to review.</p>
+        <h1>Directly Edit Business</h1>
+        <p>You have Supreme Admin Authority. Your changes will be saved directly and overwrite existing data.</p>
       </header>
       
       <div className={commonStyles.contentCard}>
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem', maxWidth: '600px' }}>
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', maxWidth: '800px' }}>
           
-          <div>
-            <label style={{ display: 'block', fontWeight: 500, marginBottom: '0.5rem' }}>Business Name</label>
-            <input 
-              type="text" 
-              name="name" 
-              value={formData.name} 
-              onChange={handleChange} 
-              style={{ width: '100%', padding: '0.5rem', border: '1px solid #ccc', borderRadius: '4px' }} 
-              required 
-            />
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+            <div>
+              <label style={{ display: 'block', fontWeight: 500, marginBottom: '0.5rem' }}>Business Name</label>
+              <input type="text" name="name" value={formData.name} onChange={handleChange} style={inputStyle} required />
+            </div>
+            <div>
+              <label style={{ display: 'block', fontWeight: 500, marginBottom: '0.5rem' }}>Legal Name</label>
+              <input type="text" name="legalName" value={formData.legalName} onChange={handleChange} style={inputStyle} />
+            </div>
           </div>
 
           <div>
-            <label style={{ display: 'block', fontWeight: 500, marginBottom: '0.5rem' }}>Description</label>
-            <textarea 
-              name="description" 
-              value={formData.description} 
-              onChange={handleChange} 
-              style={{ width: '100%', padding: '0.5rem', border: '1px solid #ccc', borderRadius: '4px', minHeight: '100px' }} 
-              required 
-            />
+            <label style={{ display: 'block', fontWeight: 500, marginBottom: '0.5rem' }}>Short Description</label>
+            <textarea name="description" value={formData.description} onChange={handleChange} style={{...inputStyle, minHeight: '80px'}} required />
           </div>
 
           <div>
-            <label style={{ display: 'block', fontWeight: 500, marginBottom: '0.5rem' }}>Industry</label>
-            <input 
-              type="text" 
-              name="industry" 
-              value={formData.industry} 
-              onChange={handleChange} 
-              style={{ width: '100%', padding: '0.5rem', border: '1px solid #ccc', borderRadius: '4px' }} 
-              required 
-            />
+            <label style={{ display: 'block', fontWeight: 500, marginBottom: '0.5rem' }}>Detailed Overview</label>
+            <textarea name="detailedOverview" value={formData.detailedOverview} onChange={handleChange} style={{...inputStyle, minHeight: '120px'}} />
           </div>
 
-          <div>
-            <label style={{ display: 'block', fontWeight: 500, marginBottom: '0.5rem' }}>Business Type</label>
-            <select 
-              name="businessType" 
-              value={formData.businessType} 
-              onChange={handleChange} 
-              style={{ width: '100%', padding: '0.5rem', border: '1px solid #ccc', borderRadius: '4px' }}
-            >
-              <option value="B2B">B2B</option>
-              <option value="B2C">B2C</option>
-              <option value="B2B2C">B2B2C</option>
-              <option value="C2C">C2C</option>
-            </select>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+            <div>
+              <label style={{ display: 'block', fontWeight: 500, marginBottom: '0.5rem' }}>Industry</label>
+              <input type="text" name="industry" value={formData.industry} onChange={handleChange} style={inputStyle} required />
+            </div>
+            <div>
+              <label style={{ display: 'block', fontWeight: 500, marginBottom: '0.5rem' }}>Location</label>
+              <input type="text" name="location" value={formData.location} onChange={handleChange} style={inputStyle} required />
+            </div>
           </div>
 
-          <div>
-            <label style={{ display: 'block', fontWeight: 500, marginBottom: '0.5rem' }}>Stage</label>
-            <select 
-              name="businessStage" 
-              value={formData.businessStage} 
-              onChange={handleChange} 
-              style={{ width: '100%', padding: '0.5rem', border: '1px solid #ccc', borderRadius: '4px' }}
-            >
-              <option value="IDEA">Idea Stage</option>
-              <option value="MVP">MVP</option>
-              <option value="EARLY_TRACTION">Early Traction</option>
-              <option value="SCALING">Scaling</option>
-            </select>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+            <div>
+              <label style={{ display: 'block', fontWeight: 500, marginBottom: '0.5rem' }}>Business Type</label>
+              <select name="businessType" value={formData.businessType} onChange={handleChange} style={inputStyle}>
+                <option value="B2B">B2B</option>
+                <option value="B2C">B2C</option>
+                <option value="B2B2C">B2B2C</option>
+                <option value="C2C">C2C</option>
+              </select>
+            </div>
+            <div>
+              <label style={{ display: 'block', fontWeight: 500, marginBottom: '0.5rem' }}>Stage</label>
+              <select name="businessStage" value={formData.businessStage} onChange={handleChange} style={inputStyle}>
+                <option value="Idea">Idea</option>
+                <option value="Early Stage">Early Stage</option>
+                <option value="Operating">Operating</option>
+                <option value="Growing">Growing</option>
+                <option value="Expansion">Expansion</option>
+                <option value="Mature">Mature</option>
+              </select>
+            </div>
           </div>
 
-          <div style={{ marginTop: '1rem', display: 'flex', gap: '1rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+            <div>
+              <label style={{ display: 'block', fontWeight: 500, marginBottom: '0.5rem' }}>Website</label>
+              <input type="url" name="website" value={formData.website} onChange={handleChange} style={inputStyle} />
+            </div>
+            <div>
+              <label style={{ display: 'block', fontWeight: 500, marginBottom: '0.5rem' }}>Founded Year</label>
+              <input type="number" name="foundedYear" value={formData.foundedYear} onChange={handleChange} style={inputStyle} />
+            </div>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+            <div>
+              <label style={{ display: 'block', fontWeight: 500, marginBottom: '0.5rem' }}>Employee Range</label>
+              <input type="text" name="employeeRange" value={formData.employeeRange} onChange={handleChange} placeholder="e.g. 10-50" style={inputStyle} />
+            </div>
+            <div>
+              <label style={{ display: 'block', fontWeight: 500, marginBottom: '0.5rem' }}>Main Market</label>
+              <input type="text" name="mainMarket" value={formData.mainMarket} onChange={handleChange} style={inputStyle} />
+            </div>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+            <div>
+              <label style={{ display: 'block', fontWeight: 500, marginBottom: '0.5rem' }}>Business Model</label>
+              <input type="text" name="businessModel" value={formData.businessModel} onChange={handleChange} placeholder="e.g. SaaS" style={inputStyle} />
+            </div>
+            <div>
+              <label style={{ display: 'block', fontWeight: 500, marginBottom: '0.5rem' }}>Products Or Services</label>
+              <input type="text" name="productsOrServices" value={formData.productsOrServices} onChange={handleChange} style={inputStyle} />
+            </div>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', marginTop: '1rem' }}>
+            <div>
+              <label style={{ display: 'block', fontWeight: 500, marginBottom: '0.5rem' }}>Logo</label>
+              <ImageUploader 
+                onUploadSuccess={(url) => handleImageUpload('logoUrl', url)} 
+                defaultImage={formData.logoUrl} 
+                label="Upload Logo"
+              />
+            </div>
+            <div>
+              <label style={{ display: 'block', fontWeight: 500, marginBottom: '0.5rem' }}>Cover Image</label>
+              <ImageUploader 
+                onUploadSuccess={(url) => handleImageUpload('coverUrl', url)} 
+                defaultImage={formData.coverUrl} 
+                label="Upload Cover"
+              />
+            </div>
+          </div>
+
+          <div style={{ marginTop: '2rem', display: 'flex', gap: '1rem' }}>
             <button 
               type="submit" 
               className={`${commonStyles.actionBtn} ${commonStyles.approveBtn}`} 
               disabled={submitting}
-              style={{ padding: '0.75rem 1.5rem', fontSize: '1rem' }}
+              style={{ padding: '0.75rem 1.5rem', fontSize: '1rem', background: '#e11d48' }}
             >
-              {submitting ? 'Submitting...' : 'Propose Changes'}
+              {submitting ? 'Saving...' : 'Save Changes (Force Update)'}
             </button>
             <button 
               type="button" 
@@ -177,3 +251,10 @@ export default function AdminEditBusiness() {
     </div>
   );
 }
+
+const inputStyle = {
+  width: '100%', 
+  padding: '0.5rem', 
+  border: '1px solid #ccc', 
+  borderRadius: '4px'
+};

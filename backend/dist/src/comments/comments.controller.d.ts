@@ -11,8 +11,8 @@ export declare class CommentsController {
         };
     } & {
         id: string;
-        content: string;
         createdAt: Date;
+        content: string;
         authorId: string;
         articleId: string;
         parentId: string | null;
@@ -31,16 +31,16 @@ export declare class CommentsController {
             };
         } & {
             id: string;
-            content: string;
             createdAt: Date;
+            content: string;
             authorId: string;
             articleId: string;
             parentId: string | null;
         })[];
     } & {
         id: string;
-        content: string;
         createdAt: Date;
+        content: string;
         authorId: string;
         articleId: string;
         parentId: string | null;
@@ -51,8 +51,8 @@ export declare class CommentsRootController {
     constructor(commentsService: CommentsService);
     removeAdmin(id: string): Promise<{
         id: string;
-        content: string;
         createdAt: Date;
+        content: string;
         authorId: string;
         articleId: string;
         parentId: string | null;
@@ -61,16 +61,16 @@ export declare class CommentsRootController {
         content: string;
     }, req: any): Promise<{
         id: string;
-        content: string;
         createdAt: Date;
+        content: string;
         authorId: string;
         articleId: string;
         parentId: string | null;
     }>;
     remove(id: string, req: any): Promise<{
         id: string;
-        content: string;
         createdAt: Date;
+        content: string;
         authorId: string;
         articleId: string;
         parentId: string | null;

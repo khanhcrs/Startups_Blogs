@@ -29,6 +29,7 @@ model User {
   joinedAt  DateTime @default(now())
   avatarUrl String?
   role      Role     @default(USER)
+  status    String   @default("ACTIVE") // ACTIVE, LOCKED
 
   // Quan hệ
   ownedBusinesses Business[]
