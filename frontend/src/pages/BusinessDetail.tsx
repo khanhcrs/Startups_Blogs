@@ -14,6 +14,7 @@ import {
   ShieldAlert
 } from 'lucide-react';
 import BusinessCard from '../components/business/BusinessCard';
+import ContactFounderModal from '../components/business/ContactFounderModal';
 import styles from './BusinessDetail.module.css';
 import { 
   getBusinessBySlug, 
@@ -38,7 +39,7 @@ const BusinessDetail = () => {
   const [activeTab, setActiveTab] = useState<Tab>('overview');
   const [isSaved, setIsSaved] = useState(false);
   const [isFollowing, setIsFollowing] = useState(false);
-  const [contactNotice, setContactNotice] = useState(false);
+  const [showContactModal, setShowContactModal] = useState(false);
   const [business, setBusiness] = useState<any | null>(null);
   const [businessArticles, setBusinessArticles] = useState<any[]>([]);
   const [relatedRecords, setRelatedRecords] = useState<any[]>([]);
@@ -56,7 +57,7 @@ const BusinessDetail = () => {
           // Try to fetch articles
           try {
             const artRes = await api.get('/articles');
-            const bizArticles = artRes.data.filter((a: any) => a.author?.businessId === bizRes.data.id || a.businessId === bizRes.data.id);
+            const bizArticles = artRes.data.data.filter((a: any) => a.author?.businessId === bizRes.data.id || a.businessId === bizRes.data.id);
             setBusinessArticles(bizArticles);
           } catch (e) {
             console.error('Failed to fetch articles', e);
@@ -176,18 +177,19 @@ const BusinessDetail = () => {
               <button 
                 type="button"
                 className={styles.contactBtn}
-                onClick={() => setContactNotice(true)}
+                onClick={() => setShowContactModal(true)}
               >
                 <Mail size={18} /> Contact Business
               </button>
             </div>
           </div>
 
-          {contactNotice && (
-            <div className={styles.authNotice}>
-              <p>Sign in is required to send direct contact requests to business owners.</p>
-              <button type="button" onClick={() => setContactNotice(false)} className={styles.closeNoticeBtn}>Dismiss</button>
-            </div>
+          {showContactModal && (
+            <ContactFounderModal 
+              businessId={business.id}
+              businessName={business.name}
+              onClose={() => setShowContactModal(false)}
+            />
           )}
 
           <p className={styles.shortDesc}>{business.description}</p>

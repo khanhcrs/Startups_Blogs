@@ -6,14 +6,14 @@ export declare class FundingOpportunitiesController {
     constructor(fundingOpportunitiesService: FundingOpportunitiesService);
     create(businessId: string, createFundingOpportunityDto: CreateFundingOpportunityDto, req: any): Promise<{
         id: string;
+        status: string;
         slug: string;
         detailedOverview: string | null;
-        status: string;
         createdAt: Date;
+        currency: string;
         title: string;
         publishedAt: Date | null;
         businessId: string;
-        currency: string;
         shortDescription: string;
         fundingAmountMin: number;
         fundingAmountMax: number;
@@ -23,14 +23,14 @@ export declare class FundingOpportunitiesController {
     }>;
     findAll(businessId: string): Promise<{
         id: string;
+        status: string;
         slug: string;
         detailedOverview: string | null;
-        status: string;
         createdAt: Date;
+        currency: string;
         title: string;
         publishedAt: Date | null;
         businessId: string;
-        currency: string;
         shortDescription: string;
         fundingAmountMin: number;
         fundingAmountMax: number;
@@ -40,14 +40,14 @@ export declare class FundingOpportunitiesController {
     }[]>;
     update(businessId: string, id: string, updateFundingOpportunityDto: UpdateFundingOpportunityDto, req: any): Promise<{
         id: string;
+        status: string;
         slug: string;
         detailedOverview: string | null;
-        status: string;
         createdAt: Date;
+        currency: string;
         title: string;
         publishedAt: Date | null;
         businessId: string;
-        currency: string;
         shortDescription: string;
         fundingAmountMin: number;
         fundingAmountMax: number;
@@ -57,14 +57,14 @@ export declare class FundingOpportunitiesController {
     }>;
     remove(businessId: string, id: string, req: any): Promise<{
         id: string;
+        status: string;
         slug: string;
         detailedOverview: string | null;
-        status: string;
         createdAt: Date;
+        currency: string;
         title: string;
         publishedAt: Date | null;
         businessId: string;
-        currency: string;
         shortDescription: string;
         fundingAmountMin: number;
         fundingAmountMax: number;

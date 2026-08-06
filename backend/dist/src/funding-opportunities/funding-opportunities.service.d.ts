@@ -7,14 +7,14 @@ export declare class FundingOpportunitiesService {
     private checkBusinessOwnership;
     create(businessId: string, createFundingOpportunityDto: CreateFundingOpportunityDto, ownerId: string): Promise<{
         id: string;
+        status: string;
         slug: string;
         detailedOverview: string | null;
-        status: string;
         createdAt: Date;
+        currency: string;
         title: string;
         publishedAt: Date | null;
         businessId: string;
-        currency: string;
         shortDescription: string;
         fundingAmountMin: number;
         fundingAmountMax: number;
@@ -24,14 +24,14 @@ export declare class FundingOpportunitiesService {
     }>;
     findAll(businessId: string): Promise<{
         id: string;
+        status: string;
         slug: string;
         detailedOverview: string | null;
-        status: string;
         createdAt: Date;
+        currency: string;
         title: string;
         publishedAt: Date | null;
         businessId: string;
-        currency: string;
         shortDescription: string;
         fundingAmountMin: number;
         fundingAmountMax: number;
@@ -41,14 +41,14 @@ export declare class FundingOpportunitiesService {
     }[]>;
     update(businessId: string, id: string, updateFundingOpportunityDto: UpdateFundingOpportunityDto, ownerId: string): Promise<{
         id: string;
+        status: string;
         slug: string;
         detailedOverview: string | null;
-        status: string;
         createdAt: Date;
+        currency: string;
         title: string;
         publishedAt: Date | null;
         businessId: string;
-        currency: string;
         shortDescription: string;
         fundingAmountMin: number;
         fundingAmountMax: number;
@@ -58,14 +58,14 @@ export declare class FundingOpportunitiesService {
     }>;
     remove(businessId: string, id: string, ownerId: string): Promise<{
         id: string;
+        status: string;
         slug: string;
         detailedOverview: string | null;
-        status: string;
         createdAt: Date;
+        currency: string;
         title: string;
         publishedAt: Date | null;
         businessId: string;
-        currency: string;
         shortDescription: string;
         fundingAmountMin: number;
         fundingAmountMax: number;

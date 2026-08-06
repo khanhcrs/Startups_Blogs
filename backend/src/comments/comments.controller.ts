@@ -1,7 +1,10 @@
-import { Controller, Get, Post, Body, Param, Delete, UseGuards, Request } from '@nestjs/common';
+import { Controller, Get, Post, Put, Body, Param, Delete, UseGuards, Request } from '@nestjs/common';
 import { CommentsService } from './comments.service';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { Role } from '@prisma/client';
 
 @Controller('articles/:articleId/comments')
 export class CommentsController {
@@ -26,6 +29,19 @@ export class CommentsController {
 @Controller('comments')
 export class CommentsRootController {
   constructor(private readonly commentsService: CommentsService) {}
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  @Delete('admin/:id')
+  removeAdmin(@Param('id') id: string) {
+    return this.commentsService.removeAdmin(id);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Put(':id')
+  update(@Param('id') id: string, @Body() body: { content: string }, @Request() req: any) {
+    return this.commentsService.update(id, body.content, req.user.userId);
+  }
 
   @UseGuards(JwtAuthGuard)
   @Delete(':id')

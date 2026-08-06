@@ -7,42 +7,42 @@ export declare class FundingRoundsService {
     private checkBusinessOwnership;
     create(businessId: string, createFundingRoundDto: CreateFundingRoundDto, ownerId: string): Promise<{
         id: string;
-        businessId: string;
+        isVerified: boolean;
         roundName: string;
         amount: number;
         currency: string;
         date: Date;
         investors: string;
-        isVerified: boolean;
+        businessId: string;
     }>;
     findAll(businessId: string): Promise<{
         id: string;
-        businessId: string;
+        isVerified: boolean;
         roundName: string;
         amount: number;
         currency: string;
         date: Date;
         investors: string;
-        isVerified: boolean;
+        businessId: string;
     }[]>;
     update(businessId: string, id: string, updateFundingRoundDto: UpdateFundingRoundDto, ownerId: string): Promise<{
         id: string;
-        businessId: string;
+        isVerified: boolean;
         roundName: string;
         amount: number;
         currency: string;
         date: Date;
         investors: string;
-        isVerified: boolean;
+        businessId: string;
     }>;
     remove(businessId: string, id: string, ownerId: string): Promise<{
         id: string;
-        businessId: string;
+        isVerified: boolean;
         roundName: string;
         amount: number;
         currency: string;
         date: Date;
         investors: string;
-        isVerified: boolean;
+        businessId: string;
     }>;
 }

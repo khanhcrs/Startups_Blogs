@@ -45,7 +45,23 @@ export declare class CommentsService {
         articleId: string;
         parentId: string | null;
     })[]>;
-    remove(id: string, authorId: string): Promise<{
+    update(id: string, content: string, authorId: string): Promise<{
+        id: string;
+        createdAt: Date;
+        content: string;
+        authorId: string;
+        articleId: string;
+        parentId: string | null;
+    }>;
+    removeAdmin(id: string): Promise<{
+        id: string;
+        createdAt: Date;
+        content: string;
+        authorId: string;
+        articleId: string;
+        parentId: string | null;
+    }>;
+    remove(id: string, requesterId: string): Promise<{
         id: string;
         createdAt: Date;
         content: string;
