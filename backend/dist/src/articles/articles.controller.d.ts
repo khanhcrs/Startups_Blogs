@@ -6,14 +6,14 @@ export declare class ArticlesController {
     constructor(articlesService: ArticlesService);
     create(createArticleDto: CreateArticleDto, req: any): Promise<{
         id: string;
-        slug: string;
         status: string;
+        slug: string;
         viewCount: number;
         createdAt: Date;
-        category: string;
         title: string;
         summary: string;
         content: string;
+        category: string;
         coverImage: string | null;
         tags: string[];
         likesCount: number;
@@ -30,14 +30,14 @@ export declare class ArticlesController {
         } | null;
     } & {
         id: string;
-        slug: string;
         status: string;
+        slug: string;
         viewCount: number;
         createdAt: Date;
-        category: string;
         title: string;
         summary: string;
         content: string;
+        category: string;
         coverImage: string | null;
         tags: string[];
         likesCount: number;
@@ -45,35 +45,107 @@ export declare class ArticlesController {
         authorId: string;
         businessId: string | null;
     })[]>;
-    findAll(category?: string, businessId?: string, skip?: string, take?: string): Promise<({
-        business: {
+    findAll(category?: string, businessId?: string, authorId?: string, tag?: string, search?: string, startDate?: string, endDate?: string, skip?: string, take?: string): Promise<{
+        data: ({
+            business: {
+                id: string;
+                name: string;
+                slug: string;
+                logoUrl: string | null;
+            } | null;
+            author: {
+                id: string;
+                name: string;
+                avatarUrl: string | null;
+            };
+        } & {
             id: string;
-            name: string;
+            status: string;
             slug: string;
-            logoUrl: string | null;
-        } | null;
-        author: {
+            viewCount: number;
+            createdAt: Date;
+            title: string;
+            summary: string;
+            content: string;
+            category: string;
+            coverImage: string | null;
+            tags: string[];
+            likesCount: number;
+            publishedAt: Date | null;
+            authorId: string;
+            businessId: string | null;
+        })[];
+        total: number;
+    }>;
+    getAllTags(): Promise<string[]>;
+    getAllArticles(page?: string, limit?: string, category?: string, search?: string, tag?: string, startDate?: string, endDate?: string): Promise<{
+        data: ({
+            comments: ({
+                author: {
+                    id: string;
+                    name: string;
+                };
+            } & {
+                id: string;
+                createdAt: Date;
+                content: string;
+                authorId: string;
+                articleId: string;
+                parentId: string | null;
+            })[];
+            author: {
+                id: string;
+                email: string;
+                name: string;
+            };
+        } & {
             id: string;
-            name: string;
-            avatarUrl: string | null;
+            status: string;
+            slug: string;
+            viewCount: number;
+            createdAt: Date;
+            title: string;
+            summary: string;
+            content: string;
+            category: string;
+            coverImage: string | null;
+            tags: string[];
+            likesCount: number;
+            publishedAt: Date | null;
+            authorId: string;
+            businessId: string | null;
+        })[];
+        meta: {
+            total: number;
+            page: number;
+            limit: number;
+            totalPages: number;
         };
-    } & {
-        id: string;
-        slug: string;
-        status: string;
-        viewCount: number;
-        createdAt: Date;
-        category: string;
-        title: string;
-        summary: string;
-        content: string;
-        coverImage: string | null;
-        tags: string[];
-        likesCount: number;
-        publishedAt: Date | null;
-        authorId: string;
-        businessId: string | null;
-    })[]>;
+    }>;
+    updateArticleStatus(id: string, status: string): Promise<{
+        success: boolean;
+        data: {
+            id: string;
+            status: string;
+            slug: string;
+            viewCount: number;
+            createdAt: Date;
+            title: string;
+            summary: string;
+            content: string;
+            category: string;
+            coverImage: string | null;
+            tags: string[];
+            likesCount: number;
+            publishedAt: Date | null;
+            authorId: string;
+            businessId: string | null;
+        };
+    }>;
+    deleteArticleAdmin(id: string): Promise<{
+        success: boolean;
+        message: string;
+    }>;
     findOne(idOrSlug: string): Promise<{
         business: {
             id: string;
@@ -88,14 +160,14 @@ export declare class ArticlesController {
         };
     } & {
         id: string;
-        slug: string;
         status: string;
+        slug: string;
         viewCount: number;
         createdAt: Date;
-        category: string;
         title: string;
         summary: string;
         content: string;
+        category: string;
         coverImage: string | null;
         tags: string[];
         likesCount: number;
@@ -105,14 +177,14 @@ export declare class ArticlesController {
     }>;
     update(id: string, updateArticleDto: UpdateArticleDto, req: any): Promise<{
         id: string;
-        slug: string;
         status: string;
+        slug: string;
         viewCount: number;
         createdAt: Date;
-        category: string;
         title: string;
         summary: string;
         content: string;
+        category: string;
         coverImage: string | null;
         tags: string[];
         likesCount: number;
@@ -122,14 +194,14 @@ export declare class ArticlesController {
     }>;
     remove(id: string, req: any): Promise<{
         id: string;
-        slug: string;
         status: string;
+        slug: string;
         viewCount: number;
         createdAt: Date;
-        category: string;
         title: string;
         summary: string;
         content: string;
+        category: string;
         coverImage: string | null;
         tags: string[];
         likesCount: number;

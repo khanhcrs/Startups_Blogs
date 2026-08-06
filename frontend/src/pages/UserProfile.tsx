@@ -33,7 +33,7 @@ import styles from './UserProfile.module.css';
 import { api } from '../lib/axios';
 import { useAuthStore } from '../store/authStore';
 
-type Tab = 'overview' | 'posts' | 'businesses' | 'saved' | 'settings';
+type Tab = 'overview' | 'posts' | 'businesses' | 'inbox' | 'saved' | 'proposals' | 'settings';
 type SubSettingsTab = 'profile' | 'social' | 'notifications';
 
 const UserProfile = () => {
@@ -51,6 +51,12 @@ const UserProfile = () => {
   // Real Data State
   const [authorInfo, setAuthorInfo] = useState<any>({});
   const [authoredArticles, setAuthoredArticles] = useState<any[]>([]);
+  const [contactRequests, setContactRequests] = useState<any[]>([]);
+  const [loadingInbox, setLoadingInbox] = useState(false);
+  const [savedArticles, setSavedArticles] = useState<any[]>([]);
+  const [loadingSaved, setLoadingSaved] = useState(false);
+  const [myProposals, setMyProposals] = useState<any[]>([]);
+  const [loadingProposals, setLoadingProposals] = useState(false);
 
   // In a real app, this would come from an auth context
   const [isOwner, setIsOwner] = useState(false);
@@ -106,14 +112,17 @@ const UserProfile = () => {
           }
         } else {
           setIsOwner(false);
-          // In a fully integrated app, fetch other user's profile and published articles here.
-          // For now, keep it simple.
-          setAuthorInfo({
-            name: 'User ' + id,
-            bio: 'This is a public profile view.',
+          // Fetch other user's profile and published articles here.
+          const [userRes, articlesRes] = await Promise.all([
+            api.get(`/users/${id}`),
+            api.get(`/articles?authorId=${id}`)
+          ]);
+          setAuthorInfo(userRes.data || {
+            name: 'User not found',
+            bio: '',
             followersCount: 0
           });
-          setAuthoredArticles([]);
+          setAuthoredArticles(articlesRes.data?.data || []);
         }
       } catch (err) {
         console.error('Lỗi khi tải profile', err);
@@ -123,6 +132,66 @@ const UserProfile = () => {
     };
     fetchProfileData();
   }, [id]);
+
+  useEffect(() => {
+    if (activeTab === 'inbox' && isOwner && authorInfo.ownedBusinesses?.length > 0) {
+      const fetchInbox = async () => {
+        setLoadingInbox(true);
+        try {
+          const promises = authorInfo.ownedBusinesses.map((b: any) => 
+            api.get(`/businesses/${b.id}/contact-requests`)
+          );
+          const results = await Promise.all(promises);
+          const allRequests = results.flatMap(res => res.data);
+          // Sort by newest
+          allRequests.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+          setContactRequests(allRequests);
+        } catch (err) {
+          console.error('Failed to fetch inbox', err);
+          toast.error('Có lỗi khi tải hộp thư.');
+        } finally {
+          setLoadingInbox(false);
+        }
+      };
+      fetchInbox();
+    }
+  }, [activeTab, isOwner, authorInfo.ownedBusinesses]);
+
+  useEffect(() => {
+    if (activeTab === 'saved' && isOwner) {
+      const fetchSavedArticles = async () => {
+        setLoadingSaved(true);
+        try {
+          const res = await api.get('/bookmarks');
+          setSavedArticles(res.data);
+        } catch (err) {
+          console.error('Failed to fetch saved articles', err);
+          toast.error('Có lỗi khi tải danh sách bài viết đã lưu.');
+        } finally {
+          setLoadingSaved(false);
+        }
+      };
+      fetchSavedArticles();
+    }
+  }, [activeTab, isOwner]);
+
+  useEffect(() => {
+    if (activeTab === 'proposals' && isOwner) {
+      const fetchProposals = async () => {
+        setLoadingProposals(true);
+        try {
+          const res = await api.get('/proposals/me');
+          setMyProposals(res.data.data);
+        } catch (err) {
+          console.error('Failed to fetch proposals', err);
+          toast.error('Có lỗi khi tải danh sách đề xuất.');
+        } finally {
+          setLoadingProposals(false);
+        }
+      };
+      fetchProposals();
+    }
+  }, [activeTab, isOwner]);
 
   const handleDelete = async (postId: string) => {
     if (window.confirm('Bạn có chắc chắn muốn xóa bài viết này không?')) {
@@ -277,10 +346,22 @@ const UserProfile = () => {
                 <Building2 size={20} /> My Businesses
               </button>
               <button 
+                className={`${styles.tab} ${activeTab === 'inbox' ? styles.activeTab : ''}`}
+                onClick={() => setActiveTab('inbox')}
+              >
+                <Mail size={20} /> Inbox
+              </button>
+              <button 
                 className={`${styles.tab} ${activeTab === 'saved' ? styles.activeTab : ''}`}
                 onClick={() => setActiveTab('saved')}
               >
                 <Bookmark size={20} /> Saved
+              </button>
+              <button 
+                className={`${styles.tab} ${activeTab === 'proposals' ? styles.activeTab : ''}`}
+                onClick={() => setActiveTab('proposals')}
+              >
+                <FileText size={20} /> Proposals
               </button>
               <button 
                 className={`${styles.tab} ${activeTab === 'settings' ? styles.activeTab : ''}`}
@@ -541,11 +622,127 @@ const UserProfile = () => {
           </div>
         )}
 
+        {activeTab === 'inbox' && isOwner && (
+          <div className={styles.tableContainer} style={{ padding: '24px' }}>
+            <div className={styles.tableHeader} style={{ marginBottom: '24px' }}>
+              <h2 style={{margin: 0}}>Founder Inbox</h2>
+              <p style={{color: 'var(--text-secondary)', marginTop: '8px'}}>Contact requests from users to your businesses.</p>
+            </div>
+            {loadingInbox ? (
+              <p>Đang tải...</p>
+            ) : contactRequests.length > 0 ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                {contactRequests.map(req => (
+                  <div key={req.id} style={{ border: '1px solid var(--border-color)', padding: '16px', borderRadius: 'var(--radius-md)', backgroundColor: 'var(--bg-default)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
+                      <div>
+                        <h3 style={{ margin: '0 0 4px 0', fontSize: '1.125rem' }}>{req.title}</h3>
+                        <span style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
+                          Từ: <strong>{req.sender?.name || 'Người dùng'}</strong> ({req.sender?.email || 'N/A'}) • Đến: <strong>{req.business?.name}</strong>
+                        </span>
+                      </div>
+                      <span style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>
+                        {formatDate(req.createdAt)}
+                      </span>
+                    </div>
+                    <div style={{ backgroundColor: 'var(--bg-accent)', padding: '12px', borderRadius: 'var(--radius-sm)', fontSize: '0.9rem', whiteSpace: 'pre-wrap' }}>
+                      {req.message}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className={styles.emptyState}>
+                <Mail size={48} style={{margin: '0 auto 16px', color: '#CBD5E1'}} />
+                <p>Bạn chưa có tin nhắn liên hệ nào.</p>
+              </div>
+            )}
+          </div>
+        )}
+
         {activeTab === 'saved' && isOwner && (
-           <div className={styles.emptyState}>
-             <Bookmark size={48} style={{margin: '0 auto 16px', color: '#CBD5E1'}} />
-             <p>Articles you save will appear here.</p>
-           </div>
+          <div className={styles.tableContainer} style={{ padding: '24px' }}>
+             <div className={styles.tableHeader} style={{ marginBottom: '24px' }}>
+               <h2 style={{margin: 0}}>Saved Articles</h2>
+               <p style={{color: 'var(--text-secondary)', marginTop: '8px'}}>Articles you have bookmarked for later.</p>
+             </div>
+             
+             {loadingSaved ? (
+               <p>Đang tải...</p>
+             ) : savedArticles.length > 0 ? (
+               <div className={styles.articlesGrid}>
+                 {savedArticles.map((bookmark: any) => (
+                   <div key={bookmark.id} className={styles.articleCard}>
+                     <div className={styles.cardContent}>
+                       <Link to={`/blogs/${bookmark.article.slug}`} className={styles.cardTitle}>
+                         {bookmark.article.title}
+                       </Link>
+                       <p className={styles.cardSummary}>{bookmark.article.summary}</p>
+                       <div className={styles.cardFooter}>
+                         <span>Saved on {formatDate(bookmark.createdAt)}</span>
+                       </div>
+                     </div>
+                   </div>
+                 ))}
+               </div>
+             ) : (
+               <div className={styles.emptyState}>
+                 <Bookmark size={48} style={{margin: '0 auto 16px', color: '#CBD5E1'}} />
+                 <p>Articles you save will appear here.</p>
+               </div>
+             )}
+          </div>
+        )}
+
+        {activeTab === 'proposals' && isOwner && (
+          <div className={styles.tableContainer} style={{ padding: '24px' }}>
+             <div className={styles.tableHeader} style={{ marginBottom: '24px' }}>
+               <h2 style={{margin: 0}}>Change Proposals</h2>
+               <p style={{color: 'var(--text-secondary)', marginTop: '8px'}}>Review edits proposed by the platform administrators.</p>
+             </div>
+             
+             {loadingProposals ? (
+               <p>Đang tải...</p>
+             ) : myProposals.length > 0 ? (
+               <div className={styles.tableScrollWrapper}>
+                 <table className={styles.postsTable}>
+                   <thead>
+                     <tr>
+                       <th>Entity</th>
+                       <th>Type</th>
+                       <th>Proposed By</th>
+                       <th>Date</th>
+                       <th>Action</th>
+                     </tr>
+                   </thead>
+                   <tbody>
+                     {myProposals.map((p: any) => (
+                       <tr key={p.id}>
+                         <td className={styles.postTitleCell}>
+                           <div className={styles.postTitleText} style={{ fontWeight: 600 }}>
+                             {p.entityName}
+                           </div>
+                         </td>
+                         <td>{p.entityType}</td>
+                         <td>{p.proposer?.name || 'Admin'}</td>
+                         <td>{formatDate(p.createdAt)}</td>
+                         <td>
+                           <Link to={`/proposals/${p.id}`} className={styles.primaryBtn} style={{ padding: '6px 12px', fontSize: '14px' }}>
+                             Review
+                           </Link>
+                         </td>
+                       </tr>
+                     ))}
+                   </tbody>
+                 </table>
+               </div>
+             ) : (
+               <div className={styles.emptyState}>
+                 <FileText size={48} style={{margin: '0 auto 16px', color: '#CBD5E1'}} />
+                 <p>You have no pending edit proposals.</p>
+               </div>
+             )}
+          </div>
         )}
 
         {activeTab === 'settings' && isOwner && (

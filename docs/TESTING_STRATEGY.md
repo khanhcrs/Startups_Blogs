@@ -35,3 +35,19 @@ Tài liệu này ghi nhận lại chiến lược và các kịch bản kiểm t
 5. **Kỳ vọng:** API `POST /articles` được gọi, thông báo lưu nháp thành công, User được chuyển về trang cá nhân.
 6. Tại trang cá nhân, bài viết mới tạo hiển thị trong tab **Posts Management** với trạng thái là `DRAFT`.
 7. User có thể bấm vào nút **Xóa (Thùng rác)** và bài viết biến mất sau khi xác nhận. (API `DELETE /articles/:id` được gọi).
+
+## 3. Luồng Kiểm Thử Quản Trị (Admin & Moderation) - Phase 9+
+
+### Admin Dashboard (Kiểm duyệt Bài viết & Bình luận)
+1. Đăng nhập với tài khoản role `ADMIN` (vd: `admin@startups.com`).
+2. Vào màn hình `/admin/articles`.
+3. Kiểm tra các chức năng:
+   - **Xóa bài viết:** Nút thùng rác hoạt động, gọi `DELETE /articles/admin/:id`.
+   - **Thay đổi trạng thái:** Đổi bài viết sang `DRAFT` hoặc `ARCHIVED`.
+   - **Kiểm duyệt Bình luận:** Mở modal chi tiết bài viết, bấm xóa bình luận rác (API `DELETE /comments/admin/:id`).
+
+### Luồng Đề xuất Thay đổi (Change Proposals)
+1. Founder vào trang quản lý Business, bấm **Edit**.
+2. Thay vì dữ liệu được đè lên bản gốc, Founder nhận được thông báo "Đề xuất thay đổi đang chờ duyệt".
+3. Admin vào Dashboard -> Proposals, xem Diff.
+4. Admin bấm **Approve**. Dữ liệu gốc của Business thay đổi và phản ánh lập tức trên trang Explore.

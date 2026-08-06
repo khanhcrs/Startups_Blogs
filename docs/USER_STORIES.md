@@ -268,7 +268,7 @@ Là người dùng đã đăng ký, tôi muốn đăng nhập để truy cập h
 
 Acceptance Criteria
 
-Đăng nhập bằng email và mật khẩu thông qua Amazon Cognito.
+Đăng nhập bằng email và mật khẩu thông qua Amazon Cognito (Note: Giai đoạn MVP hiện tại dùng Local JWT + bcrypt).
 
 Thông báo lỗi an toàn khi đăng nhập thất bại.
 

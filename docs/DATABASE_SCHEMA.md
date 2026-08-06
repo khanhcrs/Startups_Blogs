@@ -34,6 +34,7 @@ Lưu trữ thông tin cốt lõi của một Doanh nghiệp.
 - `status` (Enum: `PENDING`, `APPROVED`, `REJECTED` - Trạng thái duyệt của Admin)
 - `website`, `logoUrl`, `coverUrl` (String - Tùy chọn)
 - `ownerId` (String - Trỏ về người tạo ra Startup này)
+- `viewCount`, `savedCount`, `commentCount` (Int - Thống kê tự động)
 
 **Liên kết (Relations):**
 - Chứa nhiều `TeamMember` (Thành viên đội ngũ).
@@ -60,7 +61,7 @@ Lưu trữ thông tin cốt lõi của một Doanh nghiệp.
 
 ## 4. Bảng Bài viết & Tương tác
 ### a. `Article` (Bài đăng/Blog/News)
-- `title`, `summary`, `content`, `category`, `status`
+- `title`, `summary`, `content`, `category`, `status`, `tags` (Mảng String)
 - `likesCount`, `viewCount` (Thống kê số liệu)
 - `authorId` (Trỏ về `User`)
 - `businessId` (Tùy chọn - nếu bài viết này đại diện cho công ty)
@@ -71,3 +72,15 @@ Lưu trữ thông tin cốt lõi của một Doanh nghiệp.
 
 ### c. `Bookmark` & `Follow`
 - Các bảng trung gian lưu giữ trạng thái Lưu bài viết (`Bookmark`) và Theo dõi người dùng (`Follow`).
+
+## 5. Bảng Quản trị & Nghiệp vụ (Mới thêm)
+### a. `ContactRequest`
+- Lưu trữ các yêu cầu liên hệ từ Người dùng gửi đến Doanh nghiệp (Inbox cho Founder).
+- `senderId` (Người gửi), `businessId` (Doanh nghiệp nhận).
+- `subject`, `message`, `status` (PENDING, REPLIED, ARCHIVED).
+
+### b. `ChangeProposal`
+- Lưu trữ các đề xuất thay đổi nội dung (Draft/Merge Workflow) cho Admin duyệt trước khi áp dụng.
+- `entityType` (BUSINESS, ARTICLE), `entityId` (Khóa ngoại).
+- `proposedData` (JSON - Dữ liệu muốn thay đổi).
+- `status` (PENDING, APPROVED, REJECTED), `submittedById` (Người nộp đề xuất).

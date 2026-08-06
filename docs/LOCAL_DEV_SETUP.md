@@ -22,12 +22,17 @@ Thay vì cài đặt PostgreSQL trực tiếp lên Windows (dễ gây xung độ
   - *Lý do dùng cổng 5433:* Để tránh xung đột với bất kỳ dịch vụ PostgreSQL nào khác có thể đang chạy ngầm trên máy của bạn ở cổng 5432 mặc định.
 - Volume: Dữ liệu được lưu vào volume `postgres_data`, đảm bảo không bị mất data khi tắt máy hoặc tắt Docker.
 
-### 2.2. Khởi động Database
+### 2.2. MinIO (S3 Storage)
+Bên cạnh PostgreSQL, file `docker-compose.yml` cũng tích hợp sẵn **MinIO**, đóng vai trò làm máy chủ lưu trữ Object Storage (giả lập AWS S3) để xử lý việc upload Logo, Cover và tài liệu (Pitch Deck).
+- MinIO chạy ở cổng `9000` (API) và `9001` (Giao diện quản lý).
+- Giao diện quản lý (Console) có thể truy cập tại `http://localhost:9001` (User: `minioadmin`, Pass: `minioadmin`).
+
+### 2.3. Khởi động các dịch vụ (Database & Storage)
 Mở Terminal/PowerShell, di chuyển vào thư mục `/backend` và chạy:
 ```bash
 docker-compose up -d
 ```
-*(Lệnh này sẽ chạy Database ngầm. Để tắt, dùng `docker-compose down`).*
+*(Lệnh này sẽ chạy Database và MinIO ngầm. Để tắt, dùng `docker-compose down`).*
 
 ---
 
