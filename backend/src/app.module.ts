@@ -16,6 +16,7 @@ import { UploadModule } from './upload/upload.module';
 import { ContactRequestsModule } from './contact-requests/contact-requests.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { AdminModule } from './admin/admin.module';
+import { ProposalsModule } from './proposals/proposals.module';
 
 @Module({
   imports: [
@@ -33,7 +34,8 @@ import { AdminModule } from './admin/admin.module';
     UploadModule,
     ContactRequestsModule,
     NotificationsModule,
-    AdminModule
+    AdminModule,
+    ProposalsModule
   ],
   controllers: [AppController],
   providers: [AppService],

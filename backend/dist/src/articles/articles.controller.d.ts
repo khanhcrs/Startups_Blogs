@@ -6,17 +6,17 @@ export declare class ArticlesController {
     constructor(articlesService: ArticlesService);
     create(createArticleDto: CreateArticleDto, req: any): Promise<{
         id: string;
+        status: string;
         slug: string;
+        viewCount: number;
+        createdAt: Date;
         title: string;
         summary: string;
         content: string;
-        status: string;
         category: string;
         coverImage: string | null;
         tags: string[];
-        viewCount: number;
         likesCount: number;
-        createdAt: Date;
         publishedAt: Date | null;
         authorId: string;
         businessId: string | null;
@@ -24,53 +24,53 @@ export declare class ArticlesController {
     findMyArticles(req: any): Promise<({
         business: {
             id: string;
-            slug: string;
             name: string;
+            slug: string;
             logoUrl: string | null;
         } | null;
     } & {
         id: string;
+        status: string;
         slug: string;
+        viewCount: number;
+        createdAt: Date;
         title: string;
         summary: string;
         content: string;
-        status: string;
         category: string;
         coverImage: string | null;
         tags: string[];
-        viewCount: number;
         likesCount: number;
-        createdAt: Date;
         publishedAt: Date | null;
         authorId: string;
         businessId: string | null;
     })[]>;
     findAll(category?: string, businessId?: string, authorId?: string, tag?: string, search?: string, startDate?: string, endDate?: string, skip?: string, take?: string): Promise<{
         data: ({
+            business: {
+                id: string;
+                name: string;
+                slug: string;
+                logoUrl: string | null;
+            } | null;
             author: {
                 id: string;
                 name: string;
                 avatarUrl: string | null;
             };
-            business: {
-                id: string;
-                slug: string;
-                name: string;
-                logoUrl: string | null;
-            } | null;
         } & {
             id: string;
+            status: string;
             slug: string;
+            viewCount: number;
+            createdAt: Date;
             title: string;
             summary: string;
             content: string;
-            status: string;
             category: string;
             coverImage: string | null;
             tags: string[];
-            viewCount: number;
             likesCount: number;
-            createdAt: Date;
             publishedAt: Date | null;
             authorId: string;
             businessId: string | null;
@@ -87,30 +87,30 @@ export declare class ArticlesController {
                 };
             } & {
                 id: string;
-                content: string;
                 createdAt: Date;
+                content: string;
                 authorId: string;
                 articleId: string;
                 parentId: string | null;
             })[];
             author: {
                 id: string;
-                name: string;
                 email: string;
+                name: string;
             };
         } & {
             id: string;
+            status: string;
             slug: string;
+            viewCount: number;
+            createdAt: Date;
             title: string;
             summary: string;
             content: string;
-            status: string;
             category: string;
             coverImage: string | null;
             tags: string[];
-            viewCount: number;
             likesCount: number;
-            createdAt: Date;
             publishedAt: Date | null;
             authorId: string;
             businessId: string | null;
@@ -126,17 +126,17 @@ export declare class ArticlesController {
         success: boolean;
         data: {
             id: string;
+            status: string;
             slug: string;
+            viewCount: number;
+            createdAt: Date;
             title: string;
             summary: string;
             content: string;
-            status: string;
             category: string;
             coverImage: string | null;
             tags: string[];
-            viewCount: number;
             likesCount: number;
-            createdAt: Date;
             publishedAt: Date | null;
             authorId: string;
             businessId: string | null;
@@ -147,64 +147,64 @@ export declare class ArticlesController {
         message: string;
     }>;
     findOne(idOrSlug: string): Promise<{
+        business: {
+            id: string;
+            name: string;
+            slug: string;
+            logoUrl: string | null;
+        } | null;
         author: {
             id: string;
             name: string;
             avatarUrl: string | null;
         };
-        business: {
-            id: string;
-            slug: string;
-            name: string;
-            logoUrl: string | null;
-        } | null;
     } & {
         id: string;
+        status: string;
         slug: string;
+        viewCount: number;
+        createdAt: Date;
         title: string;
         summary: string;
         content: string;
-        status: string;
         category: string;
         coverImage: string | null;
         tags: string[];
-        viewCount: number;
         likesCount: number;
-        createdAt: Date;
         publishedAt: Date | null;
         authorId: string;
         businessId: string | null;
     }>;
     update(id: string, updateArticleDto: UpdateArticleDto, req: any): Promise<{
         id: string;
+        status: string;
         slug: string;
+        viewCount: number;
+        createdAt: Date;
         title: string;
         summary: string;
         content: string;
-        status: string;
         category: string;
         coverImage: string | null;
         tags: string[];
-        viewCount: number;
         likesCount: number;
-        createdAt: Date;
         publishedAt: Date | null;
         authorId: string;
         businessId: string | null;
     }>;
     remove(id: string, req: any): Promise<{
         id: string;
+        status: string;
         slug: string;
+        viewCount: number;
+        createdAt: Date;
         title: string;
         summary: string;
         content: string;
-        status: string;
         category: string;
         coverImage: string | null;
         tags: string[];
-        viewCount: number;
         likesCount: number;
-        createdAt: Date;
         publishedAt: Date | null;
         authorId: string;
         businessId: string | null;

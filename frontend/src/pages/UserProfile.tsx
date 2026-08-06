@@ -33,7 +33,7 @@ import styles from './UserProfile.module.css';
 import { api } from '../lib/axios';
 import { useAuthStore } from '../store/authStore';
 
-type Tab = 'overview' | 'posts' | 'businesses' | 'inbox' | 'saved' | 'settings';
+type Tab = 'overview' | 'posts' | 'businesses' | 'inbox' | 'saved' | 'proposals' | 'settings';
 type SubSettingsTab = 'profile' | 'social' | 'notifications';
 
 const UserProfile = () => {
@@ -55,6 +55,8 @@ const UserProfile = () => {
   const [loadingInbox, setLoadingInbox] = useState(false);
   const [savedArticles, setSavedArticles] = useState<any[]>([]);
   const [loadingSaved, setLoadingSaved] = useState(false);
+  const [myProposals, setMyProposals] = useState<any[]>([]);
+  const [loadingProposals, setLoadingProposals] = useState(false);
 
   // In a real app, this would come from an auth context
   const [isOwner, setIsOwner] = useState(false);
@@ -170,6 +172,24 @@ const UserProfile = () => {
         }
       };
       fetchSavedArticles();
+    }
+  }, [activeTab, isOwner]);
+
+  useEffect(() => {
+    if (activeTab === 'proposals' && isOwner) {
+      const fetchProposals = async () => {
+        setLoadingProposals(true);
+        try {
+          const res = await api.get('/proposals/me');
+          setMyProposals(res.data.data);
+        } catch (err) {
+          console.error('Failed to fetch proposals', err);
+          toast.error('Có lỗi khi tải danh sách đề xuất.');
+        } finally {
+          setLoadingProposals(false);
+        }
+      };
+      fetchProposals();
     }
   }, [activeTab, isOwner]);
 
@@ -336,6 +356,12 @@ const UserProfile = () => {
                 onClick={() => setActiveTab('saved')}
               >
                 <Bookmark size={20} /> Saved
+              </button>
+              <button 
+                className={`${styles.tab} ${activeTab === 'proposals' ? styles.activeTab : ''}`}
+                onClick={() => setActiveTab('proposals')}
+              >
+                <FileText size={20} /> Proposals
               </button>
               <button 
                 className={`${styles.tab} ${activeTab === 'settings' ? styles.activeTab : ''}`}
@@ -663,6 +689,57 @@ const UserProfile = () => {
                <div className={styles.emptyState}>
                  <Bookmark size={48} style={{margin: '0 auto 16px', color: '#CBD5E1'}} />
                  <p>Articles you save will appear here.</p>
+               </div>
+             )}
+          </div>
+        )}
+
+        {activeTab === 'proposals' && isOwner && (
+          <div className={styles.tableContainer} style={{ padding: '24px' }}>
+             <div className={styles.tableHeader} style={{ marginBottom: '24px' }}>
+               <h2 style={{margin: 0}}>Change Proposals</h2>
+               <p style={{color: 'var(--text-secondary)', marginTop: '8px'}}>Review edits proposed by the platform administrators.</p>
+             </div>
+             
+             {loadingProposals ? (
+               <p>Đang tải...</p>
+             ) : myProposals.length > 0 ? (
+               <div className={styles.tableScrollWrapper}>
+                 <table className={styles.postsTable}>
+                   <thead>
+                     <tr>
+                       <th>Entity</th>
+                       <th>Type</th>
+                       <th>Proposed By</th>
+                       <th>Date</th>
+                       <th>Action</th>
+                     </tr>
+                   </thead>
+                   <tbody>
+                     {myProposals.map((p: any) => (
+                       <tr key={p.id}>
+                         <td className={styles.postTitleCell}>
+                           <div className={styles.postTitleText} style={{ fontWeight: 600 }}>
+                             {p.entityName}
+                           </div>
+                         </td>
+                         <td>{p.entityType}</td>
+                         <td>{p.proposer?.name || 'Admin'}</td>
+                         <td>{formatDate(p.createdAt)}</td>
+                         <td>
+                           <Link to={`/proposals/${p.id}`} className={styles.primaryBtn} style={{ padding: '6px 12px', fontSize: '14px' }}>
+                             Review
+                           </Link>
+                         </td>
+                       </tr>
+                     ))}
+                   </tbody>
+                 </table>
+               </div>
+             ) : (
+               <div className={styles.emptyState}>
+                 <FileText size={48} style={{margin: '0 auto 16px', color: '#CBD5E1'}} />
+                 <p>You have no pending edit proposals.</p>
                </div>
              )}
           </div>

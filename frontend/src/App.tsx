@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation, useParams } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import Layout from './components/layout/Layout';
 import Home from './pages/Home';
@@ -18,13 +18,17 @@ import PendingVerification from './pages/auth/PendingVerification';
 import About from './pages/About';
 import Contact from './pages/Contact';
 import AccessDenied from './pages/AccessDenied';
+import ReviewProposal from './pages/ReviewProposal';
 import AdminLayout from './features/admin/layouts/AdminLayout';
 import AdminOverview from './features/admin/pages/AdminOverview';
 import AdminUsers from './features/admin/pages/AdminUsers';
 import AdminBusinesses from './features/admin/pages/AdminBusinesses';
 import AdminArticles from './features/admin/pages/AdminArticles';
 import AdminEditBusiness from './features/admin/pages/AdminEditBusiness';
+import AdminViewBusiness from './features/admin/pages/AdminViewBusiness';
 import AdminEditArticle from './features/admin/pages/AdminEditArticle';
+import AdminViewArticle from './features/admin/pages/AdminViewArticle';
+import AdminViewUser from './features/admin/pages/AdminViewUser';
 
 function LegacyRedirect({ to }: { to: string }) {
   const location = useLocation();
@@ -38,6 +42,11 @@ function LegacyRedirect({ to }: { to: string }) {
       replace
     />
   );
+}
+
+function ArticleRedirect() {
+  const { slug } = useParams();
+  return <Navigate to={`/blogs/${slug}`} replace />;
 }
 
 function App() {
@@ -54,6 +63,7 @@ function App() {
             <Route path="news" element={<News />} />
             <Route path="blogs" element={<Blogs />} />
             <Route path="blogs/:slug" element={<BlogDetail />} />
+            <Route path="articles/:slug" element={<ArticleRedirect />} />
             <Route path="notifications" element={<Notifications />} />
             <Route path="login" element={<Login />} />
             <Route path="register" element={<Register />} />
@@ -62,6 +72,7 @@ function App() {
             <Route path="raise-capital" element={<PostIdea />} />
             <Route path="post-idea" element={<LegacyRedirect to="/raise-capital" />} />
             <Route path="user/:id" element={<UserProfile />} />
+            <Route path="proposals/:id" element={<ReviewProposal />} />
             <Route path="about" element={<About />} />
             <Route path="contact" element={<Contact />} />
             <Route path="admin" element={<AdminLayout />}>
@@ -69,9 +80,12 @@ function App() {
               <Route path="dashboard" element={<LegacyRedirect to="/admin/overview" />} />
               <Route path="overview" element={<AdminOverview />} />
               <Route path="users" element={<AdminUsers />} />
+              <Route path="users/:id" element={<AdminViewUser />} />
               <Route path="businesses" element={<AdminBusinesses />} />
+              <Route path="businesses/:id" element={<AdminViewBusiness />} />
               <Route path="businesses/:id/edit" element={<AdminEditBusiness />} />
               <Route path="articles" element={<AdminArticles />} />
+              <Route path="articles/:id" element={<AdminViewArticle />} />
               <Route path="articles/:id/edit" element={<AdminEditArticle />} />
             </Route>
             <Route path="403" element={<AccessDenied />} />
