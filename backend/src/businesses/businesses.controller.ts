@@ -26,11 +26,25 @@ export class BusinessesController {
     @Query('skip') skip?: string,
     @Query('take') take?: string,
     @Query('status') status?: string,
+    @Query('search') search?: string,
+    @Query('stage') stage?: string,
+    @Query('industry') industry?: string,
+    @Query('startDate') startDate?: string,
+    @Query('endDate') endDate?: string,
   ) {
     if (req.user.role !== 'ADMIN') {
       throw new ForbiddenException('Only admin can access this route');
     }
-    return this.businessesService.findAllForAdmin(skip ? +skip : 0, take ? +take : 10, status);
+    return this.businessesService.findAllForAdmin(
+      skip ? +skip : 0, 
+      take ? +take : 10, 
+      status, 
+      search, 
+      stage, 
+      industry,
+      startDate,
+      endDate
+    );
   }
 
   @UseGuards(JwtAuthGuard)
@@ -44,6 +58,31 @@ export class BusinessesController {
       throw new ForbiddenException('Only admin can access this route');
     }
     return this.businessesService.updateStatus(id, status);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('admin/:id')
+  findOneForAdmin(
+    @Param('id') id: string,
+    @Request() req: any,
+  ) {
+    if (req.user.role !== 'ADMIN') {
+      throw new ForbiddenException('Only admin can access this route');
+    }
+    return this.businessesService.findOneForAdmin(id);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Put('admin/:id')
+  updateAsAdmin(
+    @Param('id') id: string,
+    @Body() updateBusinessDto: any,
+    @Request() req: any,
+  ) {
+    if (req.user.role !== 'ADMIN') {
+      throw new ForbiddenException('Only admin can access this route');
+    }
+    return this.businessesService.updateAsAdmin(id, updateBusinessDto);
   }
 
   @Get(':slug')

@@ -25,12 +25,24 @@ let UsersController = class UsersController {
     constructor(usersService) {
         this.usersService = usersService;
     }
-    async getAllUsers(page = '1', limit = '10') {
-        return this.usersService.getAllUsers(Number(page), Number(limit));
+    async getAllUsers(page = '1', limit = '10', role) {
+        return this.usersService.getAllUsers(Number(page), Number(limit), role);
     }
     async updateUserRole(id, role) {
         const data = await this.usersService.updateUserRole(id, role);
         return { success: true, data };
+    }
+    async updateUserStatus(id, status) {
+        const data = await this.usersService.updateUserStatus(id, status);
+        return { success: true, data };
+    }
+    async getAdminUserDetails(id) {
+        return this.usersService.getAdminUserDetails(id);
+    }
+    async adminUpdateUser(id, updateProfileDto) {
+        const user = await this.usersService.updateUser(id, updateProfileDto);
+        const { password, ...result } = user;
+        return result;
     }
     async getProfile(req) {
         const user = await this.usersService.findById(req.user.userId);
@@ -56,8 +68,9 @@ __decorate([
     (0, common_1.Get)('admin/all'),
     __param(0, (0, common_1.Query)('page')),
     __param(1, (0, common_1.Query)('limit')),
+    __param(2, (0, common_1.Query)('role')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, String]),
+    __metadata("design:paramtypes", [String, String, String]),
     __metadata("design:returntype", Promise)
 ], UsersController.prototype, "getAllUsers", null);
 __decorate([
@@ -70,6 +83,35 @@ __decorate([
     __metadata("design:paramtypes", [String, String]),
     __metadata("design:returntype", Promise)
 ], UsersController.prototype, "updateUserRole", null);
+__decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)(client_1.Role.ADMIN),
+    (0, common_1.Put)('admin/:id/status'),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Body)('status')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String]),
+    __metadata("design:returntype", Promise)
+], UsersController.prototype, "updateUserStatus", null);
+__decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)(client_1.Role.ADMIN),
+    (0, common_1.Get)('admin/:id'),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], UsersController.prototype, "getAdminUserDetails", null);
+__decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)(client_1.Role.ADMIN),
+    (0, common_1.Put)('admin/:id'),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, update_profile_dto_1.UpdateProfileDto]),
+    __metadata("design:returntype", Promise)
+], UsersController.prototype, "adminUpdateUser", null);
 __decorate([
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     (0, common_1.Get)('me'),

@@ -48,8 +48,6 @@ export default function AdminArticles() {
     fetchArticles();
   }, [category, debouncedSearch, selectedTag, startDateFilter, endDateFilter, page]);
 
-  const [selectedArticle, setSelectedArticle] = useState<any | null>(null);
-
   const fetchArticles = async () => {
     setLoading(true);
     try {
@@ -110,31 +108,6 @@ export default function AdminArticles() {
       fetchArticles();
     } catch (error) {
       toast.error('Error deleting article');
-    }
-  };
-
-  const handleDeleteComment = async (commentId: string) => {
-    if (!window.confirm('Are you sure you want to delete this comment?')) return;
-    try {
-      const res = await fetch(`http://localhost:3000/comments/admin/${commentId}`, {
-        method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-      });
-      if (!res.ok) throw new Error('Failed to delete comment');
-      toast.success('Comment deleted');
-      
-      // Update local state to remove the comment immediately
-      if (selectedArticle) {
-        setSelectedArticle({
-          ...selectedArticle,
-          comments: selectedArticle.comments.filter((c: any) => c.id !== commentId)
-        });
-      }
-      
-      // Also fetch articles again so the table row is up to date when modal closes
-      fetchArticles();
-    } catch (error) {
-      toast.error('Error deleting comment');
     }
   };
 
@@ -289,26 +262,24 @@ export default function AdminArticles() {
                     
                     {/* Article Info & Image */}
                     <td style={{ padding: '1rem 1.5rem' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                        <div style={{ width: '60px', height: '40px', borderRadius: '0.375rem', overflow: 'hidden', background: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                          {a.coverImage ? (
-                            <img src={a.coverImage} alt={a.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                          ) : (
-                            <ImageIcon size={20} color="#cbd5e1" />
-                          )}
-                        </div>
-                        <div>
-                          <button 
-                            onClick={() => setSelectedArticle(a)}
-                            style={{ background: 'none', border: 'none', padding: 0, color: '#0f172a', fontWeight: 600, textDecoration: 'none', display: 'block', marginBottom: '0.25rem', cursor: 'pointer', textAlign: 'left' }}
-                          >
-                            {a.title.length > 50 ? `${a.title.substring(0, 50)}...` : a.title}
-                          </button>
-                          <span style={{ fontSize: '0.75rem', color: '#64748b', background: '#f1f5f9', padding: '0.125rem 0.5rem', borderRadius: '9999px', fontWeight: 500 }}>
-                            {a.category}
-                          </span>
-                        </div>
-                      </div>
+                        <Link to={`/admin/articles/${a.id}`} className={commonStyles.link} style={{ display: 'flex', alignItems: 'center', gap: '1rem', textDecoration: 'none' }}>
+                          <div style={{ width: '60px', height: '40px', borderRadius: '0.375rem', overflow: 'hidden', background: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                            {a.coverImage ? (
+                              <img src={a.coverImage} alt={a.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                            ) : (
+                              <ImageIcon size={20} color="#cbd5e1" />
+                            )}
+                          </div>
+                          <div>
+                            <div style={{ fontWeight: 600, color: '#1e293b', marginBottom: '0.25rem' }}>{a.title}</div>
+                            <div style={{ fontSize: '0.75rem', color: '#64748b', display: 'flex', gap: '0.5rem' }}>
+                              <span style={{ backgroundColor: '#f1f5f9', padding: '0.125rem 0.375rem', borderRadius: '0.25rem' }}>{a.category}</span>
+                              {a.tags?.slice(0, 2).map((t: string) => (
+                                <span key={t} style={{ color: '#94a3b8' }}>#{t}</span>
+                              ))}
+                            </div>
+                          </div>
+                        </Link>
                     </td>
 
                     {/* Author */}
@@ -401,196 +372,6 @@ export default function AdminArticles() {
           </div>
         )}
       </div>
-
-      {/* Article Preview Modal */}
-      {selectedArticle && (
-        <div style={{
-          position: 'fixed',
-          top: 0, left: 0, right: 0, bottom: 0,
-          backgroundColor: 'rgba(0,0,0,0.5)',
-          backdropFilter: 'blur(4px)',
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          zIndex: 100,
-          padding: '2rem'
-        }} onClick={() => setSelectedArticle(null)}>
-          <div 
-            style={{
-              backgroundColor: '#fff',
-              width: '100%',
-              maxWidth: '800px',
-              maxHeight: '90vh',
-              borderRadius: '1rem',
-              overflow: 'hidden',
-              display: 'flex',
-              flexDirection: 'column',
-              boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)'
-            }} 
-            onClick={e => e.stopPropagation()}
-          >
-            {/* Modal Header */}
-            <div style={{ padding: '1.5rem', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-              <div>
-                <h2 style={{ fontSize: '1.5rem', fontWeight: 700, color: '#0f172a', marginBottom: '0.5rem' }}>{selectedArticle.title}</h2>
-                <div style={{ display: 'flex', gap: '1rem', fontSize: '0.875rem', color: '#64748b' }}>
-                  <span>{selectedArticle.author?.name}</span>
-                  <span>•</span>
-                  <span>{new Date(selectedArticle.createdAt).toLocaleDateString()}</span>
-                  <span>•</span>
-                  <span style={{ color: '#3b82f6', fontWeight: 500 }}>{selectedArticle.category}</span>
-                </div>
-              </div>
-              <button 
-                onClick={() => setSelectedArticle(null)}
-                style={{ background: '#f1f5f9', border: 'none', width: '32px', height: '32px', borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b' }}
-              >
-                ✕
-              </button>
-            </div>
-
-            {/* Modal Body */}
-            <div style={{ padding: '1.5rem', overflowY: 'auto', flex: 1, display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-              
-              {/* Analytics Dashboard (Like Author Dashboard) */}
-              <div style={{ backgroundColor: '#f8fafc', padding: '1.5rem', borderRadius: '0.75rem', border: '1px solid #e2e8f0' }}>
-                <h3 style={{ margin: '0 0 1rem 0', fontSize: '1.125rem', color: '#0f172a' }}>Article Analytics</h3>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem', marginBottom: '1.5rem' }}>
-                  <div style={{ backgroundColor: '#fff', padding: '1rem', borderRadius: '0.5rem', border: '1px solid #e2e8f0', textAlign: 'center' }}>
-                    <div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#3b82f6' }}>{selectedArticle.viewCount || 0}</div>
-                    <div style={{ fontSize: '0.875rem', color: '#64748b', marginTop: '0.25rem' }}>Views</div>
-                  </div>
-                  <div style={{ backgroundColor: '#fff', padding: '1rem', borderRadius: '0.5rem', border: '1px solid #e2e8f0', textAlign: 'center' }}>
-                    <div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#10b981' }}>{selectedArticle.likesCount || 0}</div>
-                    <div style={{ fontSize: '0.875rem', color: '#64748b', marginTop: '0.25rem' }}>Likes</div>
-                  </div>
-                  <div style={{ backgroundColor: '#fff', padding: '1rem', borderRadius: '0.5rem', border: '1px solid #e2e8f0', textAlign: 'center' }}>
-                    <div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#f59e0b' }}>{selectedArticle.comments?.length || 0}</div>
-                    <div style={{ fontSize: '0.875rem', color: '#64748b', marginTop: '0.25rem' }}>Comments</div>
-                  </div>
-                </div>
-
-                {/* Recharts Chart for Views */}
-                <div style={{ width: '100%', backgroundColor: '#fff', padding: '1.5rem', borderRadius: '0.75rem', border: '1px solid #e2e8f0' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '10px' }}>
-                    <h4 style={{ margin: 0, fontSize: '1rem', color: '#0f172a' }}>Tương tác theo thời gian</h4>
-                    <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-                      <input 
-                        type="date" 
-                        value={startDate}
-                        onChange={(e) => setStartDate(e.target.value)}
-                        style={{ padding: '0.375rem 0.75rem', borderRadius: '0.375rem', border: '1px solid #cbd5e1', fontSize: '0.875rem', outline: 'none' }}
-                      />
-                      <span style={{ color: '#64748b' }}>-</span>
-                      <input 
-                        type="date" 
-                        value={endDate}
-                        onChange={(e) => setEndDate(e.target.value)}
-                        style={{ padding: '0.375rem 0.75rem', borderRadius: '0.375rem', border: '1px solid #cbd5e1', fontSize: '0.875rem', outline: 'none' }}
-                      />
-                    </div>
-                  </div>
-                  <div style={{ height: '250px' }}>
-                    <ResponsiveContainer width="100%" height="100%">
-                      <ComposedChart data={chartData}>
-                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                        <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 12}} />
-                        <YAxis yAxisId="left" axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 12}} />
-                        <YAxis yAxisId="right" orientation="right" axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 12}} />
-                        <Tooltip contentStyle={{borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)'}} />
-                        <Bar yAxisId="left" dataKey="views" fill="#3b82f6" radius={[4,4,0,0]} name="Lượt xem" maxBarSize={40} />
-                        <Line yAxisId="right" type="monotone" dataKey="likes" stroke="#f59e0b" strokeWidth={3} name="Lượt thích" dot={{r: 4}} activeDot={{r: 6}} />
-                      </ComposedChart>
-                    </ResponsiveContainer>
-                  </div>
-                </div>
-              </div>
-
-              {/* Content Preview */}
-              <div>
-                <h3 style={{ margin: '0 0 1rem 0', fontSize: '1.125rem', color: '#0f172a' }}>Content Preview</h3>
-                <div className="ql-editor" style={{ padding: 0 }}>
-                  {selectedArticle.coverImage && (
-                    <img 
-                      src={selectedArticle.coverImage} 
-                      alt="Cover" 
-                      style={{ width: '100%', height: '300px', objectFit: 'cover', borderRadius: '0.5rem', marginBottom: '1.5rem' }} 
-                    />
-                  )}
-                  
-                  <div style={{ 
-                    padding: '1rem', 
-                    backgroundColor: '#f8fafc', 
-                    borderLeft: '4px solid #3b82f6',
-                    borderRadius: '0 0.5rem 0.5rem 0',
-                    marginBottom: '2rem',
-                    fontSize: '1.125rem',
-                    color: '#334155',
-                    fontStyle: 'italic',
-                    lineHeight: 1.6
-                  }}>
-                    {selectedArticle.summary}
-                  </div>
-
-                  <div dangerouslySetInnerHTML={{ __html: selectedArticle.content }} />
-                </div>
-              </div>
-
-              {/* Comments Section */}
-              <div style={{ marginTop: '2rem', borderTop: '1px solid #e2e8f0', paddingTop: '1.5rem' }}>
-                <h3 style={{ margin: '0 0 1rem 0', fontSize: '1.125rem', color: '#0f172a' }}>Comments ({selectedArticle.comments?.length || 0})</h3>
-                {selectedArticle.comments && selectedArticle.comments.length > 0 ? (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                    {selectedArticle.comments.map((comment: any) => (
-                      <div key={comment.id} style={{ padding: '1rem', backgroundColor: '#f8fafc', borderRadius: '0.5rem', border: '1px solid #e2e8f0' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-                          <span style={{ fontWeight: 600, color: '#334155', fontSize: '0.875rem' }}>{comment.author?.name || 'Unknown User'}</span>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                            <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>
-                              {new Date(comment.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
-                            </span>
-                            <button
-                              onClick={() => handleDeleteComment(comment.id)}
-                              style={{ background: 'none', border: 'none', padding: '0.25rem', color: '#ef4444', cursor: 'pointer', borderRadius: '0.25rem', display: 'flex', alignItems: 'center', transition: 'background 0.2s' }}
-                              title="Delete comment"
-                              onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#fee2e2'}
-                              onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-                            >
-                              <Trash2 size={14} />
-                            </button>
-                          </div>
-                        </div>
-                        <p style={{ margin: 0, color: '#475569', fontSize: '0.875rem', lineHeight: 1.5 }}>{comment.content}</p>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div style={{ padding: '2rem', textAlign: 'center', backgroundColor: '#f8fafc', borderRadius: '0.5rem', color: '#94a3b8', fontSize: '0.875rem' }}>
-                    No comments yet.
-                  </div>
-                )}
-              </div>
-
-            </div>
-
-            {/* Modal Footer */}
-            <div style={{ padding: '1rem 1.5rem', borderTop: '1px solid #e2e8f0', backgroundColor: '#f8fafc', display: 'flex', justifyContent: 'flex-end', gap: '1rem' }}>
-              <Link
-                to={`/admin/articles/${selectedArticle.id}/edit`}
-                style={{ padding: '0.5rem 1rem', backgroundColor: '#fff', border: '1px solid #d1d5db', borderRadius: '0.375rem', color: '#374151', textDecoration: 'none', fontWeight: 500 }}
-              >
-                Edit Article
-              </Link>
-              <button 
-                onClick={() => setSelectedArticle(null)}
-                style={{ padding: '0.5rem 1.5rem', backgroundColor: '#3b82f6', color: '#fff', border: 'none', borderRadius: '0.375rem', cursor: 'pointer', fontWeight: 500 }}
-              >
-                Close Preview
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

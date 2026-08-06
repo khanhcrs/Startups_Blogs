@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { Prisma, User } from '@prisma/client';
+import { Prisma, User, Role } from '@prisma/client';
 
 @Injectable()
 export class UsersService {
@@ -59,10 +59,13 @@ export class UsersService {
     });
   }
 
-  async getAllUsers(page: number, limit: number) {
+  async getAllUsers(page: number, limit: number, role?: string) {
     const skip = (page - 1) * limit;
+    const whereCondition = role ? { role: role as Role } : {};
+    
     const [users, total] = await Promise.all([
       this.prisma.user.findMany({
+        where: whereCondition,
         skip,
         take: limit,
         orderBy: { joinedAt: 'desc' },
@@ -70,14 +73,18 @@ export class UsersService {
           id: true,
           name: true,
           email: true,
+          avatarUrl: true,
+          bio: true,
+          location: true,
           role: true,
+          status: true,
           joinedAt: true,
           _count: {
-            select: { articles: true, ownedBusinesses: true },
+            select: { articles: true, ownedBusinesses: true, followers: true },
           },
         },
       }),
-      this.prisma.user.count(),
+      this.prisma.user.count({ where: whereCondition }),
     ]);
 
     return {
@@ -102,5 +109,42 @@ export class UsersService {
         role: true,
       }
     });
+  }
+
+  async updateUserStatus(id: string, status: string) {
+    return this.prisma.user.update({
+      where: { id },
+      data: { status },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        status: true,
+      }
+    });
+  }
+
+  async getAdminUserDetails(id: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id },
+      include: {
+        articles: {
+          select: { id: true, title: true, slug: true, status: true, viewCount: true, createdAt: true },
+          orderBy: { createdAt: 'desc' }
+        },
+        ownedBusinesses: {
+          select: { id: true, name: true, slug: true, status: true, industry: true, createdAt: true },
+          orderBy: { createdAt: 'desc' }
+        },
+        _count: {
+          select: { followers: true, following: true, comments: true }
+        }
+      }
+    });
+    
+    if (!user) return null;
+    
+    const { password, ...result } = user;
+    return result;
   }
 }

@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import ReactQuill from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
@@ -8,6 +8,7 @@ import ImageUploader from '../../../components/ImageUploader';
 import TagInput from '../../../components/TagInput';
 import detailStyles from '../../../pages/BlogDetail.module.css';
 import { useAuthStore } from '../../../store/authStore';
+import { useAdminTabsStore } from '../../../store/adminTabsStore';
 
 const customScrollbarStyle = `
   .custom-scroll::-webkit-scrollbar {
@@ -105,13 +106,16 @@ const customScrollbarStyle = `
   }
 `;
 
-export default function AdminEditArticle() {
-  const { id } = useParams();
+export default function AdminEditArticle({ articleId }: { articleId?: string }) {
+  const params = useParams();
+  const id = articleId || params.id;
   const navigate = useNavigate();
+  const location = useLocation();
+  const updateTabTitle = useAdminTabsStore(state => state.updateTabTitle);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [step, setStep] = useState<'write' | 'settings'>('write');
-  const [showPreview, setShowPreview] = useState(false);
+  const [showPreview, setShowPreview] = useState(location.state?.showPreview || false);
   
   const [formData, setFormData] = useState<any>({
     title: '',
@@ -180,6 +184,8 @@ export default function AdminEditArticle() {
             createdAt: a.createdAt || new Date().toISOString(),
             viewCount: a.viewCount || 0
           });
+          
+          updateTabTitle(location.pathname, `Edit: ${a.title.length > 20 ? a.title.substring(0, 20) + '...' : a.title}`);
         }
       }
     } catch (error) {

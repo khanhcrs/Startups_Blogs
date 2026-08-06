@@ -11,8 +11,8 @@ export declare class CommentsService {
         };
     } & {
         id: string;
-        content: string;
         createdAt: Date;
+        content: string;
         authorId: string;
         articleId: string;
         parentId: string | null;
@@ -31,40 +31,40 @@ export declare class CommentsService {
             };
         } & {
             id: string;
-            content: string;
             createdAt: Date;
+            content: string;
             authorId: string;
             articleId: string;
             parentId: string | null;
         })[];
     } & {
         id: string;
-        content: string;
         createdAt: Date;
+        content: string;
         authorId: string;
         articleId: string;
         parentId: string | null;
     })[]>;
     update(id: string, content: string, authorId: string): Promise<{
         id: string;
-        content: string;
         createdAt: Date;
+        content: string;
         authorId: string;
         articleId: string;
         parentId: string | null;
     }>;
     removeAdmin(id: string): Promise<{
         id: string;
-        content: string;
         createdAt: Date;
+        content: string;
         authorId: string;
         articleId: string;
         parentId: string | null;
     }>;
     remove(id: string, requesterId: string): Promise<{
         id: string;
-        content: string;
         createdAt: Date;
+        content: string;
         authorId: string;
         articleId: string;
         parentId: string | null;

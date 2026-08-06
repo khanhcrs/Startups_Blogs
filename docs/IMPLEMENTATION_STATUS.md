@@ -78,7 +78,7 @@ Tài liệu này đóng vai trò như một "bộ nhớ vĩnh cửu" (Permanent 
 - **Admin Dashboard:** Cấu trúc lại trang Admin với giao diện Sidebar Layout chuyên nghiệp.
 - Bổ sung các module quản trị:
   - **Overview**: Thống kê số lượng (Users, Businesses, Articles, Pending).
-  - **Businesses**: Phê duyệt hoặc Từ chối Startup.
+  - **Businesses**: Phê duyệt hoặc Từ chối Startup. Tích hợp giao diện `AdminViewBusiness` với đầy đủ các section (Funding History, Team, Analytics, Market, Updates). Bổ sung luồng API `GET /businesses/admin/:id` lấy chi tiết dữ liệu.
   - **Users**: Xem danh sách toàn hệ thống, cấp quyền (USER, MODERATOR, ADMIN).
   - **Articles**: Quản lý danh sách bài viết chuyên sâu:
     - Chuyển trạng thái (DRAFT/PUBLISHED) và xóa bài vi phạm.
@@ -86,15 +86,19 @@ Tài liệu này đóng vai trò như một "bộ nhớ vĩnh cửu" (Permanent 
     - Tính năng bộ lọc nâng cao (Advanced Filters): Lọc theo Tag, Khoảng thời gian (From/To), Danh mục (Blogs/News), Tìm kiếm.
     - Quản trị Bình luận (Comment Moderation): Quyền tối thượng của Admin để xóa ngay bình luận rác/vi phạm trực tiếp từ Modal xem trước.
 - Thiết lập Backend API cho các thao tác Admin bảo mật (Ví dụ: `DELETE /comments/admin/:id`, `GET /articles/tags`).
+- Sửa lỗi crash Backend trên môi trường Windows liên quan đến tiến trình `taskkill` khi hot-reload.
+
+### Phase 10: Admin Change Proposal (Hoàn thiện)
+- **Database:** Bổ sung mô hình `ChangeProposal` để lưu lại những thay đổi dưới dạng JSON. (Đã xong)
+- **Giao diện Admin:** Xây dựng Form chỉnh sửa toàn diện cho Business và Article, sử dụng phương thức "Tạo đề xuất thay đổi" thay vì lưu trực tiếp. (Đã xong)
+- **Giao diện Owner:** Đã xây dựng màn hình Diff/Merge để Owner xem thay đổi và nhấn Approve/Reject. (Đã xong)
+- **Backend API:** Hoàn thiện luồng duyệt tự động merge dữ liệu JSON vào bản ghi gốc. (Đã xong)
 
 ---
 
 ## 🟡 Những Phần Đang Chờ Triển Khai (To-Do)
 
-### Phase 10: Admin Change Proposal (Review & Merge Workflow)
-- **Database:** Bổ sung mô hình `ChangeProposal` để lưu lại những thay đổi dưới dạng JSON. (Đã xong)
-- **Giao diện Admin:** Xây dựng Form chỉnh sửa toàn diện cho Business và Article, sử dụng phương thức "Tạo đề xuất thay đổi" thay vì lưu trực tiếp. (Đang thực hiện)
-- **Giao diện Owner:** Cần xây dựng màn hình Diff/Merge để Owner xem thay đổi và nhấn Approve/Reject.
+
 
 ### Phase 11: Hệ Thống Thông Báo (Notifications)
 - Thay thế dữ liệu mock trên giao diện bằng hệ thống Notification thực tế.

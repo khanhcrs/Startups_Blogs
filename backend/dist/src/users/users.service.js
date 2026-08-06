@@ -67,10 +67,12 @@ let UsersService = class UsersService {
             data,
         });
     }
-    async getAllUsers(page, limit) {
+    async getAllUsers(page, limit, role) {
         const skip = (page - 1) * limit;
+        const whereCondition = role ? { role: role } : {};
         const [users, total] = await Promise.all([
             this.prisma.user.findMany({
+                where: whereCondition,
                 skip,
                 take: limit,
                 orderBy: { joinedAt: 'desc' },
@@ -78,14 +80,18 @@ let UsersService = class UsersService {
                     id: true,
                     name: true,
                     email: true,
+                    avatarUrl: true,
+                    bio: true,
+                    location: true,
                     role: true,
+                    status: true,
                     joinedAt: true,
                     _count: {
-                        select: { articles: true, ownedBusinesses: true },
+                        select: { articles: true, ownedBusinesses: true, followers: true },
                     },
                 },
             }),
-            this.prisma.user.count(),
+            this.prisma.user.count({ where: whereCondition }),
         ]);
         return {
             data: users,
@@ -108,6 +114,40 @@ let UsersService = class UsersService {
                 role: true,
             }
         });
+    }
+    async updateUserStatus(id, status) {
+        return this.prisma.user.update({
+            where: { id },
+            data: { status },
+            select: {
+                id: true,
+                name: true,
+                email: true,
+                status: true,
+            }
+        });
+    }
+    async getAdminUserDetails(id) {
+        const user = await this.prisma.user.findUnique({
+            where: { id },
+            include: {
+                articles: {
+                    select: { id: true, title: true, slug: true, status: true, viewCount: true, createdAt: true },
+                    orderBy: { createdAt: 'desc' }
+                },
+                ownedBusinesses: {
+                    select: { id: true, name: true, slug: true, status: true, industry: true, createdAt: true },
+                    orderBy: { createdAt: 'desc' }
+                },
+                _count: {
+                    select: { followers: true, following: true, comments: true }
+                }
+            }
+        });
+        if (!user)
+            return null;
+        const { password, ...result } = user;
+        return result;
     }
 };
 exports.UsersService = UsersService;
