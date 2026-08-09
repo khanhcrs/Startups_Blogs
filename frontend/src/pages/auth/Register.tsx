@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import styles from './Auth.module.css';
-import { api } from '../../lib/axios';
+import { confirmSignUp, resendSignUpCode, signUp } from '../../lib/cognito';
 
 const Register = () => {
   const navigate = useNavigate();
@@ -13,6 +13,8 @@ const Register = () => {
   
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [confirmationCode, setConfirmationCode] = useState('');
+  const [awaitingConfirmation, setAwaitingConfirmation] = useState(false);
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -20,14 +22,37 @@ const Register = () => {
     setLoading(true);
 
     try {
-      await api.post('/auth/register', {
-        email,
-        password,
-        name: `${firstName} ${lastName}`.trim()
-      });
+      const result = await signUp(email, password, `${firstName} ${lastName}`.trim());
+      if (result.confirmed) navigate('/login');
+      else setAwaitingConfirmation(true);
+    } catch (err: any) {
+      setError(err.message || 'Registration failed. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleConfirmation = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
+    try {
+      await confirmSignUp(email, confirmationCode);
       navigate('/login');
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Registration failed. Please try again.');
+      setError(err.message || 'Invalid confirmation code.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleResendCode = async () => {
+    setError('');
+    setLoading(true);
+    try {
+      await resendSignUpCode(email);
+    } catch (err: any) {
+      setError(err.message || 'Could not resend confirmation code.');
     } finally {
       setLoading(false);
     }
@@ -54,7 +79,16 @@ const Register = () => {
         
         {error && <div className={styles.errorMessage}>{error}</div>}
 
-        <form className={styles.authForm} onSubmit={handleRegister}>
+        {awaitingConfirmation ? (
+          <form className={styles.authForm} onSubmit={handleConfirmation}>
+            <div className={styles.formGroup}>
+              <label htmlFor="confirmationCode">Email confirmation code</label>
+              <input id="confirmationCode" value={confirmationCode} onChange={e => setConfirmationCode(e.target.value)} required />
+            </div>
+            <button type="submit" className={styles.submitBtn} disabled={loading}>Confirm account</button>
+            <button type="button" className={styles.secondaryBtn} disabled={loading} onClick={handleResendCode}>Resend confirmation code</button>
+          </form>
+        ) : <form className={styles.authForm} onSubmit={handleRegister}>
           <div className={styles.formGrid}>
             <div className={styles.formGroup}>
               <label htmlFor="firstName">First Name</label>
@@ -76,7 +110,7 @@ const Register = () => {
           <button type="submit" className={styles.submitBtn} disabled={loading}>
             {loading ? 'Signing Up...' : 'Sign Up'}
           </button>
-        </form>
+        </form>}
         
         <div className={styles.authFooter}>
           Already have an account? <Link to="/login">Log in</Link>

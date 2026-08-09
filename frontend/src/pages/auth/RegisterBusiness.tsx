@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import styles from './Auth.module.css';
 import { api } from '../../lib/axios';
 import { useAuthStore } from '../../store/authStore';
+import { confirmSignUp, resendSignUpCode, signIn, signUp } from '../../lib/cognito';
 
 const RegisterBusiness = () => {
   const navigate = useNavigate();
@@ -17,6 +18,8 @@ const RegisterBusiness = () => {
   
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [confirmationCode, setConfirmationCode] = useState('');
+  const [awaitingConfirmation, setAwaitingConfirmation] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,19 +32,22 @@ const RegisterBusiness = () => {
     const lastName = nameParts.length > 1 ? nameParts.slice(1).join(' ') : 'Rep';
 
     try {
-      // 1. Register Account
-      await api.post('/auth/register', {
-        email,
-        password,
-        name: `${firstName} ${lastName}`.trim()
-      });
-      
-      // 2. Login to get token
-      const loginRes = await api.post('/auth/login', { email, password });
-      const { user, access_token } = loginRes.data;
+      if (!awaitingConfirmation) {
+        const result = await signUp(email, password, `${firstName} ${lastName}`.trim());
+        if (!result.confirmed) {
+          setAwaitingConfirmation(true);
+          return;
+        }
+      } else {
+        await confirmSignUp(email, confirmationCode);
+      }
+
+      const accessToken = await signIn(email, password);
       
       // Save to store temporarily so we can call the next API
-      localStorage.setItem('token', access_token);
+      localStorage.setItem('token', accessToken);
+      const userRes = await api.get('/users/me');
+      const user = userRes.data;
       
       // 3. Create basic Business Profile
       await api.post('/businesses', {
@@ -52,13 +58,13 @@ const RegisterBusiness = () => {
         description: `${companyName} is a new startup represented by ${repName} (${roleTitle}).`,
         location: 'Unknown'
       }, {
-        headers: { Authorization: `Bearer ${access_token}` }
+        headers: { Authorization: `Bearer ${accessToken}` }
       });
       
-      login(user, access_token);
+      login(user, accessToken);
       navigate('/');
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Registration failed. Please try again.');
+      setError(err.message || err.response?.data?.message || 'Registration failed. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -98,6 +104,14 @@ const RegisterBusiness = () => {
               <input type="text" id="role" placeholder="e.g. CEO, Founder, Marketing Manager" value={roleTitle} onChange={e => setRoleTitle(e.target.value)} required />
             </div>
           </div>
+
+          {awaitingConfirmation && (
+            <div className={styles.formGroup}>
+              <label htmlFor="businessConfirmationCode">Email confirmation code *</label>
+              <input id="businessConfirmationCode" value={confirmationCode} onChange={e => setConfirmationCode(e.target.value)} required />
+              <button type="button" className={styles.secondaryBtn} disabled={loading} onClick={() => void resendSignUpCode(email).catch((err: any) => setError(err.message || 'Could not resend confirmation code.'))}>Resend confirmation code</button>
+            </div>
+          )}
           <div className={styles.formGrid}>
             <div className={styles.formGroup}>
               <label htmlFor="email">Business Email *</label>
@@ -129,7 +143,7 @@ const RegisterBusiness = () => {
           </div>
 
           <button type="submit" className={styles.submitBtn} disabled={loading}>
-            {loading ? 'Submitting Application...' : 'Submit Application'}
+            {loading ? 'Submitting Application...' : awaitingConfirmation ? 'Confirm & Submit Application' : 'Create Cognito Account'}
           </button>
         </form>
         

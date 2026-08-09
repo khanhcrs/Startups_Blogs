@@ -20,6 +20,33 @@ export class UsersService {
     });
   }
 
+  async findOrCreateFromCognito(data: {
+    cognitoSub: string;
+    email: string;
+    name?: string;
+  }): Promise<User> {
+    const bySubject = await this.prisma.user.findUnique({
+      where: { cognitoSub: data.cognitoSub },
+    });
+    if (bySubject) return bySubject;
+
+    const byEmail = await this.findByEmail(data.email);
+    if (byEmail) {
+      return this.prisma.user.update({
+        where: { id: byEmail.id },
+        data: { cognitoSub: data.cognitoSub },
+      });
+    }
+
+    return this.prisma.user.create({
+      data: {
+        cognitoSub: data.cognitoSub,
+        email: data.email,
+        name: data.name || data.email.split('@')[0],
+      },
+    });
+  }
+
   async createUser(data: Prisma.UserCreateInput): Promise<User> {
     return this.prisma.user.create({
       data,

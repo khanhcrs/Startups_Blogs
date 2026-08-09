@@ -11,19 +11,13 @@ export class UsersController {
   @Get('me')
   async getProfile(@Request() req: any) {
     const user = await this.usersService.findById(req.user.userId);
-    if (user) {
-      // Exclude password from the response
-      const { password, ...result } = user;
-      return result;
-    }
-    return null;
+    return user;
   }
 
   @UseGuards(JwtAuthGuard)
   @Put('me')
   async updateProfile(@Request() req: any, @Body() updateProfileDto: UpdateProfileDto) {
     const user = await this.usersService.updateUser(req.user.userId, updateProfileDto);
-    const { password, ...result } = user;
-    return result;
+    return user;
   }
 }

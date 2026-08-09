@@ -1,7 +1,6 @@
 import * as dotenv from 'dotenv';
 dotenv.config();
 import { PrismaClient, Role } from '@prisma/client';
-import * as bcrypt from 'bcrypt';
 import { Pool } from 'pg';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { fakerVI as faker } from '@faker-js/faker';
@@ -23,13 +22,10 @@ async function main() {
   await prisma.user.deleteMany();
 
   console.log('Đang tạo người dùng (Seeding users)...');
-  const password = await bcrypt.hash('password123', 10);
-  
   // 1. Tạo các user mặc định để test
   const adminUser = await prisma.user.create({
     data: {
       email: 'admin@startups.vn',
-      password,
       name: 'Quản Trị Viên',
       bio: 'Người quản lý hệ thống Startups & Blogs',
       location: 'Hà Nội, Việt Nam',
@@ -41,7 +37,6 @@ async function main() {
   const testUser = await prisma.user.create({
     data: {
       email: 'user@startups.vn',
-      password,
       name: 'Khách Tham Quan',
       bio: 'Nhà đầu tư thiên thần, đam mê công nghệ',
       location: 'Hồ Chí Minh, Việt Nam',
@@ -57,7 +52,6 @@ async function main() {
     users.push(await prisma.user.create({
       data: {
         email: faker.internet.email(),
-        password,
         name: faker.person.fullName(),
         bio: faker.person.jobTitle(),
         location: faker.location.city(),
@@ -222,10 +216,9 @@ async function main() {
   console.log(`\n============================`);
   console.log(`Tài khoản Admin (Dùng để test News):`);
   console.log(`Email: admin@startups.vn`);
-  console.log(`Mật khẩu: password123`);
   console.log(`\nTài khoản User thường (Dùng để test tính năng chung):`);
   console.log(`Email: user@startups.vn`);
-  console.log(`Mật khẩu: password123`);
+  console.log(`Các tài khoản đăng nhập được quản lý trong AWS Cognito.`);
   console.log(`============================\n`);
 }
 

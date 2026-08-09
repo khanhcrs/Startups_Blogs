@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import styles from './Auth.module.css';
 import { api } from '../../lib/axios';
+import { signIn } from '../../lib/cognito';
 import { useAuthStore } from '../../store/authStore';
 
 const Login = () => {
@@ -19,13 +20,13 @@ const Login = () => {
     setLoading(true);
 
     try {
-      const response = await api.post('/auth/login', { email, password });
-      const { user, access_token } = response.data;
-      
-      login(user, access_token);
+      const accessToken = await signIn(email, password);
+      localStorage.setItem('token', accessToken);
+      const response = await api.get('/users/me');
+      login(response.data, accessToken);
       navigate('/');
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Login failed. Please check your credentials.');
+      setError(err.message || err.response?.data?.message || 'Login failed. Please check your credentials.');
     } finally {
       setLoading(false);
     }
