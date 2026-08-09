@@ -1,7 +1,6 @@
 import * as dotenv from 'dotenv';
 dotenv.config();
 import { PrismaClient, Role } from '@prisma/client';
-import * as bcrypt from 'bcrypt';
 import { Pool } from 'pg';
 import { PrismaPg } from '@prisma/adapter-pg';
 
@@ -22,12 +21,15 @@ async function main() {
   await prisma.user.deleteMany();
 
   console.log('Đang tạo người dùng (Seeding users)...');
+
+  // 1. Tạo các user mặc định để test
+
   const password = await bcrypt.hash('password123', 10);
   
+
   const adminUser = await prisma.user.create({
     data: {
       email: 'admin@startups.vn',
-      password,
       name: 'Quản Trị Viên',
       bio: 'Người quản lý hệ thống Startups & Blogs',
       location: 'Hà Nội, Việt Nam',
@@ -39,9 +41,14 @@ async function main() {
   const testUser = await prisma.user.create({
     data: {
       email: 'user@startups.vn',
+
+      name: 'Khách Tham Quan',
+      bio: 'Nhà đầu tư thiên thần, đam mê công nghệ',
+
       password,
       name: 'Nhà Đầu Tư Angel',
       bio: 'Đam mê công nghệ và tìm kiếm các startup tiềm năng tại Đông Nam Á.',
+
       location: 'Hồ Chí Minh, Việt Nam',
       role: Role.USER,
       avatarUrl: 'https://i.pravatar.cc/150?u=investor',
@@ -53,12 +60,20 @@ async function main() {
   for (let i = 1; i <= 12; i++) {
     founders.push(await prisma.user.create({
       data: {
+
+        email: faker.internet.email(),
+        name: faker.person.fullName(),
+        bio: faker.person.jobTitle(),
+        location: faker.location.city(),
+        avatarUrl: faker.image.avatar(),
+
         email: `founder${i}@startups.vn`,
         password,
         name: `Founder ${i}`,
         bio: 'Khởi nghiệp gia nhiệt huyết, luôn tìm kiếm giải pháp đột phá.',
         location: i % 2 === 0 ? 'Hà Nội, Việt Nam' : 'Hồ Chí Minh, Việt Nam',
         avatarUrl: `https://i.pravatar.cc/150?u=founder${i}`,
+
       }
     }));
   }
@@ -377,9 +392,17 @@ async function main() {
   console.log('Hoàn thành quá trình tạo dữ liệu (Seeding completed)!');
   console.log(`Đã tạo thành công: 14 Người dùng, 12 Doanh nghiệp chuẩn, 27 Bài viết, cùng các bình luận và tương tác.`);
   console.log(`\n============================`);
+
+  console.log(`Tài khoản Admin (Dùng để test News):`);
+  console.log(`Email: admin@startups.vn`);
+  console.log(`\nTài khoản User thường (Dùng để test tính năng chung):`);
+  console.log(`Email: user@startups.vn`);
+  console.log(`Các tài khoản đăng nhập được quản lý trong AWS Cognito.`);
+
   console.log(`Tài khoản Admin: admin@startups.vn / password123`);
   console.log(`Tài khoản Nhà đầu tư: user@startups.vn / password123`);
   console.log(`Tài khoản Founder (ví dụ): founder1@startups.vn / password123`);
+
   console.log(`============================\n`);
 }
 

@@ -17,6 +17,10 @@ import RegisterBusiness from './pages/auth/RegisterBusiness';
 import PendingVerification from './pages/auth/PendingVerification';
 import About from './pages/About';
 import Contact from './pages/Contact';
+
+import AdminDashboard from './pages/AdminDashboard';
+import ForgotPassword from './pages/auth/ForgotPassword';
+
 import AccessDenied from './pages/AccessDenied';
 import ReviewProposal from './pages/ReviewProposal';
 import AdminLayout from './features/admin/layouts/AdminLayout';
@@ -29,6 +33,7 @@ import AdminViewBusiness from './features/admin/pages/AdminViewBusiness';
 import AdminEditArticle from './features/admin/pages/AdminEditArticle';
 import AdminViewArticle from './features/admin/pages/AdminViewArticle';
 import AdminViewUser from './features/admin/pages/AdminViewUser';
+
 
 function LegacyRedirect({ to }: { to: string }) {
   const location = useLocation();
@@ -66,6 +71,7 @@ function App() {
             <Route path="articles/:slug" element={<ArticleRedirect />} />
             <Route path="notifications" element={<Notifications />} />
             <Route path="login" element={<Login />} />
+            <Route path="forgot-password" element={<ForgotPassword />} />
             <Route path="register" element={<Register />} />
             <Route path="register/business" element={<RegisterBusiness />} />
             <Route path="pending-verification" element={<PendingVerification />} />
