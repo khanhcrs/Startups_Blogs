@@ -22,12 +22,33 @@ const comments_module_1 = require("./comments/comments.module");
 const bookmarks_module_1 = require("./bookmarks/bookmarks.module");
 const follows_module_1 = require("./follows/follows.module");
 const upload_module_1 = require("./upload/upload.module");
+const contact_requests_module_1 = require("./contact-requests/contact-requests.module");
+const notifications_module_1 = require("./notifications/notifications.module");
+const admin_module_1 = require("./admin/admin.module");
+const proposals_module_1 = require("./proposals/proposals.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
 exports.AppModule = AppModule = __decorate([
     (0, common_1.Module)({
-        imports: [prisma_module_1.PrismaModule, users_module_1.UsersModule, auth_module_1.AuthModule, businesses_module_1.BusinessesModule, team_members_module_1.TeamMembersModule, funding_rounds_module_1.FundingRoundsModule, funding_opportunities_module_1.FundingOpportunitiesModule, articles_module_1.ArticlesModule, comments_module_1.CommentsModule, bookmarks_module_1.BookmarksModule, follows_module_1.FollowsModule, upload_module_1.UploadModule],
+        imports: [
+            prisma_module_1.PrismaModule,
+            auth_module_1.AuthModule,
+            users_module_1.UsersModule,
+            businesses_module_1.BusinessesModule,
+            team_members_module_1.TeamMembersModule,
+            funding_rounds_module_1.FundingRoundsModule,
+            funding_opportunities_module_1.FundingOpportunitiesModule,
+            articles_module_1.ArticlesModule,
+            comments_module_1.CommentsModule,
+            bookmarks_module_1.BookmarksModule,
+            follows_module_1.FollowsModule,
+            upload_module_1.UploadModule,
+            contact_requests_module_1.ContactRequestsModule,
+            notifications_module_1.NotificationsModule,
+            admin_module_1.AdminModule,
+            proposals_module_1.ProposalsModule
+        ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService],
     })

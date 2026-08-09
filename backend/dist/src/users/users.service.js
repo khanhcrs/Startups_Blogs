@@ -30,6 +30,32 @@ let UsersService = class UsersService {
             include: { ownedBusinesses: true },
         });
     }
+    async getPublicProfile(id) {
+        const user = await this.prisma.user.findUnique({
+            where: { id },
+            select: {
+                id: true,
+                name: true,
+                bio: true,
+                avatarUrl: true,
+                location: true,
+                _count: {
+                    select: { followers: true, articles: true }
+                }
+            }
+        });
+        if (!user)
+            return null;
+        return {
+            id: user.id,
+            name: user.name,
+            bio: user.bio,
+            avatarUrl: user.avatarUrl,
+            location: user.location,
+            followersCount: user._count.followers,
+            publishedCount: user._count.articles
+        };
+    }
     async createUser(data) {
         return this.prisma.user.create({
             data,
@@ -40,6 +66,88 @@ let UsersService = class UsersService {
             where: { id },
             data,
         });
+    }
+    async getAllUsers(page, limit, role) {
+        const skip = (page - 1) * limit;
+        const whereCondition = role ? { role: role } : {};
+        const [users, total] = await Promise.all([
+            this.prisma.user.findMany({
+                where: whereCondition,
+                skip,
+                take: limit,
+                orderBy: { joinedAt: 'desc' },
+                select: {
+                    id: true,
+                    name: true,
+                    email: true,
+                    avatarUrl: true,
+                    bio: true,
+                    location: true,
+                    role: true,
+                    status: true,
+                    joinedAt: true,
+                    _count: {
+                        select: { articles: true, ownedBusinesses: true, followers: true },
+                    },
+                },
+            }),
+            this.prisma.user.count({ where: whereCondition }),
+        ]);
+        return {
+            data: users,
+            meta: {
+                total,
+                page,
+                limit,
+                totalPages: Math.ceil(total / limit)
+            }
+        };
+    }
+    async updateUserRole(id, role) {
+        return this.prisma.user.update({
+            where: { id },
+            data: { role: role },
+            select: {
+                id: true,
+                name: true,
+                email: true,
+                role: true,
+            }
+        });
+    }
+    async updateUserStatus(id, status) {
+        return this.prisma.user.update({
+            where: { id },
+            data: { status },
+            select: {
+                id: true,
+                name: true,
+                email: true,
+                status: true,
+            }
+        });
+    }
+    async getAdminUserDetails(id) {
+        const user = await this.prisma.user.findUnique({
+            where: { id },
+            include: {
+                articles: {
+                    select: { id: true, title: true, slug: true, status: true, viewCount: true, createdAt: true },
+                    orderBy: { createdAt: 'desc' }
+                },
+                ownedBusinesses: {
+                    select: { id: true, name: true, slug: true, status: true, industry: true, createdAt: true },
+                    orderBy: { createdAt: 'desc' }
+                },
+                _count: {
+                    select: { followers: true, following: true, comments: true }
+                }
+            }
+        });
+        if (!user)
+            return null;
+        const { password, ...result } = user;
+        return result;
     }
 };
 exports.UsersService = UsersService;

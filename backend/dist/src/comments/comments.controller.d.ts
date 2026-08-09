@@ -49,6 +49,24 @@ export declare class CommentsController {
 export declare class CommentsRootController {
     private readonly commentsService;
     constructor(commentsService: CommentsService);
+    removeAdmin(id: string): Promise<{
+        id: string;
+        createdAt: Date;
+        content: string;
+        authorId: string;
+        articleId: string;
+        parentId: string | null;
+    }>;
+    update(id: string, body: {
+        content: string;
+    }, req: any): Promise<{
+        id: string;
+        createdAt: Date;
+        content: string;
+        authorId: string;
+        articleId: string;
+        parentId: string | null;
+    }>;
     remove(id: string, req: any): Promise<{
         id: string;
         createdAt: Date;

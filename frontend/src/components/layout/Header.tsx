@@ -1,8 +1,10 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Search, Bell, Sun, ChevronDown, User, Settings, LogOut, Edit, Briefcase, Shield } from 'lucide-react';
+import { Search, Bell, Sun, ChevronDown, User, Settings, LogOut, Edit, Briefcase, Shield, ShieldAlert } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 import styles from './Header.module.css';
 import { useAuthStore } from '../../store/authStore';
+import { api } from '../../lib/axios';
+
 const Header = () => {
   const { user, isAuthenticated, logout } = useAuthStore();
   const [showDropdown, setShowDropdown] = useState(false);
@@ -18,6 +20,28 @@ const Header = () => {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  const [notifications, setNotifications] = useState<any[]>([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      api.get('/notifications').then(res => {
+        setNotifications(res.data);
+        setUnreadCount(res.data.filter((n: any) => !n.isRead).length);
+      }).catch(err => console.error(err));
+    }
+  }, [isAuthenticated, showNotif]); // Refresh when opening dropdown
+
+  const handleMarkAllAsRead = async () => {
+    try {
+      await api.put('/notifications/read-all');
+      setNotifications(notifications.map(n => ({ ...n, isRead: true })));
+      setUnreadCount(0);
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   const handleLogout = () => {
     logout();
@@ -44,7 +68,10 @@ const Header = () => {
           <Link to="/businesses" className={`${styles.navLink} ${path.includes('/businesses') || path.includes('/startups') ? styles.active : ''}`}>Explore Businesses</Link>
           <Link to="/news" className={`${styles.navLink} ${path.includes('/news') ? styles.active : ''}`}>News</Link>
           <Link to="/blogs" className={`${styles.navLink} ${path.includes('/blogs') ? styles.active : ''}`}>Blogs</Link>
-          
+          {isAuthenticated && (
+            <Link to="/notifications" className={`${styles.navLink} ${path.includes('/notifications') ? styles.active : ''}`}>Notifications</Link>
+          )}
+          <Link to="/about" className={`${styles.navLink} ${path.includes('/about') ? styles.active : ''}`}>About Us</Link>
         </nav>
 
         <div className={styles.actions}>
@@ -63,32 +90,30 @@ const Header = () => {
               <div className={styles.relativeBox}>
                 <button className={styles.iconBtn} aria-label="Notifications" onClick={() => setShowNotif(!showNotif)}>
                   <Bell size={20} />
-                  <span className={styles.badge}>4</span>
+                  {unreadCount > 0 && <span className={styles.badge}>{unreadCount}</span>}
                 </button>
                 
                 {showNotif && (
                   <div className={styles.notifDropdown}>
                     <div className={styles.notifHeader}>
                       <span>Notifications</span>
-                      <span className={styles.markRead}>Mark all as read</span>
+                      <span className={styles.markRead} onClick={handleMarkAllAsRead} style={{cursor: 'pointer'}}>Mark all as read</span>
                     </div>
                     <div className={styles.notifList}>
-                      <div className={styles.notifItem}>
-                        <div className={`${styles.notifDot} ${styles.unread}`}></div>
-                        <div className={styles.notifContent}>
-                          <p className={styles.notifTitle}>THÔNG BÁO NGHỈ</p>
-                          <p className={styles.notifDesc}>Tất cả các bạn sinh viên được nghỉ (không lên văn phòng)...</p>
-                          <p className={styles.notifTime}>5 days ago</p>
-                        </div>
-                      </div>
-                      <div className={styles.notifItem}>
-                        <div className={styles.notifDot}></div>
-                        <div className={styles.notifContent}>
-                          <p className={styles.notifTitle}>Swinburne Cloud Mastery</p>
-                          <p className={styles.notifDesc}>Sẽ diễn ra vào thứ 7 tuần này...</p>
-                          <p className={styles.notifTime}>6/29/2026</p>
-                        </div>
-                      </div>
+                      {notifications.length === 0 ? (
+                         <div style={{padding: '1rem', textAlign: 'center', color: '#6b7280'}}>No notifications.</div>
+                      ) : (
+                        notifications.slice(0, 5).map((notif: any) => (
+                          <div className={styles.notifItem} key={notif.id}>
+                            <div className={`${styles.notifDot} ${!notif.isRead ? styles.unread : ''}`}></div>
+                            <div className={styles.notifContent}>
+                              <p className={styles.notifTitle}>{notif.title}</p>
+                              <p className={styles.notifDesc}>{notif.message}</p>
+                              <p className={styles.notifTime}>{new Date(notif.createdAt).toLocaleDateString()}</p>
+                            </div>
+                          </div>
+                        ))
+                      )}
                     </div>
                     <Link to="/notifications" className={styles.notifFooter} onClick={() => setShowNotif(false)}>
                       View all notifications
@@ -132,8 +157,8 @@ const Header = () => {
                     </Link>
                     
                     {user?.role === 'ADMIN' && (
-                      <Link to="/admin/dashboard" className={styles.dropdownItem} onClick={() => setShowDropdown(false)}>
-                        <Shield size={16} /> Admin Dashboard
+                      <Link to="/admin" className={styles.dropdownItem} onClick={() => setShowDropdown(false)}>
+                        <ShieldAlert size={16} /> Admin Panel
                       </Link>
                     )}
                     

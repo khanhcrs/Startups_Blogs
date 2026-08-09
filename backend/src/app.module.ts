@@ -13,9 +13,30 @@ import { CommentsModule } from './comments/comments.module';
 import { BookmarksModule } from './bookmarks/bookmarks.module';
 import { FollowsModule } from './follows/follows.module';
 import { UploadModule } from './upload/upload.module';
+import { ContactRequestsModule } from './contact-requests/contact-requests.module';
+import { NotificationsModule } from './notifications/notifications.module';
+import { AdminModule } from './admin/admin.module';
+import { ProposalsModule } from './proposals/proposals.module';
 
 @Module({
-  imports: [PrismaModule, UsersModule, AuthModule, BusinessesModule, TeamMembersModule, FundingRoundsModule, FundingOpportunitiesModule, ArticlesModule, CommentsModule, BookmarksModule, FollowsModule, UploadModule],
+  imports: [
+    PrismaModule,
+    AuthModule,
+    UsersModule,
+    BusinessesModule,
+    TeamMembersModule,
+    FundingRoundsModule,
+    FundingOpportunitiesModule,
+    ArticlesModule,
+    CommentsModule,
+    BookmarksModule,
+    FollowsModule,
+    UploadModule,
+    ContactRequestsModule,
+    NotificationsModule,
+    AdminModule,
+    ProposalsModule
+  ],
   controllers: [AppController],
   providers: [AppService],
 })

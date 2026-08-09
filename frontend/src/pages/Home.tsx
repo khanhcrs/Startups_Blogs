@@ -36,7 +36,7 @@ const Home = () => {
 
     // Fetch articles
     api.get('/articles').then(res => {
-      setLatestArticles(res.data.slice(0, 3));
+      setLatestArticles(res.data.data.slice(0, 3));
     }).catch(err => console.error(err));
   }, []);
 

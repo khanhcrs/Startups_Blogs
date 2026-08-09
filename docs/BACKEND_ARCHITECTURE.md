@@ -15,13 +15,15 @@ src/
 │   └── interceptors/   # Response formatting interceptors
 ├── config/             # Cấu hình môi trường (env, aws, db)
 ├── prisma/             # Prisma service, schema, migrations
-├── modules/            # Chứa các feature module
-│   ├── auth/           # Verify token Cognito, đồng bộ User
+├── modules/            # Chứa các feature module (được cấu trúc phẳng ở root thư mục src/)
+│   ├── auth/           # Verify token Cognito/JWT, đăng nhập, đăng ký
 │   ├── users/          # Quản lý User profile, role
-│   ├── startups/       # Quản lý Startup profile, search, save
-│   ├── ideas/          # Quản lý Idea, kiểm duyệt
-│   ├── contact/        # Xử lý Contact Request
-│   └── storage/        # Gen S3 Presigned URLs
+│   ├── businesses/     # Quản lý Startup/Business profile, CRUD
+│   ├── articles/       # Quản lý bài viết (Blogs, News), filter, view count
+│   ├── comments/       # Quản lý bình luận lồng nhau
+│   ├── upload/         # Tích hợp MinIO/S3 upload file
+│   ├── admin/          # Quản trị viên xử lý duyệt, thống kê, thao tác bảo mật
+│   ├── ...             # Và các module phụ trợ khác (bookmarks, follows, notifications)
 ├── app.module.ts       # Main module
 └── main.ts             # Bootstrapping (CORS, Swagger setup)
 ```

@@ -15,15 +15,15 @@ Dự án **Startups Blogs** được thiết kế theo kiến trúc Microservice
 
 ### 1.3 Database & Storage
 - **Relational DB:** Amazon RDS for PostgreSQL. Chứa các dữ liệu nghiệp vụ (User, Startup, Idea, v.v.). Prisma sẽ kết nối trực tiếp đến đây.
-- **Object Storage:** Amazon S3. Lưu trữ logo, hình ảnh, pitch deck. Việc upload/download được xử lý qua **Presigned URLs** để bảo mật và giảm tải cho Backend.
+- **Object Storage:** Amazon S3. Lưu trữ logo, hình ảnh, pitch deck. Việc upload/download dự kiến xử lý qua **Presigned URLs** để bảo mật và giảm tải cho Backend. *(Lưu ý: Ở bản MVP hiện tại, chúng ta đang dùng MinIO giả lập S3 chạy trên Docker và Backend xử lý upload file trực tiếp)*.
 
 ### 1.4 Identity & Authentication
-- **Dịch vụ:** Amazon Cognito User Pool.
-- **Luồng hoạt động:** 
-  - Frontend gọi trực tiếp đến Cognito để Đăng ký / Đăng nhập / Quên mật khẩu.
-  - Sau khi đăng nhập, Cognito trả về JWT Token (ID Token, Access Token).
-  - Frontend dùng JWT gắn vào header `Authorization: Bearer <token>` để gọi API Backend.
-  - Backend sử dụng JWT Guard để verify token, lấy `cognitoSub` và tra cứu quyền hệ thống trong RDS.
+- **Dịch vụ (Mục tiêu):** Amazon Cognito User Pool.
+- **Luồng hoạt động (Mục tiêu):** 
+  - Frontend gọi trực tiếp đến Cognito để Đăng ký / Đăng nhập.
+  - Cognito trả về JWT Token.
+  - Backend sử dụng JWT Guard để verify token, lấy `cognitoSub`.
+- **MVP (Hiện hành):** Dự án đang tạm thời sử dụng **Local JWT + bcrypt** trên NestJS để mã hóa mật khẩu và cấp Token, nhằm đẩy nhanh tốc độ kiểm thử.
 
 ### 1.5 Dịch vụ phụ trợ
 - **Email:** Amazon SES. Dùng để gửi các email giao dịch ngoài luồng auth (như thông báo hệ thống, Contact Request).

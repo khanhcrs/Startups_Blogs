@@ -5,7 +5,7 @@
 }
 
 .container {
-  max-width: 1000px;
+  max-width: 1536px;
   margin: 0 auto;
   padding: 0 var(--spacing-4);
 }
@@ -25,8 +25,8 @@
 
 .iconContainer {
   background-color: #FFF7ED;
-  width: 48px;
-  height: 48px;
+  width: 56px;
+  height: 56px;
   border-radius: 12px;
   display: flex;
   align-items: center;
@@ -34,7 +34,7 @@
 }
 
 .title {
-  font-size: 1.5rem;
+  font-size: 2rem;
   font-weight: 700;
   color: var(--text-primary);
   margin-bottom: 2px;
@@ -42,7 +42,7 @@
 
 .subtitle {
   color: var(--text-secondary);
-  font-size: 0.875rem;
+  font-size: 1rem;
 }
 
 .refreshBtn {
@@ -78,8 +78,8 @@
 
 .bannerIcon {
   background-color: #3B82F6;
-  width: 36px;
-  height: 36px;
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -90,12 +90,12 @@
   color: #1E3A8A;
   font-weight: 600;
   margin-bottom: 2px;
-  font-size: 0.95rem;
+  font-size: 1.1rem;
 }
 
 .banner p {
   color: #3B82F6;
-  font-size: 0.85rem;
+  font-size: 1rem;
 }
 
 .bannerActions {
@@ -110,7 +110,7 @@
   padding: var(--spacing-2) var(--spacing-4);
   border-radius: var(--radius-md);
   font-weight: 500;
-  font-size: 0.875rem;
+  font-size: 1rem;
   cursor: pointer;
 }
 
@@ -121,7 +121,7 @@
   padding: var(--spacing-2) var(--spacing-4);
   border-radius: var(--radius-md);
   font-weight: 500;
-  font-size: 0.875rem;
+  font-size: 1rem;
   cursor: pointer;
 }
 
@@ -144,9 +144,9 @@
 }
 
 .statIcon {
-  width: 40px;
-  height: 40px;
-  border-radius: 10px;
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -158,14 +158,14 @@
 }
 
 .statLabel {
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   font-weight: 600;
   color: var(--text-secondary);
   letter-spacing: 0.05em;
 }
 
 .statValue {
-  font-size: 1.5rem;
+  font-size: 2rem;
   font-weight: 700;
   color: var(--text-primary);
 }
@@ -192,10 +192,10 @@
 
 .searchInput {
   width: 100%;
-  padding: var(--spacing-2) var(--spacing-3) var(--spacing-2) 36px;
+  padding: var(--spacing-3) var(--spacing-4) var(--spacing-3) 40px;
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
-  font-size: 0.95rem;
+  font-size: 1rem;
   box-shadow: var(--shadow-sm);
 }
 
@@ -283,9 +283,9 @@
 .cardIcon {
   background: #FFF7ED;
   color: #F97316;
-  width: 40px;
-  height: 40px;
-  border-radius: 10px;
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -297,7 +297,7 @@
 }
 
 .cardContent h3 {
-  font-size: 1rem;
+  font-size: 1.25rem;
   font-weight: 600;
   color: var(--text-primary);
   margin-bottom: var(--spacing-2);
@@ -305,7 +305,7 @@
 
 .cardContent p {
   color: var(--text-secondary);
-  font-size: 0.9rem;
+  font-size: 1rem;
   line-height: 1.5;
   margin-bottom: var(--spacing-3);
 }
@@ -318,7 +318,7 @@
 
 .time {
   color: var(--text-tertiary);
-  font-size: 0.8rem;
+  font-size: 0.9rem;
   display: flex;
   align-items: center;
   gap: var(--spacing-1);
@@ -326,14 +326,14 @@
 
 .time::before {
   content: '🕒';
-  font-size: 0.8rem;
+  font-size: 0.9rem;
 }
 
 .badge {
   background: #FFF7ED;
   color: #F97316;
-  font-size: 0.7rem;
+  font-size: 0.8rem;
   font-weight: 700;
-  padding: 2px 6px;
+  padding: 4px 8px;
   border-radius: 4px;
 }

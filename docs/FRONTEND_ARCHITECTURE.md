@@ -7,17 +7,16 @@ Dự án Frontend được setup bằng React 19, TypeScript, và Vite.
 ```text
 src/
 ├── assets/          # Hình ảnh tĩnh, SVG, font chữ
-├── components/      # Các component tái sử dụng được chia theo tính năng
-│   ├── ui/          # Các component nhỏ gọn (Button, Input, Modal, Badge...)
-│   ├── layout/      # Header, Footer, Sidebar, Layout chính
-│   └── [feature]/   # Component dành riêng cho một tính năng (vd: business, idea)
-├── hooks/           # Custom React hooks (vd: useAuth, useDebounce)
-├── pages/           # Các trang tương ứng với Route (Home, BusinessDetail, ...)
-├── services/        # Các file gọi API Backend (axios, fetch fetchers)
-├── store/           # Quản lý Global State (TanStack Query context, Zustand/Context API)
-├── styles/          # File CSS toàn cục (variables.css, reset.css)
-├── types/           # Các Interface, Type dùng chung toàn dự án
-├── utils/           # Các hàm hỗ trợ (formatDate, formatCurrency, validation...)
+├── components/      # Các component dùng chung toàn cục (UI cơ bản, Layout)
+├── features/        # Phân chia theo module/tính năng (Admin, Auth, Articles, Businesses...)
+│   └── [feature]/   # Mỗi feature sẽ có riêng components, hooks, api, types của nó
+├── hooks/           # Custom React hooks dùng chung (useDebounce, useClickOutside)
+├── lib/             # Các cấu hình thư viện bên thứ 3 (axios interceptors, etc.)
+├── pages/           # Các trang cấp cao (để map với React Router)
+├── store/           # Quản lý Global State (Zustand)
+├── styles/          # File CSS toàn cục (variables.css, global.css)
+├── types/           # Interface dùng chung toàn dự án (không thuộc feature cụ thể)
+├── utils/           # Các hàm tiện ích thuần túy (formatDate, formatCurrency)
 ├── App.tsx          # Định nghĩa Routes
 └── main.tsx         # Entry point
 ```
@@ -40,3 +39,12 @@ Mọi component/page đều có file `.module.css` riêng để tránh trùng l�
 - **Server State (Dữ liệu từ API):** Sử dụng **TanStack Query (React Query)**. Bắt buộc dùng để quản lý loading, error, cache, và pagination.
 - **Client State (Trạng thái UI):** Sử dụng `useState` cho trạng thái cục bộ, hoặc React Context cho trạng thái toàn cục (ví dụ: Auth context, Theme).
 - **Form State:** Sử dụng **React Hook Form** kết hợp với **Zod** để validate phía Frontend. Zod schema phải đồng bộ (match) với DTO validation dưới Backend.
+
+## 4. Admin UI Architecture (Multi-Tab)
+
+Giao diện quản trị viên (Admin Panel) được thiết kế theo kiến trúc **Multi-Tab (nhiều tab hoạt động song song)** để giữ nguyên trạng thái (state) khi chuyển đổi qua lại giữa các tính năng (VD: không mất bộ lọc khi chuyển từ trang danh sách sang trang chỉnh sửa).
+
+### 4.1. Quy tắc hoạt động của Admin Multi-Tab
+- **State Tabs:** Quản lý bằng `adminTabsStore.ts` (Zustand), lưu giữ các tab đang mở thay vì chỉ rely hoàn toàn vào React Router.
+- **Render Cơ chế ẩn/hiện:** Thay vì unmount component cũ khi route thay đổi (như `<Outlet />`), hệ thống render tất cả các tab đang mở và dùng `display: none` cho những tab không active.
+- **Điều hướng bên ngoài:** Nếu ở trong giao diện Admin mà user click vào một đường link dẫn ra trang ngoài (VD: Trang chủ, Business Detail public, Article Detail public), bắt buộc phải sử dụng `target="_blank" rel="noopener noreferrer"` để mở ở tab trình duyệt mới, giữ nguyên Workspace của Admin.
