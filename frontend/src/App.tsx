@@ -18,7 +18,6 @@ import PendingVerification from './pages/auth/PendingVerification';
 import About from './pages/About';
 import Contact from './pages/Contact';
 
-import AdminDashboard from './pages/AdminDashboard';
 import ForgotPassword from './pages/auth/ForgotPassword';
 
 import AccessDenied from './pages/AccessDenied';
