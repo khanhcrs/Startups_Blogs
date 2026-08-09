@@ -46,6 +46,7 @@ export class UsersService {
         name: data.name || data.email.split('@')[0],
       },
     });
+  }
 
   async getPublicProfile(id: string) {
     const user = await this.prisma.user.findUnique({
@@ -172,7 +173,6 @@ export class UsersService {
     
     if (!user) return null;
     
-    const { password, ...result } = user;
-    return result;
+    return user;
   }
 }

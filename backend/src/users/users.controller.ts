@@ -48,9 +48,7 @@ export class UsersController {
   @Roles(Role.ADMIN)
   @Put('admin/:id')
   async adminUpdateUser(@Param('id') id: string, @Body() updateProfileDto: UpdateProfileDto) {
-    const user = await this.usersService.updateUser(id, updateProfileDto);
-    const { password, ...result } = user;
-    return result;
+    return this.usersService.updateUser(id, updateProfileDto);
   }
 
   @UseGuards(JwtAuthGuard)
