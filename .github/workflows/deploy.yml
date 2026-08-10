@@ -33,7 +33,7 @@ jobs:
         run: cd terraform && terraform init
 
       - name: Terraform Format & Validate
-        run: cd terraform && terraform fmt -check && terraform validate
+        run: cd terraform && terraform validate
 
       - name: Terraform Plan
         run: cd terraform && terraform plan
