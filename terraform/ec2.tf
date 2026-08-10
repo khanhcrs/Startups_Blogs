@@ -39,9 +39,9 @@ resource "aws_key_pair" "deployer" {
 
 # 5. EC2 Ubuntu Server
 resource "aws_instance" "backend" {
-  ami                  = "ami-04e5276ebb8451442" # Ubuntu 24.04 LTS N.Virginia
-  instance_type        = "t2.micro"
-  subnet_id            = aws_subnet.public_1.id
+  ami                    = "ami-04e5276ebb8451442" # Ubuntu 24.04 LTS N.Virginia
+  instance_type          = "t2.micro"
+  subnet_id              = aws_subnet.public_1.id
   vpc_security_group_ids = [aws_security_group.ec2.id]
   iam_instance_profile = aws_iam_instance_profile.ec2_profile.name
   key_name             = aws_key_pair.deployer.key_name
