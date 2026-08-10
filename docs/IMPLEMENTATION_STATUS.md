@@ -10,7 +10,7 @@ Tài liệu này đóng vai trò như một "bộ nhớ vĩnh cửu" (Permanent 
 - **CI/CD & Docker:** Đã viết sẵn `Dockerfile` chuẩn và `deploy-backend.yml` (GitHub Actions -> AWS ECR / App Runner). (Chờ Frontend xong để test thực tế).
 
 ### 2. Module: Auth & Users (Phase 1)
-- Lựa chọn giải pháp: **Local JWT + bcrypt** (Tạm hoãn AWS Cognito để ưu tiên MVP).
+- Lựa chọn giải pháp: **AWS Cognito** (Đã tích hợp thành công, bao gồm Auto-login, đồng bộ Database tự động, Quản lý Token).
 - `PrismaModule` & `PrismaService` khởi tạo toàn cục.
 - `AuthModule` cung cấp API:
   - `POST /auth/register`: Đăng ký tài khoản.

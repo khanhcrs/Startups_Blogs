@@ -64,15 +64,27 @@ const Register = () => {
         throw cErr; // Bắt buộc ném lỗi ra ngoài để dừng tiến trình, không cho đi tiếp
       }
 
-      // 2. Register account in Database
+      // 2. Tự động Đăng nhập (Auto-login) cho trải nghiệm mượt mà
       try {
-        await api.post('/auth/register', {
-          email,
-          password,
-          name: `${firstName} ${lastName}`.trim()
-        });
-      } catch (dbErr: any) {
-        // Ignore if user already created in DB
+        const { loginWithCognito } = await import('../../services/cognitoAuth');
+        const { useAuthStore } = await import('../../store/authStore');
+        
+        const cognitoResult = await loginWithCognito(email, password);
+        if (cognitoResult?.accessToken) {
+          localStorage.setItem('token', cognitoResult.accessToken);
+          useAuthStore.getState().login({
+            id: email,
+            email: email,
+            firstName: firstName || email.split('@')[0],
+            lastName: lastName || 'User',
+            role: 'USER'
+          }, cognitoResult.accessToken);
+          
+          navigate('/');
+          return;
+        }
+      } catch (loginErr) {
+        console.warn('Auto login failed, redirecting to login page', loginErr);
       }
 
       navigate('/login');
