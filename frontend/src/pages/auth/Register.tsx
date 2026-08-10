@@ -53,8 +53,8 @@ const Register = () => {
       // 1. Confirm 6-digit OTP code with Amazon Cognito
       try {
         await confirmCognitoSignUp(email, verificationCode);
-      } catch (cErr) {
-        // Continue if already confirmed
+      } catch (cErr: any) {
+        console.warn('Cognito confirm:', cErr);
       }
 
       // 2. Register account in Database
@@ -64,13 +64,13 @@ const Register = () => {
           password,
           name: `${firstName} ${lastName}`.trim()
         });
-      } catch (dbErr) {
-        // Account already exists in DB
+      } catch (dbErr: any) {
+        // Ignore if user already created in DB
       }
 
       navigate('/login');
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Invalid or expired 6-digit verification code.');
+      setError('Invalid or expired 6-digit verification code. Please try again.');
     } finally {
       setLoading(false);
     }

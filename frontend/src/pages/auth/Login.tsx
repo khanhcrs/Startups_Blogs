@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import styles from './Auth.module.css';
 import { api } from '../../lib/axios';
-import { signIn } from '../../lib/cognito';
+import { loginWithCognito } from '../../services/cognitoAuth';
 import { useAuthStore } from '../../store/authStore';
 
 const Login = () => {
@@ -20,22 +20,59 @@ const Login = () => {
     setLoading(true);
 
     try {
-      const accessToken = await signIn(email, password);
-      localStorage.setItem('token', accessToken);
+      let token = '';
       
-      const response = await api.get('/users/me', {
-        headers: { Authorization: `Bearer ${accessToken}` }
-      });
+      // 1. Đăng nhập trực tiếp với Amazon Cognito User Pool từ Browser
+      try {
+        const cognitoResult = await loginWithCognito(email, password);
+        if (cognitoResult?.accessToken) {
+          token = cognitoResult.accessToken;
+        }
+      } catch (cErr: any) {
+        console.warn('Cognito direct login error:', cErr);
+      }
+
+      // 2. Nếu Cognito chưa cấp token, gọi API backend fallback
+      if (!token) {
+        const response = await api.post('/auth/login', { email, password });
+        token = response.data.accessToken;
+      }
+
+      localStorage.setItem('token', token);
+
+      // 3. Khởi tạo thông tin User Profile
+      let userProfile = {
+        id: email,
+        email: email,
+        firstName: email.split('@')[0],
+        lastName: 'User',
+        role: 'USER' as const,
+      };
+
+      try {
+        const profileRes = await api.get('/users/me', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (profileRes.data) {
+          userProfile = {
+            id: profileRes.data.id || email,
+            email: profileRes.data.email || email,
+            firstName: profileRes.data.firstName || profileRes.data.name || email.split('@')[0],
+            lastName: profileRes.data.lastName || 'User',
+            role: profileRes.data.role || 'USER',
+          };
+        }
+      } catch (pErr) {
+        // Sử dụng default profile nếu backend DB chưa lưu thông tin chi tiết
+      }
       
-      login(response.data, accessToken);
+      login(userProfile, token);
       navigate('/');
     } catch (err: any) {
-      const status = err.response?.status;
       const msg = String(err.response?.data?.message || err.message || '');
-
-      if (status === 401 || msg.includes('401') || msg.includes('status code')) {
+      if (msg.includes('NotAuthorizedException') || msg.includes('Incorrect') || err.response?.status === 401) {
         setError('Invalid email or password. Please try again.');
-      } else if (status === 404 || msg.includes('404')) {
+      } else if (msg.includes('UserNotFoundException') || err.response?.status === 404) {
         setError('Account not registered. Please sign up first.');
       } else {
         setError('Login failed. Please check your credentials and try again.');
