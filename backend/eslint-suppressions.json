@@ -79,10 +79,7 @@
   },
   "src/businesses/businesses.controller.ts": {
     "@typescript-eslint/no-unsafe-member-access": {
-      "count": 7
-    },
-    "prettier/prettier": {
-      "count": 9
+      "count": 3
     }
   },
   "src/businesses/businesses.module.ts": {
@@ -107,9 +104,6 @@
     },
     "@typescript-eslint/no-unsafe-member-access": {
       "count": 10
-    },
-    "prettier/prettier": {
-      "count": 22
     }
   },
   "src/comments/comments.controller.ts": {
@@ -312,17 +306,6 @@
   "src/users/users.controller.ts": {
     "@typescript-eslint/no-unsafe-member-access": {
       "count": 2
-    },
-    "prettier/prettier": {
-      "count": 8
-    }
-  },
-  "src/users/users.service.ts": {
-    "@typescript-eslint/no-unsafe-assignment": {
-      "count": 1
-    },
-    "prettier/prettier": {
-      "count": 20
     }
   }
 }

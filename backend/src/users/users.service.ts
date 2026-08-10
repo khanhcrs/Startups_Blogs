@@ -1,10 +1,15 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { Prisma, User, Role } from '@prisma/client';
+import { CognitoGroupsService } from './cognito-groups.service';
+import type { UserStatus } from './dto/update-user-status.dto';
 
 @Injectable()
 export class UsersService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly cognitoGroups: CognitoGroupsService,
+  ) {}
 
   async findByEmail(email: string): Promise<User | null> {
     if (!email) return null;
@@ -19,7 +24,6 @@ export class UsersService {
       include: { ownedBusinesses: true },
     });
   }
-
 
   async findOrCreateFromCognito(data: {
     cognitoSub: string;
@@ -58,9 +62,9 @@ export class UsersService {
         avatarUrl: true,
         location: true,
         _count: {
-          select: { followers: true, articles: true }
-        }
-      }
+          select: { followers: true, articles: true },
+        },
+      },
     });
     if (!user) return null;
     return {
@@ -70,9 +74,8 @@ export class UsersService {
       avatarUrl: user.avatarUrl,
       location: user.location,
       followersCount: user._count.followers,
-      publishedCount: user._count.articles
+      publishedCount: user._count.articles,
     };
-
   }
 
   async createUser(data: Prisma.UserCreateInput): Promise<User> {
@@ -91,7 +94,7 @@ export class UsersService {
   async getAllUsers(page: number, limit: number, role?: string) {
     const skip = (page - 1) * limit;
     const whereCondition = role ? { role: role as Role } : {};
-    
+
     const [users, total] = await Promise.all([
       this.prisma.user.findMany({
         where: whereCondition,
@@ -122,25 +125,39 @@ export class UsersService {
         total,
         page,
         limit,
-        totalPages: Math.ceil(total / limit)
-      }
+        totalPages: Math.ceil(total / limit),
+      },
     };
   }
 
-  async updateUserRole(id: string, role: string) {
+  async updateUserRole(id: string, role: Role) {
+    const user = await this.prisma.user.findUnique({
+      where: { id },
+      select: { email: true },
+    });
+    if (!user) throw new NotFoundException('User not found');
+
+    await this.cognitoGroups.setAdminMembership(
+      user.email,
+      role === Role.ADMIN,
+    );
     return this.prisma.user.update({
       where: { id },
-      data: { role: role as any },
+      data: { role },
       select: {
         id: true,
         name: true,
         email: true,
         role: true,
-      }
+      },
     });
   }
 
-  async updateUserStatus(id: string, status: string) {
+  async syncRoleFromCognito(id: string, role: Role): Promise<void> {
+    await this.prisma.user.update({ where: { id }, data: { role } });
+  }
+
+  async updateUserStatus(id: string, status: UserStatus) {
     return this.prisma.user.update({
       where: { id },
       data: { status },
@@ -149,7 +166,7 @@ export class UsersService {
         name: true,
         email: true,
         status: true,
-      }
+      },
     });
   }
 
@@ -158,21 +175,35 @@ export class UsersService {
       where: { id },
       include: {
         articles: {
-          select: { id: true, title: true, slug: true, status: true, viewCount: true, createdAt: true },
-          orderBy: { createdAt: 'desc' }
+          select: {
+            id: true,
+            title: true,
+            slug: true,
+            status: true,
+            viewCount: true,
+            createdAt: true,
+          },
+          orderBy: { createdAt: 'desc' },
         },
         ownedBusinesses: {
-          select: { id: true, name: true, slug: true, status: true, industry: true, createdAt: true },
-          orderBy: { createdAt: 'desc' }
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+            status: true,
+            industry: true,
+            createdAt: true,
+          },
+          orderBy: { createdAt: 'desc' },
         },
         _count: {
-          select: { followers: true, following: true, comments: true }
-        }
-      }
+          select: { followers: true, following: true, comments: true },
+        },
+      },
     });
-    
+
     if (!user) return null;
-    
+
     return user;
   }
 }

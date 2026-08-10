@@ -23,6 +23,7 @@ function createContext(authorization?: string): {
 
 describe('JwtAuthGuard', () => {
   const findOrCreateFromCognito = jest.fn();
+  const syncRoleFromCognito = jest.fn();
   let verifier: TokenVerifier;
   let guard: JwtAuthGuard;
 
@@ -35,6 +36,7 @@ describe('JwtAuthGuard', () => {
     jest.clearAllMocks();
     guard = new JwtAuthGuard({
       findOrCreateFromCognito,
+      syncRoleFromCognito,
     } as unknown as UsersService);
     verifier = {
       verify: jest.fn(() => Promise.resolve({})),
@@ -85,12 +87,36 @@ describe('JwtAuthGuard', () => {
       email: 'founder@example.com',
       name: 'Founder',
     });
+    expect(syncRoleFromCognito).toHaveBeenCalledWith(
+      'database-user-id',
+      Role.ADMIN,
+    );
     expect(request.user).toEqual({
       userId: 'database-user-id',
       cognitoSub: 'cognito-subject',
       email: 'founder@example.com',
       role: Role.ADMIN,
     });
+  });
+
+  it('revokes a stale database ADMIN role when the token has no ADMIN group', async () => {
+    verifier.verify.mockResolvedValue({
+      sub: 'cognito-subject',
+      username: 'former-admin@example.com',
+    });
+    findOrCreateFromCognito.mockResolvedValue({
+      id: 'database-user-id',
+      email: 'former-admin@example.com',
+      role: Role.ADMIN,
+    });
+    const { context, request } = createContext('Bearer valid-token');
+
+    await expect(guard.canActivate(context)).resolves.toBe(true);
+    expect(syncRoleFromCognito).toHaveBeenCalledWith(
+      'database-user-id',
+      Role.USER,
+    );
+    expect(request.user).toMatchObject({ role: Role.USER });
   });
 
   it('rejects a verified payload with a non-string identity', async () => {

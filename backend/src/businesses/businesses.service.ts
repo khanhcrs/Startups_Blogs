@@ -1,5 +1,10 @@
-import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import type { BusinessStatus } from './dto/update-business-status.dto';
 import { CreateBusinessDto } from './dto/create-business.dto';
 import { UpdateBusinessDto } from './dto/update-business.dto';
 
@@ -8,8 +13,11 @@ export class BusinessesService {
   constructor(private prisma: PrismaService) {}
 
   async create(createBusinessDto: CreateBusinessDto, ownerId: string) {
-    const slug = createBusinessDto.name.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-' + Date.now();
-    
+    const slug =
+      createBusinessDto.name.toLowerCase().replace(/[^a-z0-9]+/g, '-') +
+      '-' +
+      Date.now();
+
     return this.prisma.business.create({
       data: {
         ...createBusinessDto,
@@ -30,21 +38,21 @@ export class BusinessesService {
   }
 
   async findAllForAdmin(
-    skip: number = 0, 
-    take: number = 10, 
-    status?: string, 
-    search?: string, 
-    stage?: string, 
+    skip: number = 0,
+    take: number = 10,
+    status?: string,
+    search?: string,
+    stage?: string,
     industry?: string,
     startDate?: string,
-    endDate?: string
+    endDate?: string,
   ) {
     const where: any = {};
     if (status) where.status = status;
     if (stage) where.businessStage = stage;
     if (industry) where.industry = { contains: industry, mode: 'insensitive' };
     if (search) where.name = { contains: search, mode: 'insensitive' };
-    
+
     if (startDate || endDate) {
       where.createdAt = {};
       if (startDate) {
@@ -56,24 +64,26 @@ export class BusinessesService {
         where.createdAt.lte = end;
       }
     }
-    
+
     const [data, total] = await Promise.all([
       this.prisma.business.findMany({
         where,
         skip,
         take,
-        include: { owner: { select: { id: true, name: true, avatarUrl: true } } },
+        include: {
+          owner: { select: { id: true, name: true, avatarUrl: true } },
+        },
         orderBy: { createdAt: 'desc' },
       }),
-      this.prisma.business.count({ where })
+      this.prisma.business.count({ where }),
     ]);
 
     return {
       data,
       meta: {
         total,
-        totalPages: Math.ceil(total / take)
-      }
+        totalPages: Math.ceil(total / take),
+      },
     };
   }
 
@@ -81,9 +91,11 @@ export class BusinessesService {
     const business = await this.prisma.business.findUnique({
       where: { id },
       include: {
-        owner: { select: { id: true, name: true, avatarUrl: true, email: true } },
+        owner: {
+          select: { id: true, name: true, avatarUrl: true, email: true },
+        },
         teamMembers: true,
-        fundingRounds: true
+        fundingRounds: true,
       },
     });
     if (!business) {
@@ -92,7 +104,7 @@ export class BusinessesService {
     return business;
   }
 
-  async updateStatus(id: string, status: string) {
+  async updateStatus(id: string, status: BusinessStatus) {
     const business = await this.prisma.business.findUnique({ where: { id } });
     if (!business) {
       throw new NotFoundException(`Business with id ${id} not found`);
@@ -107,10 +119,10 @@ export class BusinessesService {
   async findOneBySlug(slug: string) {
     const business = await this.prisma.business.findUnique({
       where: { slug },
-      include: { 
+      include: {
         owner: { select: { id: true, name: true, avatarUrl: true } },
         teamMembers: true,
-        fundingRounds: true
+        fundingRounds: true,
       },
     });
     if (!business) {
@@ -119,13 +131,19 @@ export class BusinessesService {
     return business;
   }
 
-  async update(id: string, updateBusinessDto: UpdateBusinessDto, ownerId: string) {
+  async update(
+    id: string,
+    updateBusinessDto: UpdateBusinessDto,
+    ownerId: string,
+  ) {
     const business = await this.prisma.business.findUnique({ where: { id } });
     if (!business) {
       throw new NotFoundException(`Business with id ${id} not found`);
     }
     if (business.ownerId !== ownerId) {
-      throw new ForbiddenException('You do not have permission to update this business');
+      throw new ForbiddenException(
+        'You do not have permission to update this business',
+      );
     }
 
     return this.prisma.business.update({
@@ -140,7 +158,9 @@ export class BusinessesService {
       throw new NotFoundException(`Business with id ${id} not found`);
     }
     if (business.ownerId !== ownerId) {
-      throw new ForbiddenException('You do not have permission to delete this business');
+      throw new ForbiddenException(
+        'You do not have permission to delete this business',
+      );
     }
 
     return this.prisma.business.delete({

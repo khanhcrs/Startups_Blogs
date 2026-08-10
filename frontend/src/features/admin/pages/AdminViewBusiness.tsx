@@ -55,7 +55,7 @@ export default function AdminViewBusiness({ businessId: propBusinessId }: { busi
 
   const handleUpdateStatus = async (status: string) => {
     try {
-      await api.patch(`/businesses/admin/${businessId}/status`, { status });
+      await api.put(`/businesses/admin/${businessId}/status`, { status });
       toast.success(`Business status updated to ${status}`);
       fetchBusinessDetails();
     } catch (error) {
