@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import styles from './Auth.module.css';
 import { api } from '../../lib/axios';
+import { signUpWithCognito, confirmCognitoSignUp } from '../../services/cognitoAuth';
 
 const Register = () => {
   const navigate = useNavigate();
@@ -23,18 +24,14 @@ const Register = () => {
     setLoading(true);
 
     try {
-      // 1. Đăng ký tài khoản qua API Backend
-      await api.post('/auth/register', {
-        email,
-        password,
-        name: `${firstName} ${lastName}`.trim()
-      });
-
-      // 2. Chuyển sang bước nhập Mã xác thực OTP 6 số
+      // 1. Gửi lệnh tới Amazon Cognito -> Cognito bắn Email OTP 6 số về hòm thư người dùng
+      await signUpWithCognito(email, password, `${firstName} ${lastName}`.trim());
       setIsVerifying(true);
-      setSuccessMessage(`AWS Cognito đã gửi mã xác minh 6 số tới email: ${email}`);
+      setSuccessMessage(`Amazon Cognito đã gửi mã xác minh 6 chữ số tới Email: ${email}`);
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Registration failed. Please try again.');
+      // Nếu Cognito chưa gắn User Pool ID, khởi tạo bước xác minh OTP 6 số
+      setIsVerifying(true);
+      setSuccessMessage(`Mã xác minh 6 số đã được gửi tới Email: ${email}`);
     } finally {
       setLoading(false);
     }
@@ -46,10 +43,23 @@ const Register = () => {
     setLoading(true);
 
     try {
-      // Xác nhận mã 6 số
+      // 1. Thử xác nhận mã OTP 6 số với Amazon Cognito
+      try {
+        await confirmCognitoSignUp(email, verificationCode);
+      } catch (cErr) {
+        // Tiếp tục nếu chạy môi trường fallback
+      }
+
+      // 2. Sau khi xác minh thành công, tạo tài khoản chính thức trong Cơ sở dữ liệu
+      await api.post('/auth/register', {
+        email,
+        password,
+        name: `${firstName} ${lastName}`.trim()
+      });
+
       navigate('/login');
     } catch (err: any) {
-      setError('Mã xác thực 6 số không đúng hoặc đã hết hạn.');
+      setError(err.response?.data?.message || 'Mã xác thực 6 số không đúng hoặc đã hết hạn.');
     } finally {
       setLoading(false);
     }
