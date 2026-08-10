@@ -1,4 +1,5 @@
-import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
+import { useState, useEffect, useMemo } from 'react';
+import type { BusinessOpportunityRecord } from '../types/business';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Search, ChevronDown, SlidersHorizontal, Lock } from 'lucide-react';
 import BusinessCard from '../components/business/BusinessCard';

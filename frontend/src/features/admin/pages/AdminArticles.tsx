@@ -24,7 +24,7 @@ export default function AdminArticles() {
   useEffect(() => {
     const fetchTags = async () => {
       try {
-        const res = await fetch('http://localhost:3000/articles/tags');
+        const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/articles/tags`);
         if (res.ok) {
           const tags = await res.json();
           setAvailableTags(tags);
@@ -52,7 +52,7 @@ export default function AdminArticles() {
     setLoading(true);
     try {
       const token = localStorage.getItem('token');
-      let url = `http://localhost:3000/articles/admin/all?page=${page}&limit=${limit}`;
+      let url = `${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/articles/admin/all?page=${page}&limit=${limit}`;
       if (category !== 'All') url += `&category=${category}`;
       if (debouncedSearch) url += `&search=${encodeURIComponent(debouncedSearch)}`;
       if (selectedTag) url += `&tag=${encodeURIComponent(selectedTag)}`;
@@ -80,7 +80,7 @@ export default function AdminArticles() {
 
   const handleUpdateArticleStatus = async (id: string, newStatus: string) => {
     try {
-      const res = await fetch(`http://localhost:3000/articles/admin/${id}/status`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/articles/admin/${id}/status`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -99,7 +99,7 @@ export default function AdminArticles() {
   const handleDeleteArticle = async (id: string) => {
     if (!window.confirm('Are you sure you want to delete this article?')) return;
     try {
-      const res = await fetch(`http://localhost:3000/articles/admin/${id}`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/articles/admin/${id}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
       });

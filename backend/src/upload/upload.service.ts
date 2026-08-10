@@ -9,15 +9,25 @@ export class UploadService implements OnModuleInit {
   private endpoint = process.env.AWS_S3_ENDPOINT || 'http://127.0.0.1:9000';
 
   constructor() {
-    this.s3Client = new S3Client({
-      endpoint: this.endpoint,
+    const s3Config: any = {
       region: process.env.AWS_S3_REGION || 'us-east-1',
-      credentials: {
-        accessKeyId: process.env.AWS_S3_ACCESS_KEY || 'admin',
-        secretAccessKey: process.env.AWS_S3_SECRET_KEY || 'admin123password',
-      },
       forcePathStyle: true, // Bắt buộc true khi dùng MinIO
-    });
+    };
+    
+    // Nếu cấu hình Endpoint (như MinIO), thì thêm vào
+    if (process.env.AWS_S3_ENDPOINT) {
+        s3Config.endpoint = process.env.AWS_S3_ENDPOINT;
+    }
+
+    // Nếu cấu hình Key (chạy Local), thì thêm vào. Còn trên EC2 sẽ dùng IAM Role nên bỏ qua.
+    if (process.env.AWS_S3_ACCESS_KEY) {
+      s3Config.credentials = {
+        accessKeyId: process.env.AWS_S3_ACCESS_KEY,
+        secretAccessKey: process.env.AWS_S3_SECRET_KEY,
+      };
+    }
+
+    this.s3Client = new S3Client(s3Config);
   }
 
   async onModuleInit() {

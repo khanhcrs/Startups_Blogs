@@ -159,7 +159,7 @@ export default function AdminEditArticle({ articleId }: { articleId?: string }) 
   const fetchArticle = async () => {
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch(`http://localhost:3000/articles/admin/all?limit=50`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/articles/admin/all?limit=50`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (res.ok) {
@@ -242,7 +242,7 @@ export default function AdminEditArticle({ articleId }: { articleId?: string }) 
     };
 
     try {
-      const res = await fetch(`http://localhost:3000/admin/proposals/article/${id}`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/admin/proposals/article/${id}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -29,7 +29,7 @@ export default function AdminViewArticle({ articleId: propArticleId }: { article
     setLoading(true);
     try {
       // Use the public endpoint, or if there's an admin one, use it. Here we use the public one which returns all needed info.
-      const res = await fetch(`http://localhost:3000/articles/${articleId}`);
+      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/articles/${articleId}`);
       if (res.ok) {
         const data = await res.json();
         const article = data.data || data;
@@ -48,7 +48,7 @@ export default function AdminViewArticle({ articleId: propArticleId }: { article
   const handleDeleteComment = async (commentId: string) => {
     if (!window.confirm('Are you sure you want to delete this comment?')) return;
     try {
-      const res = await fetch(`http://localhost:3000/comments/admin/${commentId}`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/comments/admin/${commentId}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
       });

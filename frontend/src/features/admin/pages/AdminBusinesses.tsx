@@ -59,7 +59,7 @@ export default function AdminBusinesses() {
       if (startDate) queryParams.append('startDate', startDate);
       if (endDate) queryParams.append('endDate', endDate);
 
-      const res = await fetch(`http://localhost:3000/businesses/admin/all?${queryParams.toString()}`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/businesses/admin/all?${queryParams.toString()}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (res.ok) {
@@ -79,7 +79,7 @@ export default function AdminBusinesses() {
 
   const handleUpdateBusinessStatus = async (id: string, newStatus: string) => {
     try {
-      const res = await fetch(`http://localhost:3000/businesses/admin/${id}/status`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/businesses/admin/${id}/status`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

@@ -105,7 +105,7 @@ const UserProfile = () => {
           setAuthoredArticles(articlesRes.data);
           
           if (userRes.data.ownedBusinesses) {
-            setAuthorInfo(prev => ({
+            setAuthorInfo((prev: any) => ({
               ...prev,
               ownedBusinesses: userRes.data.ownedBusinesses
             }));
