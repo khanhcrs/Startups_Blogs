@@ -6,6 +6,7 @@ interface SkeletonProps {
   borderRadius?: string;
   className?: string;
   variant?: 'text' | 'circular' | 'rectangular';
+  style?: React.CSSProperties;
 }
 
 const Skeleton = ({ 
@@ -13,12 +14,14 @@ const Skeleton = ({
   height, 
   borderRadius, 
   className = '', 
-  variant = 'text' 
+  variant = 'text',
+  style = {}
 }: SkeletonProps) => {
   const inlineStyles = {
     width: width || (variant === 'text' ? '100%' : 'auto'),
     height: height || (variant === 'text' ? '1em' : 'auto'),
     borderRadius: borderRadius || (variant === 'circular' ? '50%' : (variant === 'text' ? '4px' : '8px')),
+    ...style
   };
 
   return (

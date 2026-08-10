@@ -42,7 +42,7 @@ export default function AdminEditBusiness({ businessId }: { businessId?: string 
       const token = localStorage.getItem('token');
       // For now, we fetch all businesses and find the one with the correct ID.
       // This is a workaround since there's no single business admin endpoint yet.
-      const res = await fetch(`http://localhost:3000/businesses/admin/all?status=`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/businesses/admin/all?status=`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (res.ok) {
@@ -82,7 +82,7 @@ export default function AdminEditBusiness({ businessId }: { businessId?: string 
     e.preventDefault();
     setSubmitting(true);
     try {
-      const res = await fetch(`http://localhost:3000/businesses/admin/${id}`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/businesses/admin/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

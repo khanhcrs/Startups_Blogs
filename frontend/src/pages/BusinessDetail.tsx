@@ -353,7 +353,7 @@ const BusinessDetail = () => {
               <section className={styles.sectionCard}>
                 <h2 className={styles.sectionTitle}>Funding History</h2>
                 <div className={styles.opportunitiesList}>
-                  {business.fundingRounds.map(round => (
+                  {business.fundingRounds.map((round: any) => (
                     <div key={round.id} className={styles.opportunityItemCard}>
                       <div className={styles.oppHeader}>
                         <div>
@@ -433,7 +433,7 @@ const BusinessDetail = () => {
                 <h2 className={styles.sectionTitle}>Management Team</h2>
                 {business.teamMembers && business.teamMembers.length > 0 ? (
                   <div className={styles.teamGrid}>
-                    {business.teamMembers.map(member => (
+                    {business.teamMembers.map((member: any) => (
                       <div key={member.id} className={styles.teamCard}>
                         <div className={styles.avatarBox} style={{ overflow: 'hidden' }}>
                           {member.avatarUrl ? (

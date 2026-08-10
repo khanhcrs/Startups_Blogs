@@ -21,7 +21,7 @@ export default function AdminUserDetails({ userId: propUserId }: { userId?: stri
     setLoadingDetails(true);
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch(`http://localhost:3000/users/admin/${id}`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/users/admin/${id}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (res.ok) {
@@ -40,7 +40,7 @@ export default function AdminUserDetails({ userId: propUserId }: { userId?: stri
   const handleUpdateUserRole = async (newRole: string) => {
     if (!selectedUserDetails) return;
     try {
-      const res = await fetch(`http://localhost:3000/users/admin/${selectedUserDetails.id}/role`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/users/admin/${selectedUserDetails.id}/role`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -60,7 +60,7 @@ export default function AdminUserDetails({ userId: propUserId }: { userId?: stri
     if (!selectedUserDetails) return;
     const newStatus = selectedUserDetails.status === 'LOCKED' ? 'ACTIVE' : 'LOCKED';
     try {
-      const res = await fetch(`http://localhost:3000/users/admin/${selectedUserDetails.id}/status`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/users/admin/${selectedUserDetails.id}/status`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

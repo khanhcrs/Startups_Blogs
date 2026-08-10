@@ -28,7 +28,7 @@ export default function AdminUsers() {
     setLoading(true);
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch(`http://localhost:3000/users/admin/all?page=${page}&limit=${limit}&role=${activeTab}`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/users/admin/all?page=${page}&limit=${limit}&role=${activeTab}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (res.ok) {
@@ -48,7 +48,7 @@ export default function AdminUsers() {
 
   const handleUpdateUserRole = async (id: string, newRole: string) => {
     try {
-      const res = await fetch(`http://localhost:3000/users/admin/${id}/role`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/users/admin/${id}/role`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -59,9 +59,6 @@ export default function AdminUsers() {
       if (!res.ok) throw new Error('Failed to update role');
       toast.success(`User role updated to ${newRole}`);
       fetchUsers();
-      if (selectedUserDetails && selectedUserDetails.id === id) {
-        setSelectedUserDetails({ ...selectedUserDetails, role: newRole });
-      }
     } catch (error) {
       toast.error('Error updating role');
     }
@@ -70,7 +67,7 @@ export default function AdminUsers() {
   const handleToggleStatus = async (id: string, currentStatus: string) => {
     const newStatus = currentStatus === 'LOCKED' ? 'ACTIVE' : 'LOCKED';
     try {
-      const res = await fetch(`http://localhost:3000/users/admin/${id}/status`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/users/admin/${id}/status`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -81,9 +78,6 @@ export default function AdminUsers() {
       if (!res.ok) throw new Error('Failed to update status');
       toast.success(`User account is now ${newStatus}`);
       fetchUsers();
-      if (selectedUserDetails && selectedUserDetails.id === id) {
-        setSelectedUserDetails({ ...selectedUserDetails, status: newStatus });
-      }
     } catch (error) {
       toast.error('Error updating status');
     }

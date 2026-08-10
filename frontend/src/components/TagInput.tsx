@@ -1,4 +1,4 @@
-import React, { useState, KeyboardEvent, useRef, useEffect } from 'react';
+import React, { useState, type KeyboardEvent, useRef, useEffect } from 'react';
 import { X, ChevronDown } from 'lucide-react';
 
 interface TagInputProps {
