@@ -42,6 +42,16 @@ Sơ đồ tổng quan:
   - Thay vì chạy Database thủ công dễ mất dữ liệu, hệ thống sử dụng RDS là dịch vụ Database chuẩn doanh nghiệp do AWS quản lý hoàn toàn.
   - Đảm bảo dữ liệu Startups, Articles, Users được lưu trữ an toàn, tự động backup (sao lưu) và sẵn sàng mở rộng (scale) khi lượng người dùng tăng vọt.
 
+### 2.6. Tầng Quản lý Quyền truy cập (IAM - Identity & Access Management)
+* **IAM Roles & Policies:** Đóng vai trò là "Bộ quy tắc ứng xử" ngầm bảo vệ toàn bộ hệ thống.
+  - Các dịch vụ AWS không được phép tùy tiện nói chuyện với nhau nếu không có quyền. Hệ thống của bạn sử dụng IAM Role để cấp quyền cho **EC2** được phép kết nối an toàn tới các dịch vụ khác (như ghi Log, v.v.).
+  - GitHub Actions cũng dùng tài khoản IAM để tự động đẩy code lên S3 một cách an toàn mà không bị lộ mật khẩu cấp cao.
+
+### 2.7. Tầng Giám sát & Ghi log (Amazon CloudWatch)
+* **Amazon CloudWatch:** Đóng vai trò là "Camera an ninh" giám sát toàn bộ hoạt động 24/7.
+  - Tự động thu thập logs (nhật ký) lỗi từ API Gateway, Cognito và EC2. Nếu Backend bị sập hoặc có lỗi 500, bạn có thể vào CloudWatch để truy vết chính xác dòng code gây lỗi.
+  - Theo dõi sức khỏe hệ thống (Metrics): Đo lường CPU của EC2, lượng RAM tiêu thụ của RDS PostgreSQL để cảnh báo nếu máy chủ bị quá tải.
+
 ---
 
 ## 3. Tóm tắt Luồng Chạy Thực tế (End-to-End Flow)
