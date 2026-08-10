@@ -22,23 +22,23 @@ const Register = () => {
     e.preventDefault();
     setError('');
 
-    // Kiểm tra định dạng Email nghiêm ngặt (Email Syntax Regex Validation)
+    // Email Syntax Regex Validation
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     if (!emailRegex.test(email.trim())) {
-      setError('Địa chỉ Email không đúng định dạng tiêu chuẩn (Ví dụ: name@gmail.com)');
+      setError('Please enter a valid email address (e.g. name@domain.com)');
       return;
     }
 
     setLoading(true);
 
     try {
-      // 1. Gửi lệnh tới Amazon Cognito -> Cognito bắn Email OTP 6 số về hòm thư người dùng
+      // 1. Send request to Amazon Cognito -> Cognito dispatches 6-digit OTP code to user's email
       await signUpWithCognito(email, password, `${firstName} ${lastName}`.trim());
       setIsVerifying(true);
-      setSuccessMessage(`Amazon Cognito đã gửi mã xác minh 6 chữ số tới Email: ${email}`);
+      setSuccessMessage(`Amazon Cognito sent a 6-digit verification code to: ${email}`);
     } catch (err: any) {
       console.error('Cognito SignUp Error:', err);
-      setError(err.message || 'Gửi mã xác thực Cognito thất bại. Vui lòng kiểm tra lại Email/Mật khẩu.');
+      setError(err.message || 'Failed to send Cognito verification code. Please check your details.');
     } finally {
       setLoading(false);
     }
@@ -50,14 +50,14 @@ const Register = () => {
     setLoading(true);
 
     try {
-      // 1. Xác nhận mã OTP 6 số với Amazon Cognito
+      // 1. Confirm 6-digit OTP code with Amazon Cognito
       try {
         await confirmCognitoSignUp(email, verificationCode);
       } catch (cErr) {
-        // Nếu mã đã xác nhận trước đó, tiếp tục
+        // Continue if already confirmed
       }
 
-      // 2. Tạo tài khoản trong Database (Nếu đã tồn tại thì bỏ qua lỗi và đăng nhập)
+      // 2. Register account in Database
       try {
         await api.post('/auth/register', {
           email,
@@ -65,12 +65,12 @@ const Register = () => {
           name: `${firstName} ${lastName}`.trim()
         });
       } catch (dbErr) {
-        // Tài khoản đã có trong DB
+        // Account already exists in DB
       }
 
       navigate('/login');
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Mã xác thực 6 số không đúng hoặc đã hết hạn.');
+      setError(err.response?.data?.message || 'Invalid or expired 6-digit verification code.');
     } finally {
       setLoading(false);
     }
@@ -82,7 +82,7 @@ const Register = () => {
         {isVerifying ? (
           <div>
             <div className={styles.authHeader}>
-              <h1>Xác minh Email (Cognito)</h1>
+              <h1>Verify Email (Cognito)</h1>
               <p style={{ color: '#16a34a', fontWeight: 500 }}>{successMessage}</p>
             </div>
 
@@ -90,7 +90,7 @@ const Register = () => {
 
             <form className={styles.authForm} onSubmit={handleVerifyCode}>
               <div className={styles.formGroup}>
-                <label htmlFor="otp">Nhập mã xác thực 6 chữ số</label>
+                <label htmlFor="otp">Enter 6-digit verification code</label>
                 <input 
                   type="text" 
                   id="otp" 
@@ -103,7 +103,7 @@ const Register = () => {
                 />
               </div>
               <button type="submit" className={styles.submitBtn} disabled={loading}>
-                {loading ? 'Đang xác minh...' : 'Xác nhận mã & Đăng nhập'}
+                {loading ? 'Verifying...' : 'Confirm Code & Log In'}
               </button>
             </form>
           </div>

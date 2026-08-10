@@ -22,11 +22,21 @@ const Login = () => {
     try {
       const accessToken = await signIn(email, password);
       localStorage.setItem('token', accessToken);
-      const response = await api.get('/users/me');
+      
+      const response = await api.get('/users/me', {
+        headers: { Authorization: `Bearer ${accessToken}` }
+      });
+      
       login(response.data, accessToken);
       navigate('/');
     } catch (err: any) {
-      setError(err.message || err.response?.data?.message || 'Login failed. Please check your credentials.');
+      if (err.response?.status === 401) {
+        setError('Invalid email or password. Please try again.');
+      } else if (err.response?.status === 404) {
+        setError('Account not registered. Please sign up first.');
+      } else {
+        setError(err.response?.data?.message || err.message || 'Login failed. Please check your credentials.');
+      }
     } finally {
       setLoading(false);
     }
