@@ -1,8 +1,23 @@
-import { Controller, Get, Post, Body, Put, Param, Delete, UseGuards, Request, Query, ForbiddenException } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Put,
+  Param,
+  Delete,
+  UseGuards,
+  Request,
+  Query,
+} from '@nestjs/common';
 import { BusinessesService } from './businesses.service';
 import { CreateBusinessDto } from './dto/create-business.dto';
 import { UpdateBusinessDto } from './dto/update-business.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { Role } from '@prisma/client';
+import { UpdateBusinessStatusDto } from './dto/update-business-status.dto';
 
 @Controller('businesses')
 export class BusinessesController {
@@ -19,10 +34,10 @@ export class BusinessesController {
     return this.businessesService.findAll(skip ? +skip : 0, take ? +take : 10);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
   @Get('admin/all')
   findAllForAdmin(
-    @Request() req: any,
     @Query('skip') skip?: string,
     @Query('take') take?: string,
     @Query('status') status?: string,
@@ -32,56 +47,36 @@ export class BusinessesController {
     @Query('startDate') startDate?: string,
     @Query('endDate') endDate?: string,
   ) {
-    if (req.user.role !== 'ADMIN') {
-      throw new ForbiddenException('Only admin can access this route');
-    }
     return this.businessesService.findAllForAdmin(
-      skip ? +skip : 0, 
-      take ? +take : 10, 
-      status, 
-      search, 
-      stage, 
+      skip ? +skip : 0,
+      take ? +take : 10,
+      status,
+      search,
+      stage,
       industry,
       startDate,
-      endDate
+      endDate,
     );
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
   @Put('admin/:id/status')
-  updateStatus(
-    @Param('id') id: string,
-    @Body('status') status: string,
-    @Request() req: any,
-  ) {
-    if (req.user.role !== 'ADMIN') {
-      throw new ForbiddenException('Only admin can access this route');
-    }
-    return this.businessesService.updateStatus(id, status);
+  updateStatus(@Param('id') id: string, @Body() dto: UpdateBusinessStatusDto) {
+    return this.businessesService.updateStatus(id, dto.status);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
   @Get('admin/:id')
-  findOneForAdmin(
-    @Param('id') id: string,
-    @Request() req: any,
-  ) {
-    if (req.user.role !== 'ADMIN') {
-      throw new ForbiddenException('Only admin can access this route');
-    }
+  findOneForAdmin(@Param('id') id: string) {
     return this.businessesService.findOneForAdmin(id);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
   @Put('admin/:id')
-  updateAsAdmin(
-    @Param('id') id: string,
-    @Body() updateBusinessDto: any,
-    @Request() req: any,
-  ) {
-    if (req.user.role !== 'ADMIN') {
-      throw new ForbiddenException('Only admin can access this route');
-    }
+  updateAsAdmin(@Param('id') id: string, @Body() updateBusinessDto: any) {
     return this.businessesService.updateAsAdmin(id, updateBusinessDto);
   }
 
@@ -97,7 +92,11 @@ export class BusinessesController {
     @Body() updateBusinessDto: UpdateBusinessDto,
     @Request() req: any,
   ) {
-    return this.businessesService.update(id, updateBusinessDto, req.user.userId);
+    return this.businessesService.update(
+      id,
+      updateBusinessDto,
+      req.user.userId,
+    );
   }
 
   @UseGuards(JwtAuthGuard)

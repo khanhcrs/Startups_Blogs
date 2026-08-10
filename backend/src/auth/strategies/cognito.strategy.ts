@@ -2,6 +2,11 @@ import { ExtractJwt, Strategy } from 'passport-jwt';
 import { PassportStrategy } from '@nestjs/passport';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { passportJwtSecret } from 'jwks-rsa';
+import type {
+  CognitoIdentityPayload,
+  CognitoStrategyUser,
+} from '../auth.types';
+import { Role } from '@prisma/client';
 
 @Injectable()
 export class CognitoStrategy extends PassportStrategy(Strategy, 'cognito') {
@@ -24,15 +29,22 @@ export class CognitoStrategy extends PassportStrategy(Strategy, 'cognito') {
     });
   }
 
-  async validate(payload: any) {
-    if (!payload.email) {
-      throw new UnauthorizedException('Invalid Cognito Token');
+  validate(payload: CognitoIdentityPayload): Promise<CognitoStrategyUser> {
+    if (typeof payload.email !== 'string' || !payload.email) {
+      return Promise.reject(new UnauthorizedException('Invalid Cognito Token'));
     }
-    return {
+    if (typeof payload.sub !== 'string' || !payload.sub) {
+      return Promise.reject(new UnauthorizedException('Invalid Cognito Token'));
+    }
+
+    const role = payload['custom:role'] === Role.ADMIN ? Role.ADMIN : Role.USER;
+    const user: CognitoStrategyUser = {
       userId: payload.sub,
       email: payload.email,
-      name: payload.name || payload.email,
-      role: payload['custom:role'] || 'USER',
+      name: typeof payload.name === 'string' ? payload.name : payload.email,
+      role,
     };
+
+    return Promise.resolve(user);
   }
 }

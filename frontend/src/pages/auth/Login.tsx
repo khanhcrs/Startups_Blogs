@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import styles from './Auth.module.css';
 import { api } from '../../lib/axios';
 import { loginWithCognito } from '../../services/cognitoAuth';
+import { getApplicationRole } from '../../services/cognitoToken';
 import { useAuthStore } from '../../store/authStore';
 
 const Login = () => {
@@ -36,7 +37,7 @@ const Login = () => {
         email: email,
         firstName: email.split('@')[0],
         lastName: 'User',
-        role: 'USER' as const,
+        role: getApplicationRole(token),
       };
       
       login(userProfile, token);

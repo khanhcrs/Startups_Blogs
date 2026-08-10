@@ -1,10 +1,21 @@
-import { Controller, Get, Put, Body, UseGuards, Request, Param, Query } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Put,
+  Body,
+  UseGuards,
+  Request,
+  Param,
+  Query,
+} from '@nestjs/common';
 import { UsersService } from './users.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { Role } from '@prisma/client';
 import { UpdateProfileDto } from './dto/update-profile.dto';
+import { UpdateUserRoleDto } from './dto/update-user-role.dto';
+import { UpdateUserStatusDto } from './dto/update-user-status.dto';
 
 @Controller('users')
 export class UsersController {
@@ -14,9 +25,9 @@ export class UsersController {
   @Roles(Role.ADMIN)
   @Get('admin/all')
   async getAllUsers(
-    @Query('page') page: string = '1', 
+    @Query('page') page: string = '1',
     @Query('limit') limit: string = '10',
-    @Query('role') role?: string
+    @Query('role') role?: string,
   ) {
     return this.usersService.getAllUsers(Number(page), Number(limit), role);
   }
@@ -24,16 +35,22 @@ export class UsersController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
   @Put('admin/:id/role')
-  async updateUserRole(@Param('id') id: string, @Body('role') role: string) {
-    const data = await this.usersService.updateUserRole(id, role);
+  async updateUserRole(
+    @Param('id') id: string,
+    @Body() dto: UpdateUserRoleDto,
+  ) {
+    const data = await this.usersService.updateUserRole(id, dto.role);
     return { success: true, data };
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
   @Put('admin/:id/status')
-  async updateUserStatus(@Param('id') id: string, @Body('status') status: string) {
-    const data = await this.usersService.updateUserStatus(id, status);
+  async updateUserStatus(
+    @Param('id') id: string,
+    @Body() dto: UpdateUserStatusDto,
+  ) {
+    const data = await this.usersService.updateUserStatus(id, dto.status);
     return { success: true, data };
   }
 
@@ -47,7 +64,10 @@ export class UsersController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
   @Put('admin/:id')
-  async adminUpdateUser(@Param('id') id: string, @Body() updateProfileDto: UpdateProfileDto) {
+  async adminUpdateUser(
+    @Param('id') id: string,
+    @Body() updateProfileDto: UpdateProfileDto,
+  ) {
     return this.usersService.updateUser(id, updateProfileDto);
   }
 
@@ -65,12 +85,14 @@ export class UsersController {
 
   @UseGuards(JwtAuthGuard)
   @Put('me')
-  async updateProfile(@Request() req: any, @Body() updateProfileDto: UpdateProfileDto) {
-    const user = await this.usersService.updateUser(req.user.userId, updateProfileDto);
+  async updateProfile(
+    @Request() req: any,
+    @Body() updateProfileDto: UpdateProfileDto,
+  ) {
+    const user = await this.usersService.updateUser(
+      req.user.userId,
+      updateProfileDto,
+    );
     return user;
   }
-
-
-
-
 }
