@@ -20,62 +20,35 @@ const Login = () => {
     setLoading(true);
 
     try {
-      let token = '';
+      // 1. Đăng nhập bắt buộc 100% qua Amazon Cognito User Pool
+      const cognitoResult = await loginWithCognito(email, password);
       
-      // 1. Đăng nhập trực tiếp với Amazon Cognito User Pool từ Browser
-      try {
-        const cognitoResult = await loginWithCognito(email, password);
-        if (cognitoResult?.accessToken) {
-          token = cognitoResult.accessToken;
-        }
-      } catch (cErr: any) {
-        console.warn('Cognito direct login error:', cErr);
+      if (!cognitoResult?.accessToken) {
+        throw new Error('User not found or invalid password.');
       }
 
-      // 2. Nếu Cognito chưa cấp token, gọi API backend fallback
-      if (!token) {
-        const response = await api.post('/auth/login', { email, password });
-        token = response.data.accessToken;
-      }
-
+      const token = cognitoResult.accessToken;
       localStorage.setItem('token', token);
 
-      // 3. Khởi tạo thông tin User Profile
-      let userProfile = {
+      // 2. Khởi tạo thông tin User Profile
+      const userProfile = {
         id: email,
         email: email,
         firstName: email.split('@')[0],
         lastName: 'User',
         role: 'USER' as const,
       };
-
-      try {
-        const profileRes = await api.get('/users/me', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        if (profileRes.data) {
-          userProfile = {
-            id: profileRes.data.id || email,
-            email: profileRes.data.email || email,
-            firstName: profileRes.data.firstName || profileRes.data.name || email.split('@')[0],
-            lastName: profileRes.data.lastName || 'User',
-            role: profileRes.data.role || 'USER',
-          };
-        }
-      } catch (pErr) {
-        // Sử dụng default profile nếu backend DB chưa lưu thông tin chi tiết
-      }
       
       login(userProfile, token);
       navigate('/');
     } catch (err: any) {
-      const msg = String(err.response?.data?.message || err.message || '');
-      if (msg.includes('NotAuthorizedException') || msg.includes('Incorrect') || err.response?.status === 401) {
-        setError('Invalid email or password. Please try again.');
-      } else if (msg.includes('UserNotFoundException') || err.response?.status === 404) {
+      const msg = String(err.message || err.response?.data?.message || '');
+      if (msg.includes('UserNotFound') || msg.includes('User does not exist')) {
         setError('Account not registered. Please sign up first.');
+      } else if (msg.includes('NotAuthorized') || msg.includes('Incorrect') || msg.includes('400')) {
+        setError('Invalid email or password. Please try again.');
       } else {
-        setError('Login failed. Please check your credentials and try again.');
+        setError(err.message || 'Login failed. Please check your credentials and try again.');
       }
     } finally {
       setLoading(false);
