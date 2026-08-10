@@ -5,7 +5,9 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { CognitoJwtVerifier } from 'aws-jwt-verify';
+import { Role } from '@prisma/client';
 import { UsersService } from '../../users/users.service';
+import type { AuthenticatedRequest } from '../auth.types';
 
 @Injectable()
 export class JwtAuthGuard implements CanActivate {
@@ -18,8 +20,8 @@ export class JwtAuthGuard implements CanActivate {
   constructor(private readonly usersService: UsersService) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const request = context.switchToHttp().getRequest();
-    const authorization = request.headers.authorization as string | undefined;
+    const request = context.switchToHttp().getRequest<AuthenticatedRequest>();
+    const authorization = request.headers.authorization;
     const token = authorization?.startsWith('Bearer ')
       ? authorization.slice(7)
       : undefined;
@@ -27,8 +29,15 @@ export class JwtAuthGuard implements CanActivate {
 
     try {
       const payload = await this.verifier.verify(token);
-      const email = String(payload.email || payload.username || '');
-      if (!email) throw new Error('Cognito token does not contain a username');
+      const email =
+        typeof payload.email === 'string' && payload.email
+          ? payload.email
+          : typeof payload.username === 'string' && payload.username
+            ? payload.username
+            : undefined;
+      if (!email) {
+        throw new Error('Cognito token does not contain a valid identity');
+      }
       const user = await this.usersService.findOrCreateFromCognito({
         cognitoSub: payload.sub,
         email,
@@ -41,11 +50,13 @@ export class JwtAuthGuard implements CanActivate {
         userId: user.id,
         cognitoSub: payload.sub,
         email: user.email,
-        role: groups.includes('ADMIN') ? 'ADMIN' : user.role,
+        role: groups.includes('ADMIN') ? Role.ADMIN : user.role,
       };
       return true;
     } catch {
-      throw new UnauthorizedException('Invalid or expired Cognito access token');
+      throw new UnauthorizedException(
+        'Invalid or expired Cognito access token',
+      );
     }
   }
 }

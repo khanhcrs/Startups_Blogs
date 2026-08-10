@@ -1,0 +1,328 @@
+{
+  "src/admin/admin.controller.ts": {
+    "@typescript-eslint/no-unsafe-member-access": {
+      "count": 2
+    },
+    "prettier/prettier": {
+      "count": 6
+    }
+  },
+  "src/admin/admin.service.ts": {
+    "@typescript-eslint/no-unsafe-assignment": {
+      "count": 1
+    },
+    "prettier/prettier": {
+      "count": 15
+    }
+  },
+  "src/app.module.ts": {
+    "prettier/prettier": {
+      "count": 1
+    }
+  },
+  "src/articles/articles.controller.ts": {
+    "@typescript-eslint/no-unsafe-member-access": {
+      "count": 4
+    },
+    "prettier/prettier": {
+      "count": 6
+    }
+  },
+  "src/articles/articles.module.ts": {
+    "prettier/prettier": {
+      "count": 1
+    }
+  },
+  "src/articles/articles.service.spec.ts": {
+    "prettier/prettier": {
+      "count": 16
+    }
+  },
+  "src/articles/articles.service.ts": {
+    "@typescript-eslint/no-unsafe-assignment": {
+      "count": 5
+    },
+    "@typescript-eslint/no-unsafe-member-access": {
+      "count": 14
+    },
+    "prettier/prettier": {
+      "count": 40
+    }
+  },
+  "src/auth/auth.module.ts": {
+    "prettier/prettier": {
+      "count": 1
+    }
+  },
+  "src/auth/auth.service.ts": {
+    "prettier/prettier": {
+      "count": 37
+    }
+  },
+  "src/bookmarks/bookmarks.controller.ts": {
+    "@typescript-eslint/no-unsafe-member-access": {
+      "count": 3
+    },
+    "prettier/prettier": {
+      "count": 1
+    }
+  },
+  "src/bookmarks/bookmarks.module.ts": {
+    "prettier/prettier": {
+      "count": 1
+    }
+  },
+  "src/bookmarks/bookmarks.service.ts": {
+    "prettier/prettier": {
+      "count": 9
+    }
+  },
+  "src/businesses/businesses.controller.ts": {
+    "@typescript-eslint/no-unsafe-member-access": {
+      "count": 7
+    },
+    "prettier/prettier": {
+      "count": 9
+    }
+  },
+  "src/businesses/businesses.module.ts": {
+    "prettier/prettier": {
+      "count": 1
+    }
+  },
+  "src/businesses/businesses.service.spec.ts": {
+    "@typescript-eslint/no-unsafe-assignment": {
+      "count": 2
+    },
+    "@typescript-eslint/unbound-method": {
+      "count": 3
+    },
+    "prettier/prettier": {
+      "count": 10
+    }
+  },
+  "src/businesses/businesses.service.ts": {
+    "@typescript-eslint/no-unsafe-assignment": {
+      "count": 3
+    },
+    "@typescript-eslint/no-unsafe-member-access": {
+      "count": 10
+    },
+    "prettier/prettier": {
+      "count": 22
+    }
+  },
+  "src/comments/comments.controller.ts": {
+    "@typescript-eslint/no-unsafe-member-access": {
+      "count": 3
+    },
+    "prettier/prettier": {
+      "count": 3
+    }
+  },
+  "src/comments/comments.module.ts": {
+    "prettier/prettier": {
+      "count": 2
+    }
+  },
+  "src/comments/comments.service.ts": {
+    "prettier/prettier": {
+      "count": 15
+    }
+  },
+  "src/common/filters/http-exception.filter.ts": {
+    "@typescript-eslint/no-unsafe-assignment": {
+      "count": 1
+    },
+    "@typescript-eslint/no-unsafe-member-access": {
+      "count": 1
+    },
+    "prettier/prettier": {
+      "count": 3
+    }
+  },
+  "src/contact-requests/contact-requests.controller.ts": {
+    "@typescript-eslint/no-unsafe-assignment": {
+      "count": 1
+    },
+    "@typescript-eslint/no-unsafe-member-access": {
+      "count": 2
+    },
+    "prettier/prettier": {
+      "count": 5
+    }
+  },
+  "src/contact-requests/contact-requests.service.ts": {
+    "prettier/prettier": {
+      "count": 5
+    }
+  },
+  "src/follows/follows.controller.ts": {
+    "@typescript-eslint/no-unsafe-member-access": {
+      "count": 4
+    },
+    "prettier/prettier": {
+      "count": 1
+    }
+  },
+  "src/follows/follows.module.ts": {
+    "prettier/prettier": {
+      "count": 1
+    }
+  },
+  "src/follows/follows.service.ts": {
+    "prettier/prettier": {
+      "count": 10
+    }
+  },
+  "src/funding-opportunities/dto/create-funding-opportunity.dto.ts": {
+    "prettier/prettier": {
+      "count": 1
+    }
+  },
+  "src/funding-opportunities/dto/update-funding-opportunity.dto.ts": {
+    "prettier/prettier": {
+      "count": 1
+    }
+  },
+  "src/funding-opportunities/funding-opportunities.controller.ts": {
+    "@typescript-eslint/no-unsafe-member-access": {
+      "count": 3
+    },
+    "prettier/prettier": {
+      "count": 5
+    }
+  },
+  "src/funding-opportunities/funding-opportunities.module.ts": {
+    "prettier/prettier": {
+      "count": 1
+    }
+  },
+  "src/funding-opportunities/funding-opportunities.service.ts": {
+    "@typescript-eslint/no-unsafe-assignment": {
+      "count": 2
+    },
+    "@typescript-eslint/no-unsafe-member-access": {
+      "count": 12
+    },
+    "prettier/prettier": {
+      "count": 15
+    }
+  },
+  "src/funding-rounds/dto/create-funding-round.dto.ts": {
+    "prettier/prettier": {
+      "count": 1
+    }
+  },
+  "src/funding-rounds/funding-rounds.controller.ts": {
+    "@typescript-eslint/no-unsafe-member-access": {
+      "count": 3
+    },
+    "prettier/prettier": {
+      "count": 3
+    }
+  },
+  "src/funding-rounds/funding-rounds.module.ts": {
+    "prettier/prettier": {
+      "count": 1
+    }
+  },
+  "src/funding-rounds/funding-rounds.service.ts": {
+    "@typescript-eslint/no-unsafe-assignment": {
+      "count": 1
+    },
+    "@typescript-eslint/no-unsafe-member-access": {
+      "count": 3
+    },
+    "prettier/prettier": {
+      "count": 7
+    }
+  },
+  "src/notifications/notifications.controller.ts": {
+    "@typescript-eslint/no-unsafe-member-access": {
+      "count": 3
+    },
+    "prettier/prettier": {
+      "count": 1
+    }
+  },
+  "src/prisma/prisma.service.ts": {
+    "prettier/prettier": {
+      "count": 1
+    }
+  },
+  "src/proposals/proposals.controller.ts": {
+    "@typescript-eslint/no-unsafe-member-access": {
+      "count": 4
+    },
+    "prettier/prettier": {
+      "count": 1
+    }
+  },
+  "src/proposals/proposals.service.ts": {
+    "@typescript-eslint/no-unsafe-assignment": {
+      "count": 5
+    },
+    "@typescript-eslint/no-unsafe-member-access": {
+      "count": 2
+    },
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    },
+    "prettier/prettier": {
+      "count": 27
+    }
+  },
+  "src/team-members/team-members.controller.ts": {
+    "@typescript-eslint/no-unsafe-member-access": {
+      "count": 3
+    },
+    "prettier/prettier": {
+      "count": 3
+    }
+  },
+  "src/team-members/team-members.module.ts": {
+    "prettier/prettier": {
+      "count": 1
+    }
+  },
+  "src/team-members/team-members.service.ts": {
+    "prettier/prettier": {
+      "count": 7
+    }
+  },
+  "src/upload/upload.controller.ts": {
+    "prettier/prettier": {
+      "count": 5
+    }
+  },
+  "src/upload/upload.module.ts": {
+    "prettier/prettier": {
+      "count": 1
+    }
+  },
+  "src/upload/upload.service.ts": {
+    "@typescript-eslint/no-unsafe-member-access": {
+      "count": 4
+    },
+    "prettier/prettier": {
+      "count": 14
+    }
+  },
+  "src/users/users.controller.ts": {
+    "@typescript-eslint/no-unsafe-member-access": {
+      "count": 2
+    },
+    "prettier/prettier": {
+      "count": 8
+    }
+  },
+  "src/users/users.service.ts": {
+    "@typescript-eslint/no-unsafe-assignment": {
+      "count": 1
+    },
+    "prettier/prettier": {
+      "count": 20
+    }
+  }
+}
