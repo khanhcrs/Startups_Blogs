@@ -30,12 +30,15 @@ const Login = () => {
       login(response.data, accessToken);
       navigate('/');
     } catch (err: any) {
-      if (err.response?.status === 401) {
+      const status = err.response?.status;
+      const msg = String(err.response?.data?.message || err.message || '');
+
+      if (status === 401 || msg.includes('401') || msg.includes('status code')) {
         setError('Invalid email or password. Please try again.');
-      } else if (err.response?.status === 404) {
+      } else if (status === 404 || msg.includes('404')) {
         setError('Account not registered. Please sign up first.');
       } else {
-        setError(err.response?.data?.message || err.message || 'Login failed. Please check your credentials.');
+        setError('Login failed. Please check your credentials and try again.');
       }
     } finally {
       setLoading(false);
