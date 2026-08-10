@@ -146,7 +146,7 @@ Presigned URL: upload/download có thời hạn.
 
 CloudFront + S3: frontend.
 
-App Runner: backend MVP.
+API Gateway + EC2: backend server.
 
 SES: email giao dịch ngoài email auth Cognito.
 

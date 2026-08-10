@@ -9,9 +9,9 @@ Dự án **Startups Blogs** được thiết kế theo kiến trúc Microservice
 - **Hosting:** AWS S3 kết hợp với Amazon CloudFront (CDN) để phân phối nội dung tĩnh (HTML, CSS, JS) với tốc độ cao, độ trễ thấp và hỗ trợ SSL/TLS.
 - **Routing:** Client-side routing bằng React Router.
 
-### 1.2 API Server (Backend MVP)
+### 1.2 API Server (Backend)
 - **Công nghệ:** Node.js, NestJS, TypeScript, Prisma ORM.
-- **Hosting:** AWS App Runner. Lý do chọn App Runner cho MVP vì dễ dàng deploy container, tự động scale dựa trên lượng traffic, không tốn công quản trị hạ tầng (serverless container).
+- **Hosting:** Amazon EC2 kết hợp API Gateway. NestJS backend được chạy trên EC2 thông qua PM2. API Gateway làm proxy đứng trước EC2 để tăng cường bảo mật và định tuyến.
 
 ### 1.3 Database & Storage
 - **Relational DB:** Amazon RDS for PostgreSQL. Chứa các dữ liệu nghiệp vụ (User, Startup, Idea, v.v.). Prisma sẽ kết nối trực tiếp đến đây.
@@ -27,7 +27,7 @@ Dự án **Startups Blogs** được thiết kế theo kiến trúc Microservice
 
 ### 1.5 Dịch vụ phụ trợ
 - **Email:** Amazon SES. Dùng để gửi các email giao dịch ngoài luồng auth (như thông báo hệ thống, Contact Request).
-- **Log & Monitor:** Amazon CloudWatch (Logs, Metrics, Alerts cho App Runner và RDS).
+- **Log & Monitor:** Amazon CloudWatch (Logs, Metrics, Alerts cho API Gateway, EC2 và RDS).
 - **Security:** AWS Secrets Manager để lưu trữ thông tin nhạy cảm (DB password, API keys).
 
 ## 2. Sơ đồ luồng dữ liệu (Data Flow Diagram)
@@ -36,7 +36,7 @@ Dự án **Startups Blogs** được thiết kế theo kiến trúc Microservice
 graph TD
     Client[Browser / Frontend] -->|1. Auth Requests| Cognito(Amazon Cognito)
     Client -->|2. Upload/Download| S3(Amazon S3 - Presigned URL)
-    Client -->|3. REST API| API[AWS App Runner - NestJS]
+    Client -->|3. REST API| API[API Gateway + EC2 NestJS]
     
     Cognito -.->|JWT Token| Client
     API -->|4. Verify Token| Cognito
