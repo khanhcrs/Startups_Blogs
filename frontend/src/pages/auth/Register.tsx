@@ -38,7 +38,13 @@ const Register = () => {
       setSuccessMessage(`Amazon Cognito sent a 6-digit verification code to: ${email}`);
     } catch (err: any) {
       console.error('Cognito SignUp Error:', err);
-      setError(err.message || 'Failed to send Cognito verification code. Please check your details.');
+      // Logic sát thực tế: Không để lộ việc email đã tồn tại hay chưa (Ngăn chặn Email Enumeration)
+      if (err.name === 'UsernameExistsException' || err.message?.includes('exist')) {
+        setIsVerifying(true);
+        setSuccessMessage(`Amazon Cognito sent a 6-digit verification code to: ${email}`);
+      } else {
+        setError(err.message || 'Failed to send Cognito verification code. Please check your details.');
+      }
     } finally {
       setLoading(false);
     }
@@ -55,6 +61,7 @@ const Register = () => {
         await confirmCognitoSignUp(email, verificationCode);
       } catch (cErr: any) {
         console.warn('Cognito confirm:', cErr);
+        throw cErr; // Bắt buộc ném lỗi ra ngoài để dừng tiến trình, không cho đi tiếp
       }
 
       // 2. Register account in Database
