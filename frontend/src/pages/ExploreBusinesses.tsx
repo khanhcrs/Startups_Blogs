@@ -237,9 +237,10 @@ const ExploreBusinesses = () => {
           </div>
           <div className={styles.heroImageWrapper}>
             <img 
+              translate="no"
+              className={`${styles.heroImage} notranslate`}
               src="/images/browse_hero_rocket.jpg" 
               alt="Businesses seeking investment" 
-              className={styles.heroImage} 
             />
           </div>
         </div>
