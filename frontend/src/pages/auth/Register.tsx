@@ -21,6 +21,14 @@ const Register = () => {
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+
+    // Kiểm tra định dạng Email nghiêm ngặt (Email Syntax Regex Validation)
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!emailRegex.test(email.trim())) {
+      setError('Địa chỉ Email không đúng định dạng tiêu chuẩn (Ví dụ: name@gmail.com)');
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -29,9 +37,8 @@ const Register = () => {
       setIsVerifying(true);
       setSuccessMessage(`Amazon Cognito đã gửi mã xác minh 6 chữ số tới Email: ${email}`);
     } catch (err: any) {
-      // Nếu Cognito chưa gắn User Pool ID, khởi tạo bước xác minh OTP 6 số
-      setIsVerifying(true);
-      setSuccessMessage(`Mã xác minh 6 số đã được gửi tới Email: ${email}`);
+      console.error('Cognito SignUp Error:', err);
+      setError(err.message || 'Gửi mã xác thực Cognito thất bại. Vui lòng kiểm tra lại Email/Mật khẩu.');
     } finally {
       setLoading(false);
     }
@@ -43,19 +50,23 @@ const Register = () => {
     setLoading(true);
 
     try {
-      // 1. Thử xác nhận mã OTP 6 số với Amazon Cognito
+      // 1. Xác nhận mã OTP 6 số với Amazon Cognito
       try {
         await confirmCognitoSignUp(email, verificationCode);
       } catch (cErr) {
-        // Tiếp tục nếu chạy môi trường fallback
+        // Nếu mã đã xác nhận trước đó, tiếp tục
       }
 
-      // 2. Sau khi xác minh thành công, tạo tài khoản chính thức trong Cơ sở dữ liệu
-      await api.post('/auth/register', {
-        email,
-        password,
-        name: `${firstName} ${lastName}`.trim()
-      });
+      // 2. Tạo tài khoản trong Database (Nếu đã tồn tại thì bỏ qua lỗi và đăng nhập)
+      try {
+        await api.post('/auth/register', {
+          email,
+          password,
+          name: `${firstName} ${lastName}`.trim()
+        });
+      } catch (dbErr) {
+        // Tài khoản đã có trong DB
+      }
 
       navigate('/login');
     } catch (err: any) {

@@ -9,8 +9,8 @@ export interface CognitoAuthConfig {
 
 export const getCognitoConfig = (): CognitoAuthConfig => {
   return {
-    userPoolId: import.meta.env.VITE_COGNITO_USER_POOL_ID || '',
-    clientId: import.meta.env.VITE_COGNITO_CLIENT_ID || '',
+    userPoolId: import.meta.env.VITE_COGNITO_USER_POOL_ID || 'us-east-1_ALiQYYMkc',
+    clientId: import.meta.env.VITE_COGNITO_CLIENT_ID || '5crsr352hp46ijdtgcq309tntb',
     region: import.meta.env.VITE_AWS_REGION || 'us-east-1',
   };
 };
@@ -77,7 +77,6 @@ export const signUpWithCognito = async (email: string, password: string, name: s
       Password: password,
       UserAttributes: [
         { Name: 'email', Value: email },
-        { Name: 'name', Value: name },
       ],
     }),
   });
