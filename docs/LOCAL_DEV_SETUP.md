@@ -18,8 +18,7 @@ Thay vì cài đặt PostgreSQL trực tiếp lên Windows (dễ gây xung độ
 
 ### 2.1. File cấu hình: `docker-compose.yml`
 - Sử dụng Image: `postgres:15-alpine` (Rất nhẹ).
-- Port Mapping: `5433:5432`. 
-  - *Lý do dùng cổng 5433:* Để tránh xung đột với bất kỳ dịch vụ PostgreSQL nào khác có thể đang chạy ngầm trên máy của bạn ở cổng 5432 mặc định.
+- Port Mapping: `5433:5432`. - *Lý do dùng cổng 5433:* Để tránh xung đột với bất kỳ dịch vụ PostgreSQL nào khác có thể đang chạy ngầm trên máy ở cổng 5432 mặc định.
 - Volume: Dữ liệu được lưu vào volume `postgres_data`, đảm bảo không bị mất data khi tắt máy hoặc tắt Docker.
 
 ### 2.2. MinIO (S3 Storage)
@@ -49,23 +48,23 @@ DATABASE_URL="postgresql://admin:secretpassword@127.0.0.1:5433/startups_blogs?sc
 Từ bản Prisma v7, đường dẫn kết nối không nằm trong `schema.prisma` nữa mà được khai báo tại `prisma.config.ts`. File này đã được setup để tự động đọc biến `DATABASE_URL` từ file `.env`.
 
 ### 3.3. Các Lệnh Prisma Quan Trọng
-Mỗi khi bạn thay đổi cấu trúc bảng trong file `schema.prisma` (ví dụ: thêm cột mới), bạn cần chạy lệnh sau để đồng bộ vào Database:
+Mỗi khi người dùng thay đổi cấu trúc bảng trong file `schema.prisma` (ví dụ: thêm cột mới), cần chạy lệnh sau để đồng bộ vào Database:
 ```bash
 npx prisma db push
 ```
 
-Để xem và quản lý dữ liệu trong Database trực quan (như phpMyAdmin), bạn có thể dùng công cụ tích hợp sẵn của Prisma:
+Để xem và quản lý dữ liệu trong Database trực quan (như phpMyAdmin), người dùng có thể dùng công cụ tích hợp sẵn của Prisma:
 ```bash
 npx prisma studio
 ```
-*(Lệnh này sẽ mở ra một trang web ở cổng 5555 cho phép bạn xem toàn bộ data).*
+*(Lệnh này sẽ mở ra một trang web ở cổng 5555 cho phép người dùng xem toàn bộ data).*
 
 ---
 
 ## 4. Chạy Backend (NestJS)
 
-Sau khi Database đã chạy, bạn khởi động API Server bằng lệnh:
+Sau khi Database đã chạy, người dùng khởi động API Server bằng lệnh:
 ```bash
 npm run start:dev
 ```
-Server sẽ chạy ở `http://localhost:3000`. Cấu trúc code NestJS hỗ trợ "Hot-reload", nghĩa là bạn cứ viết code, server sẽ tự khởi động lại để áp dụng thay đổi.
+Server sẽ chạy ở `http://localhost:3000`. Cấu trúc code NestJS hỗ trợ "Hot-reload", nghĩa là người dùng cứ viết code, server sẽ tự khởi động lại để áp dụng thay đổi.

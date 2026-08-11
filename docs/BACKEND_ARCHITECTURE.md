@@ -8,24 +8,24 @@ NestJS sử dụng cấu trúc Module. Mỗi tính năng (Domain) sẽ nằm tro
 
 ```text
 src/
-├── common/             # Dùng chung cho mọi module
-│   ├── decorators/     # Custom decorators (vd: @CurrentUser)
-│   ├── filters/        # Global Exception Filters
-│   ├── guards/         # Auth, Roles guard
-│   └── interceptors/   # Response formatting interceptors
-├── config/             # Cấu hình môi trường (env, aws, db)
-├── prisma/             # Prisma service, schema, migrations
-├── modules/            # Chứa các feature module (được cấu trúc phẳng ở root thư mục src/)
-│   ├── auth/           # Verify token Cognito/JWT, đăng nhập, đăng ký
-│   ├── users/          # Quản lý User profile, role
-│   ├── businesses/     # Quản lý Startup/Business profile, CRUD
-│   ├── articles/       # Quản lý bài viết (Blogs, News), filter, view count
-│   ├── comments/       # Quản lý bình luận lồng nhau
-│   ├── upload/         # Tích hợp MinIO/S3 upload file
-│   ├── admin/          # Quản trị viên xử lý duyệt, thống kê, thao tác bảo mật
-│   ├── ...             # Và các module phụ trợ khác (bookmarks, follows, notifications)
-├── app.module.ts       # Main module
-└── main.ts             # Bootstrapping (CORS, Swagger setup)
+├── common/ # Dùng chung cho mọi module
+│ ├── decorators/ # Custom decorators (vd: @CurrentUser)
+│ ├── filters/ # Global Exception Filters
+│ ├── guards/ # Auth, Roles guard
+│ └── interceptors/ # Response formatting interceptors
+├── config/ # Cấu hình môi trường (env, aws, db)
+├── prisma/ # Prisma service, schema, migrations
+├── modules/ # Chứa các feature module (được cấu trúc phẳng ở root thư mục src/)
+│ ├── auth/ # Verify token Cognito/JWT, đăng nhập, đăng ký
+│ ├── users/ # Quản lý User profile, role
+│ ├── businesses/ # Quản lý Startup/Business profile, CRUD
+│ ├── articles/ # Quản lý bài viết (Blogs, News), filter, view count
+│ ├── comments/ # Quản lý bình luận lồng nhau
+│ ├── upload/ # Tích hợp MinIO/S3 upload file
+│ ├── admin/ # Quản trị viên xử lý duyệt, thống kê, thao tác bảo mật
+│ ├── ... # Và các module phụ trợ khác (bookmarks, follows, notifications)
+├── app.module.ts # Main module
+└── main.ts # Bootstrapping (CORS, Swagger setup)
 ```
 
 ## 2. Quy trình xử lý Request

@@ -3,11 +3,11 @@
 Tài liệu này tổng hợp bối cảnh kinh doanh, các luồng tương tác (Flows) và mô hình hoạt động của nền tảng **Startups Blogs**. Tài liệu đóng vai trò là "Kim chỉ nam" để tra cứu nhanh khi phát triển các tính năng mới hoặc onboarding thành viên mới.
 
 - **Articles & News (Bài viết & Tin tức)**:
-  - `User` có thể viết và đăng các Blog / Phân tích chuyên sâu (Category = Blog, Technology, v.v.).
-  - Các bài viết `News` (Tin tức) được thiết kế đặc thù chỉ cho phép các `User` mang role `ADMIN` đăng để đảm bảo tính xác thực.
-  - Mỗi bài viết có thể gắn `businessId` nếu bài viết đại diện cho doanh nghiệp (ví dụ như bài PR hoặc thông cáo báo chí).
-  - Khách truy cập hoặc User khác có thể đọc (View), thích (Like), bình luận (Comment), chia sẻ, và đánh dấu (Bookmark) bài viết.
-  - Bình luận hỗ trợ lồng nhau (Replies).
+ - `User` có thể viết và đăng các Blog / Phân tích chuyên sâu (Category = Blog, Technology, v.v.).
+ - Các bài viết `News` (Tin tức) được thiết kế đặc thù chỉ cho phép các `User` mang role `ADMIN` đăng để đảm bảo tính xác thực.
+ - Mỗi bài viết có thể gắn `businessId` nếu bài viết đại diện cho doanh nghiệp (ví dụ như bài PR hoặc thông cáo báo chí).
+ - Khách truy cập hoặc User khác có thể đọc (View), thích (Like), bình luận (Comment), chia sẻ, và đánh dấu (Bookmark) bài viết.
+ - Bình luận hỗ trợ lồng nhau (Replies).
 
 ---
 
@@ -47,24 +47,24 @@ Thay vì chỉ là một danh bạ công ty khô khan, Startups Blogs tập trun
 ### Flow 3: Trải nghiệm Chi tiết Doanh nghiệp (Business Profile - Social Lite)
 1. Người dùng bấm vào một Business Card, chuyển hướng đến `/businesses/:id`.
 2. Giao diện tải **Business Detail** với cấu trúc 3 Tabs:
-   - **Overview:** Thông tin chung, Mô hình kinh doanh, Lịch sử gọi vốn (Funding History), Doanh thu.
-   - **Updates:** Các bài Blog/Tin tức cập nhật do chính Business này đăng tải. Giúp nhà đầu tư theo dõi "nhịp sống" của startup.
-   - **Team:** Lưới thông tin các Co-founder và nhân sự cốt cán (Avatar, Chức vụ, Bio).
+ - **Overview:** Thông tin chung, Mô hình kinh doanh, Lịch sử gọi vốn (Funding History), Doanh thu.
+ - **Updates:** Các bài Blog/Tin tức cập nhật do chính Business này đăng tải. Giúp nhà đầu tư theo dõi "nhịp sống" của startup.
+ - **Team:** Lưới thông tin các Co-founder và nhân sự cốt cán (Avatar, Chức vụ, Bio).
 3. **Tương tác:** Người dùng có thể bấm nút **Follow (Theo dõi)** màu cam nổi bật. Khi có Updates mới từ Business, hệ thống sẽ ưu tiên hiển thị trên Feed của người dùng này. Hoặc bấm **Message/Contact** để gửi yêu cầu liên hệ nội bộ.
 
 ### Flow 4: Quản lý Cá nhân (User Profile)
 1. Người dùng truy cập trang cá nhân (Profile).
 2. Tương tự Business Profile, trang cá nhân cũng có giao diện Header chuyên nghiệp (Avatar, Bio, Social Links, Location).
 3. Các Tabs bao gồm:
-   - **Posts/Updates:** Các bài viết cá nhân.
-   - **Saved:** Các cơ hội đầu tư hoặc Business đã lưu (Bookmark).
-   - **Settings:** Nơi thiết lập thông tin cá nhân, cập nhật mật khẩu, và tùy chỉnh thông báo.
+ - **Posts/Updates:** Các bài viết cá nhân.
+ - **Saved:** Các cơ hội đầu tư hoặc Business đã lưu (Bookmark).
+ - **Settings:** Nơi thiết lập thông tin cá nhân, cập nhật mật khẩu, và tùy chỉnh thông báo.
 
 ### Flow 5: Đăng tin Gọi vốn (Funding Opportunities)
 1. Founder vào trang quản lý Business của mình.
 2. Chọn "Tạo cơ hội gọi vốn mới" (Post your Idea/Opportunity).
 3. Điền thông tin chi tiết qua nhiều bước (Multi-step form): Nhu cầu vốn, Mục đích sử dụng vốn (Use of Funds), Kế hoạch tăng trưởng (Growth Plan).
-4. Đính kèm tài liệu (Pitch Deck). Hệ thống lấy Presigned URL từ AWS S3, FE đẩy file trực tiếp lên S3.
+4. Đính kèm tài liệu (Pitch Deck). Hệ thống nhận file qua API Backend Proxy và đẩy file lên S3.
 5. Sau khi submit, cơ hội gọi vốn chuyển sang trạng thái `Pending Review`.
 6. Moderator (Admin) duyệt. Nếu được duyệt, trạng thái chuyển sang `Published` và hiển thị công khai trên hồ sơ của Business.
 
@@ -80,7 +80,7 @@ Thay vì chỉ là một danh bạ công ty khô khan, Startups Blogs tập trun
 
 ## 3. Quản lý Trạng thái & Dữ liệu (Data Flow & Logic)
 
-*   **Tính xác thực (Verification):** Các Funding Rounds và Startups có thể có cờ `isVerified: boolean`. Backend/Admin sẽ cấp cờ này sau khi xác minh giấy tờ, giúp tăng uy tín trong mắt nhà đầu tư.
-*   **Quản trị Nội dung (Moderation):** Admin có "quyền tối thượng" (Root privilege) trong việc kiểm duyệt không chỉ Startup/Bài viết mà còn ở cấp độ vi mô như Xóa trực tiếp mọi **Bình luận rác (Spam Comments)** hoặc thay đổi trạng thái ẩn/hiện mà không cần thông qua người dùng.
-*   **Bộ đếm (Counters):** Lượt View (viewCount), Follow (followersCount), và Saved (savedCount) được cập nhật liên tục thông qua các API tương tác. Để tránh quá tải Database, có thể dùng Redis Cache để debounce lượt view trước khi ghi vào PostgreSQL.
-*   **Phân quyền (RBAC):** Backend (NestJS) áp dụng Guards/Interceptors để chặn quyền truy cập. FE (React) sẽ ẩn các nút Edit/Delete nếu `isOwner === false` hoặc `role !== ADMIN`. Mọi quyết định cuối cùng về dữ liệu phải nằm ở Backend.
+* **Tính xác thực (Verification):** Các Funding Rounds và Startups có thể có cờ `isVerified: boolean`. Backend/Admin sẽ cấp cờ này sau khi xác minh giấy tờ, giúp tăng uy tín trong mắt nhà đầu tư.
+* **Quản trị Nội dung (Moderation):** Admin có "quyền tối thượng" (Root privilege) trong việc kiểm duyệt không chỉ Startup/Bài viết mà còn ở cấp độ vi mô như Xóa trực tiếp mọi **Bình luận rác (Spam Comments)** hoặc thay đổi trạng thái ẩn/hiện mà không cần thông qua người dùng.
+* **Bộ đếm (Counters):** Lượt View (viewCount), Follow (followersCount), và Saved (savedCount) được cập nhật liên tục thông qua các API tương tác. Để tránh quá tải Database, có thể dùng Redis Cache để debounce lượt view trước khi ghi vào PostgreSQL.
+* **Phân quyền (RBAC):** Backend (NestJS) áp dụng Guards/Interceptors để chặn quyền truy cập. FE (React) sẽ ẩn các nút Edit/Delete nếu `isOwner === false` hoặc `role !== ADMIN`. Mọi quyết định cuối cùng về dữ liệu phải nằm ở Backend.

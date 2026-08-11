@@ -13,21 +13,21 @@ Tài liệu này đóng vai trò như một "bộ nhớ vĩnh cửu" (Permanent 
 - Lựa chọn giải pháp: **AWS Cognito** (Đã tích hợp thành công, bao gồm Auto-login, đồng bộ Database tự động, Quản lý Token).
 - `PrismaModule` & `PrismaService` khởi tạo toàn cục.
 - `AuthModule` cung cấp API:
-  - `POST /auth/register`: Đăng ký tài khoản.
-  - `POST /auth/login`: Đăng nhập, trả về Access Token.
+ - `POST /auth/register`: Đăng ký tài khoản.
+ - `POST /auth/login`: Đăng nhập, trả về Access Token.
 - `UsersModule` cung cấp API:
-  - `GET /users/me`: Lấy thông tin cá nhân (Yêu cầu JWT Bearer Token).
+ - `GET /users/me`: Lấy thông tin cá nhân (Yêu cầu JWT Bearer Token).
 - Đã thiết lập `JwtStrategy` và `JwtAuthGuard`.
 
 ### 3. Module: Business (Phase 2)
 - Tạo Module quản lý Doanh nghiệp/Startup.
 - Cấu hình Validate dữ liệu đầu vào với `class-validator` (DTOs).
 - Đã viết các API:
-  - `POST /businesses` (Protected): Tạo Startup (Lưu `ownerId` từ Token).
-  - `GET /businesses`: Danh sách Startup.
-  - `GET /businesses/:slug`: Xem chi tiết Startup bằng Slug.
-  - `PUT /businesses/:id` (Protected - Phân quyền Owner): Cập nhật Startup.
-  - `DELETE /businesses/:id` (Protected - Phân quyền Owner): Xóa Startup.
+ - `POST /businesses` (Protected): Tạo Startup (Lưu `ownerId` từ Token).
+ - `GET /businesses`: Danh sách Startup.
+ - `GET /businesses/:slug`: Xem chi tiết Startup bằng Slug.
+ - `PUT /businesses/:id` (Protected - Phân quyền Owner): Cập nhật Startup.
+ - `DELETE /businesses/:id` (Protected - Phân quyền Owner): Xóa Startup.
 
 ### 4. Module: Business Sub-models (Phase 3)
 - API cho **Team Members**: Đã tạo các API (Lấy danh sách, Thêm, Sửa, Xóa).
@@ -77,14 +77,14 @@ Tài liệu này đóng vai trò như một "bộ nhớ vĩnh cửu" (Permanent 
 - **Contact Request:** Tạo bảng `ContactRequest`. Bổ sung Modal liên hệ và tab Inbox cho Founder.
 - **Admin Dashboard:** Cấu trúc lại trang Admin với giao diện Sidebar Layout chuyên nghiệp.
 - Bổ sung các module quản trị:
-  - **Overview**: Thống kê số lượng (Users, Businesses, Articles, Pending).
-  - **Businesses**: Phê duyệt hoặc Từ chối Startup. Tích hợp giao diện `AdminViewBusiness` với đầy đủ các section (Funding History, Team, Analytics, Market, Updates). Bổ sung luồng API `GET /businesses/admin/:id` lấy chi tiết dữ liệu.
-  - **Users**: Xem danh sách toàn hệ thống, cấp quyền (USER, MODERATOR, ADMIN).
-  - **Articles**: Quản lý danh sách bài viết chuyên sâu:
-    - Chuyển trạng thái (DRAFT/PUBLISHED) và xóa bài vi phạm.
-    - Modal Xem trước chi tiết bài viết (Preview) tích hợp Biểu đồ Thống kê (Views/Likes) bằng `recharts`.
-    - Tính năng bộ lọc nâng cao (Advanced Filters): Lọc theo Tag, Khoảng thời gian (From/To), Danh mục (Blogs/News), Tìm kiếm.
-    - Quản trị Bình luận (Comment Moderation): Quyền tối thượng của Admin để xóa ngay bình luận rác/vi phạm trực tiếp từ Modal xem trước.
+ - **Overview**: Thống kê số lượng (Users, Businesses, Articles, Pending).
+ - **Businesses**: Phê duyệt hoặc Từ chối Startup. Tích hợp giao diện `AdminViewBusiness` với đầy đủ các section (Funding History, Team, Analytics, Market, Updates). Bổ sung luồng API `GET /businesses/admin/:id` lấy chi tiết dữ liệu.
+ - **Users**: Xem danh sách toàn hệ thống, cấp quyền (USER, MODERATOR, ADMIN).
+ - **Articles**: Quản lý danh sách bài viết chuyên sâu:
+ - Chuyển trạng thái (DRAFT/PUBLISHED) và xóa bài vi phạm.
+ - Modal Xem trước chi tiết bài viết (Preview) tích hợp Biểu đồ Thống kê (Views/Likes) bằng `recharts`.
+ - Tính năng bộ lọc nâng cao (Advanced Filters): Lọc theo Tag, Khoảng thời gian (From/To), Danh mục (Blogs/News), Tìm kiếm.
+ - Quản trị Bình luận (Comment Moderation): Quyền tối thượng của Admin để xóa ngay bình luận rác/vi phạm trực tiếp từ Modal xem trước.
 - Thiết lập Backend API cho các thao tác Admin bảo mật (Ví dụ: `DELETE /comments/admin/:id`, `GET /articles/tags`).
 - Sửa lỗi crash Backend trên môi trường Windows liên quan đến tiến trình `taskkill` khi hot-reload.
 
@@ -115,4 +115,4 @@ Tài liệu này đóng vai trò như một "bộ nhớ vĩnh cửu" (Permanent 
 - Viết Test (E2E hoặc Unit) cho các luồng quan trọng.
 
 > [!NOTE]
-> Bất cứ khi nào bạn (User) trở lại với một AI mới, hãy yêu cầu AI: *"Hãy đọc file `docs/IMPLEMENTATION_STATUS.md` để nắm bối cảnh dự án!"*
+> Bất cứ khi nào người dùng (User) trở lại với một AI mới, hãy yêu cầu AI: *"Hãy đọc file `docs/IMPLEMENTATION_STATUS.md` để nắm bối cảnh dự án!"*

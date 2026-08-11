@@ -16,7 +16,7 @@ Tất cả các tệp đính kèm (Hình ảnh logo, pitch deck, document) đề
 **Quyết định:**
 - File được lưu vào S3 (Sử dụng **MinIO** giả lập trên môi trường Dev/MVP).
 - Database chỉ lưu chuỗi URL (`logoUrl`, `coverUrl`, `avatarUrl`). Điều này giúp database nhẹ, giảm băng thông tải dữ liệu từ DB và tối ưu chi phí.
-- *(Lưu ý: Thay vì dùng Presigned URL phức tạp, MVP đang thiết lập UploadController dùng Multer nhận tệp trực tiếp và đẩy lên MinIO cho nhanh gọn)*.
+- Hệ thống sử dụng UploadController dùng Multer nhận tệp qua Backend Proxy và đẩy lên MinIO/S3.
 
 ## 3. Quản lý Secret và Password (MVP vs Production)
 
@@ -28,9 +28,7 @@ Tất cả các tệp đính kèm (Hình ảnh logo, pitch deck, document) đề
 
 **Quyết định:**
 - Vì hệ thống mang tính chất tài chính và thương hiệu, không cho phép Users (kể cả Founder) ghi đè (Overwrite) dữ liệu trực tiếp lên các bản ghi Business / Article đã được phê duyệt (Published).
-- Mọi thao tác sửa đổi đều phải sinh ra một bản ghi trong bảng `ChangeProposal` (định dạng JSON). Chỉ khi Admin ấn "Approve", dữ liệu mới được merge vào cơ sở dữ liệu chính. 
-
-## 5. Cache và Indexing
+- Mọi thao tác sửa đổi đều phải sinh ra một bản ghi trong bảng `ChangeProposal` (định dạng JSON). Chỉ khi Admin ấn "Approve", dữ liệu mới được merge vào cơ sở dữ liệu chính. ## 5. Cache và Indexing
 
 - PostgreSQL được thiết lập Index trên các trường truy xuất nhiều: `slug` của Startup/Article, `email` của User.
 - Ở giai đoạn MVP, chưa sử dụng Redis để cache dữ liệu API. Nếu request quá tải ở các trang công cộng (Public view), có thể cân nhắc tích hợp sau hoặc cấu hình cache HTTP ở CloudFront CDN.

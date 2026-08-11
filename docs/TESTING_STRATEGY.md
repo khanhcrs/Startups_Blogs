@@ -8,14 +8,14 @@ Tài liệu này ghi nhận lại chiến lược và các kịch bản kiểm t
 
 ### `ArticlesService` (`articles.service.spec.ts`)
 - **Tạo bài viết (`create`)**:
-  - `Trường hợp hợp lệ`: Tạo bài viết mới thành công với đầy đủ các trường `title`, `summary`, `content`, `category`.
-  - `Trường hợp lỗi bảo mật`: Khi user truyền lên `businessId` không thuộc về họ, hệ thống phải ném ra lỗi `ForbiddenException`.
+ - `Trường hợp hợp lệ`: Tạo bài viết mới thành công với đầy đủ các trường `title`, `summary`, `content`, `category`.
+ - `Trường hợp lỗi bảo mật`: Khi user truyền lên `businessId` không thuộc về họ, hệ thống phải ném ra lỗi `ForbiddenException`.
 - **Lấy bài viết của chính mình (`findMyArticles`)**:
-  - `Trường hợp hợp lệ`: Chỉ trả về danh sách các bài viết mà `authorId` khớp với ID của user hiện tại.
+ - `Trường hợp hợp lệ`: Chỉ trả về danh sách các bài viết mà `authorId` khớp với ID của user hiện tại.
 - **Xóa bài viết (`remove`)**:
-  - `Trường hợp không tìm thấy`: Ném lỗi `NotFoundException` nếu bài viết không tồn tại.
-  - `Trường hợp lỗi bảo mật`: Ném lỗi `ForbiddenException` nếu user không phải là tác giả của bài viết.
-  - `Trường hợp hợp lệ`: Xóa thành công nếu thỏa mãn tất cả điều kiện.
+ - `Trường hợp không tìm thấy`: Ném lỗi `NotFoundException` nếu bài viết không tồn tại.
+ - `Trường hợp lỗi bảo mật`: Ném lỗi `ForbiddenException` nếu user không phải là tác giả của bài viết.
+ - `Trường hợp hợp lệ`: Xóa thành công nếu thỏa mãn tất cả điều kiện.
 
 ## 2. Integration / E2E Tests (Luồng User - Frontend)
 
@@ -42,9 +42,9 @@ Tài liệu này ghi nhận lại chiến lược và các kịch bản kiểm t
 1. Đăng nhập với tài khoản role `ADMIN` (vd: `admin@startups.com`).
 2. Vào màn hình `/admin/articles`.
 3. Kiểm tra các chức năng:
-   - **Xóa bài viết:** Nút thùng rác hoạt động, gọi `DELETE /articles/admin/:id`.
-   - **Thay đổi trạng thái:** Đổi bài viết sang `DRAFT` hoặc `ARCHIVED`.
-   - **Kiểm duyệt Bình luận:** Mở modal chi tiết bài viết, bấm xóa bình luận rác (API `DELETE /comments/admin/:id`).
+ - **Xóa bài viết:** Nút thùng rác hoạt động, gọi `DELETE /articles/admin/:id`.
+ - **Thay đổi trạng thái:** Đổi bài viết sang `DRAFT` hoặc `ARCHIVED`.
+ - **Kiểm duyệt Bình luận:** Mở modal chi tiết bài viết, bấm xóa bình luận rác (API `DELETE /comments/admin/:id`).
 
 ### Luồng Đề xuất Thay đổi (Change Proposals)
 1. Founder vào trang quản lý Business, bấm **Edit**.

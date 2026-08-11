@@ -103,7 +103,7 @@ Dưới đây là danh sách toàn bộ các API hiện tại của hệ thống
 ### Module: PROPOSALS
 | HTTP Method | API Endpoint | Mục đích (Purpose) | Role yêu cầu |
 |---|---|---|---|
-| **GET** | `/api/v1/proposals/me` | Lấy danh sách đề xuất của tôi | User/Owner |
+| **GET** | `/api/v1/proposals/me` | Lấy danh sách đề xuất của người viết | User/Owner |
 | **GET** | `/api/v1/proposals/:id` | Lấy chi tiết đề xuất | User/Owner |
 | **POST** | `/api/v1/proposals/:id/approve` | Phê duyệt đề xuất thay đổi | User/Owner |
 | **POST** | `/api/v1/proposals/:id/reject` | Từ chối đề xuất thay đổi | User/Owner |

@@ -26,4 +26,4 @@ Có tổng cộng 12 tài khoản Founder. Mỗi tài khoản này là chủ s�
 - **Vai trò:** `USER` (Tuy nhiên họ đóng vai trò là Chủ sở hữu của các Business tương ứng)
 
 ---
-*Lưu ý: Nếu bạn vô tình làm hỏng dữ liệu hoặc quên tài khoản, bạn có thể chạy lệnh `npm run db:seed` ở thư mục Backend để khôi phục toàn bộ dữ liệu mẫu này lại từ đầu.*
+*Lưu ý: Nếu người dùng vô tình làm hỏng dữ liệu hoặc quên tài khoản, người dùng có thể chạy lệnh `npm run db:seed` ở thư mục Backend để khôi phục toàn bộ dữ liệu mẫu này lại từ đầu.*

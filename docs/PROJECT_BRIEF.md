@@ -63,7 +63,7 @@ Startup Profile CRUD.
 
 Post Your Idea theo nhiều bước.
 
-Upload logo, ảnh, pitch deck bằng S3 presigned URL.
+Upload logo, ảnh, pitch deck bằng Backend Proxy.
 
 Save Startup.
 
@@ -135,14 +135,13 @@ OpenAPI/Swagger.
 
 AWS (Mục tiêu dài hạn)
 
-Cognito User Pool: identity, email verification, forgot password và JWT. 
-*(Note: Trong bản MVP hiện tại, dự án đang tạm sử dụng Local JWT + bcrypt thay cho Cognito để phát triển nhanh. Sẽ migrate sang Cognito ở Phase sau).*
+Cognito User Pool: identity, email verification, forgot password và JWT. *(Note: Trong bản MVP hiện tại, dự án đang tạm sử dụng Local JWT + bcrypt thay cho Cognito để phát triển nhanh. Sẽ migrate sang Cognito ở Phase sau).*
 
 RDS PostgreSQL: dữ liệu nghiệp vụ.
 
 S3: logo, ảnh, pitch deck và tài liệu.
 
-Presigned URL: upload/download có thời hạn.
+Backend Proxy: upload an toàn qua API.
 
 CloudFront + S3: frontend.
 
@@ -162,7 +161,7 @@ PostgreSQL là nguồn dữ liệu nghiệp vụ.
 
 Không lưu password trong PostgreSQL.
 
-Không lưu presigned URL lâu dài; chỉ lưu S3 object key và metadata.
+Không lưu URL đầy đủ; chỉ lưu S3 object key và metadata.
 
 Frontend không được quyết định quyền truy cập.
 

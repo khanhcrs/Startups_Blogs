@@ -14,15 +14,13 @@ Dự án **Startups Blogs** được thiết kế theo kiến trúc Microservice
 - **Hosting:** Amazon EC2 kết hợp API Gateway. NestJS backend được chạy trên EC2 thông qua PM2. API Gateway làm proxy đứng trước EC2 để tăng cường bảo mật và định tuyến.
 
 ### 1.3 Database & Storage
-- **Relational DB:** Amazon RDS for PostgreSQL. Chứa các dữ liệu nghiệp vụ (User, Startup, Idea, v.v.). Prisma sẽ kết nối trực tiếp đến đây.
-- **Object Storage:** Amazon S3. Lưu trữ logo, hình ảnh, pitch deck. Việc upload/download dự kiến xử lý qua **Presigned URLs** để bảo mật và giảm tải cho Backend. *(Lưu ý: Ở bản MVP hiện tại, chúng ta đang dùng MinIO giả lập S3 chạy trên Docker và Backend xử lý upload file trực tiếp)*.
+- **Object Storage:** Amazon S3. Lưu trữ logo, hình ảnh, pitch deck. Việc upload được xử lý qua **Backend Proxy** để kiểm soát luồng tải file và dữ liệu. *(Lưu ý: Ở bản MVP hiện tại, chúng ta đang dùng MinIO giả lập S3 chạy trên Docker và Backend xử lý upload file trực tiếp thông qua Multer)*.
 
 ### 1.4 Identity & Authentication
 - **Dịch vụ (Mục tiêu):** Amazon Cognito User Pool.
-- **Luồng hoạt động (Mục tiêu):** 
-  - Frontend gọi trực tiếp đến Cognito để Đăng ký / Đăng nhập.
-  - Cognito trả về JWT Token.
-  - Backend sử dụng JWT Guard để verify token, lấy `cognitoSub`.
+- **Luồng hoạt động (Mục tiêu):** - Frontend gọi trực tiếp đến Cognito để Đăng ký / Đăng nhập.
+ - Cognito trả về JWT Token.
+ - Backend sử dụng JWT Guard để verify token, lấy `cognitoSub`.
 - **MVP (Hiện hành):** Dự án đang tạm thời sử dụng **Local JWT + bcrypt** trên NestJS để mã hóa mật khẩu và cấp Token, nhằm đẩy nhanh tốc độ kiểm thử.
 
 ### 1.5 Dịch vụ phụ trợ
@@ -34,13 +32,11 @@ Dự án **Startups Blogs** được thiết kế theo kiến trúc Microservice
 
 ```mermaid
 graph TD
-    Client[Browser / Frontend] -->|1. Auth Requests| Cognito(Amazon Cognito)
-    Client -->|2. Upload/Download| S3(Amazon S3 - Presigned URL)
-    Client -->|3. REST API| API[API Gateway + EC2 NestJS]
-    
-    Cognito -.->|JWT Token| Client
-    API -->|4. Verify Token| Cognito
-    API -->|5. SQL Queries| RDS[(Amazon RDS PostgreSQL)]
-    API -->|6. Send Email| SES(Amazon SES)
-    API -->|7. Generate Presigned URL| S3
+ Client[Browser / Frontend] -->|1. Auth Requests| Cognito(Amazon Cognito)
+ Client -->|2. REST API & File Upload| API[API Gateway + EC2 NestJS]
+ Cognito -.->|JWT Token| Client
+ API -->|3. Verify Token| Cognito
+ API -->|4. SQL Queries| RDS[(Amazon RDS PostgreSQL)]
+ API -->|5. Send Email| SES(Amazon SES)
+ API -->|6. Upload Object (PutObject)| S3[(Amazon S3)]
 ```

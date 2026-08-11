@@ -86,7 +86,7 @@ Có thể phát triển trong giai đoạn mở rộng.
 
 US-HOME-01 — Xem trang chủ
 
-Là khách truy cập, tôi muốn xem trang chủ và hiểu rõ mục đích của Startups Blogs để biết nền tảng phù hợp với doanh nghiệp cần vốn hay nhà đầu tư.
+Là khách truy cập, người dùng muốn xem trang chủ và hiểu rõ mục đích của Startups Blogs để biết nền tảng phù hợp với doanh nghiệp cần vốn hay nhà đầu tư.
 
 Acceptance Criteria
 
@@ -106,7 +106,7 @@ Priority: P0
 
 US-HOME-02 — Tìm kiếm từ trang chủ
 
-Là người dùng, tôi muốn tìm doanh nghiệp hoặc cơ hội đầu tư ngay trên Home để nhanh chóng đến đúng nội dung quan tâm.
+Là người dùng, người dùng muốn tìm doanh nghiệp hoặc cơ hội đầu tư ngay trên Home để nhanh chóng đến đúng nội dung quan tâm.
 
 Acceptance Criteria
 
@@ -124,7 +124,7 @@ Priority: P0
 
 US-HOME-03 — Featured Investment Opportunity Banner
 
-Là khách truy cập, tôi muốn xem một cơ hội đầu tư nổi bật để nhanh chóng khám phá doanh nghiệp tiềm năng.
+Là khách truy cập, người dùng muốn xem một cơ hội đầu tư nổi bật để nhanh chóng khám phá doanh nghiệp tiềm năng.
 
 Acceptance Criteria
 
@@ -146,7 +146,7 @@ Priority: P0
 
 US-HOME-04 — Latest Businesses Seeking Investment
 
-Là nhà đầu tư, tôi muốn xem các doanh nghiệp mới đăng cơ hội gọi vốn để khám phá các cơ hội mới.
+Là nhà đầu tư, người dùng muốn xem các doanh nghiệp mới đăng cơ hội gọi vốn để khám phá các cơ hội mới.
 
 Acceptance Criteria
 
@@ -162,7 +162,7 @@ Priority: P0
 
 US-HOME-05 — Browse by Industry
 
-Là người dùng, tôi muốn duyệt doanh nghiệp theo ngành nghề để tìm đúng nhóm cơ hội quan tâm.
+Là người dùng, người dùng muốn duyệt doanh nghiệp theo ngành nghề để tìm đúng nhóm cơ hội quan tâm.
 
 Acceptance Criteria
 
@@ -178,7 +178,7 @@ Priority: P0
 
 US-HOME-06 — How It Works
 
-Là người dùng mới, tôi muốn xem cách Startups Blogs hoạt động để biết các bước cần thực hiện.
+Là người dùng mới, người dùng muốn xem cách Startups Blogs hoạt động để biết các bước cần thực hiện.
 
 Acceptance Criteria
 
@@ -194,7 +194,7 @@ Priority: P1
 
 US-HOME-07 — Featured Users
 
-Là Business Owner, tôi muốn xem các nhà đầu tư tiêu biểu để biết những nhà đầu tư nào đang tham gia nền tảng.
+Là Business Owner, người dùng muốn xem các nhà đầu tư tiêu biểu để biết những nhà đầu tư nào đang tham gia nền tảng.
 
 Acceptance Criteria
 
@@ -210,7 +210,7 @@ Priority: P1
 
 US-HOME-08 — Latest News and Blogs
 
-Là người dùng, tôi muốn xem nội dung mới nhất về doanh nghiệp và đầu tư để cập nhật kiến thức và thị trường.
+Là người dùng, người dùng muốn xem nội dung mới nhất về doanh nghiệp và đầu tư để cập nhật kiến thức và thị trường.
 
 Acceptance Criteria
 
@@ -228,7 +228,7 @@ Priority: P1
 
 US-AUTH-01 — Đăng ký tài khoản
 
-Là người dùng mới, tôi muốn đăng ký tài khoản để sử dụng các chức năng cá nhân hóa.
+Là người dùng mới, người dùng muốn đăng ký tài khoản để sử dụng các chức năng cá nhân hóa.
 
 Acceptance Criteria
 
@@ -248,7 +248,7 @@ Priority: P0
 
 US-AUTH-02 — Xác minh email
 
-Là người dùng mới, tôi muốn xác minh email để kích hoạt tài khoản an toàn.
+Là người dùng mới, người dùng muốn xác minh email để kích hoạt tài khoản an toàn.
 
 Acceptance Criteria
 
@@ -264,7 +264,7 @@ Priority: P0
 
 US-AUTH-03 — Đăng nhập
 
-Là người dùng đã đăng ký, tôi muốn đăng nhập để truy cập hồ sơ và chức năng riêng tư.
+Là người dùng đã đăng ký, người dùng muốn đăng nhập để truy cập hồ sơ và chức năng riêng tư.
 
 Acceptance Criteria
 
@@ -282,7 +282,7 @@ Priority: P0
 
 US-AUTH-04 — Đăng xuất
 
-Là người dùng, tôi muốn đăng xuất để bảo vệ tài khoản khi không sử dụng.
+Là người dùng, người dùng muốn đăng xuất để bảo vệ tài khoản khi không sử dụng.
 
 Acceptance Criteria
 
@@ -296,7 +296,7 @@ Priority: P0
 
 US-AUTH-05 — Quên và đặt lại mật khẩu
 
-Là người dùng, tôi muốn đặt lại mật khẩu khi quên để khôi phục quyền truy cập.
+Là người dùng, người dùng muốn đặt lại mật khẩu khi quên để khôi phục quyền truy cập.
 
 Acceptance Criteria
 
@@ -314,7 +314,7 @@ Priority: P0
 
 US-AUTH-06 — Phân quyền
 
-Là Admin, tôi muốn kiểm soát quyền truy cập theo vai trò và quyền sở hữu để bảo vệ dữ liệu và chức năng.
+Là Admin, người dùng muốn kiểm soát quyền truy cập theo vai trò và quyền sở hữu để bảo vệ dữ liệu và chức năng.
 
 Acceptance Criteria
 
@@ -338,7 +338,7 @@ Priority: P0
 
 US-AUTH-07 — Vô hiệu hóa tài khoản
 
-Là người dùng, tôi muốn vô hiệu hóa tài khoản để ngừng sử dụng nền tảng.
+Là người dùng, người dùng muốn vô hiệu hóa tài khoản để ngừng sử dụng nền tảng.
 
 Acceptance Criteria
 
@@ -356,7 +356,7 @@ Priority: P1
 
 US-BUSINESS-01 — Tạo hồ sơ doanh nghiệp
 
-Là Business Owner, tôi muốn tạo Business Profile để giới thiệu doanh nghiệp với nhà đầu tư.
+Là Business Owner, người dùng muốn tạo Business Profile để giới thiệu doanh nghiệp với nhà đầu tư.
 
 Acceptance Criteria
 
@@ -368,7 +368,7 @@ Nhập mô tả ngắn, mô tả chi tiết, năm thành lập, địa điểm, 
 
 Nhập sản phẩm/dịch vụ chính, thị trường phục vụ, quy mô nhân sự và khu vực hoạt động.
 
-Upload logo và cover image qua S3 Presigned URL.
+Upload logo và cover image qua Backend Proxy.
 
 Có thể lưu Draft trước khi công khai.
 
@@ -378,7 +378,7 @@ Priority: P0
 
 US-BUSINESS-02 — Chỉnh sửa hồ sơ doanh nghiệp
 
-Là Business Owner, tôi muốn cập nhật Business Profile để đảm bảo thông tin luôn chính xác.
+Là Business Owner, người dùng muốn cập nhật Business Profile để đảm bảo thông tin luôn chính xác.
 
 Acceptance Criteria
 
@@ -396,7 +396,7 @@ Priority: P0
 
 US-BUSINESS-03 — Quản lý thành viên doanh nghiệp
 
-Là Business Owner, tôi muốn mời và phân quyền thành viên để cùng quản lý hồ sơ doanh nghiệp.
+Là Business Owner, người dùng muốn mời và phân quyền thành viên để cùng quản lý hồ sơ doanh nghiệp.
 
 Acceptance Criteria
 
@@ -414,7 +414,7 @@ Priority: P1
 
 US-BUSINESS-04 — Xem trước và công khai hồ sơ
 
-Là Business Owner, tôi muốn xem trước Business Profile để kiểm tra trước khi công khai.
+Là Business Owner, người dùng muốn xem trước Business Profile để kiểm tra trước khi công khai.
 
 Acceptance Criteria
 
@@ -432,7 +432,7 @@ Priority: P1
 
 US-BUSINESS-05 — Xác minh doanh nghiệp
 
-Là Business Owner, tôi muốn gửi yêu cầu xác minh để tăng độ tin cậy với nhà đầu tư.
+Là Business Owner, người dùng muốn gửi yêu cầu xác minh để tăng độ tin cậy với nhà đầu tư.
 
 Acceptance Criteria
 
@@ -450,7 +450,7 @@ Priority: P1
 
 US-BUSINESS-06 — Khai báo thông tin hoạt động
 
-Là Business Owner, tôi muốn cung cấp thông tin vận hành để giúp nhà đầu tư hiểu mức độ trưởng thành của doanh nghiệp.
+Là Business Owner, người dùng muốn cung cấp thông tin vận hành để giúp nhà đầu tư hiểu mức độ trưởng thành của doanh nghiệp.
 
 Acceptance Criteria
 
@@ -466,7 +466,7 @@ Priority: P1
 
 US-BUSINESS-07 — Quản lý thông tin tài chính tổng quan
 
-Là Business Owner, tôi muốn khai báo financial highlights để cung cấp dữ liệu đánh giá ban đầu cho nhà đầu tư.
+Là Business Owner, người dùng muốn khai báo financial highlights để cung cấp dữ liệu đánh giá ban đầu cho nhà đầu tư.
 
 Acceptance Criteria
 
@@ -484,7 +484,7 @@ Priority: P1
 
 US-BUSINESS-08 — Xem thống kê hồ sơ
 
-Là Business Owner, tôi muốn xem mức độ quan tâm đến doanh nghiệp để đánh giá hiệu quả hồ sơ.
+Là Business Owner, người dùng muốn xem mức độ quan tâm đến doanh nghiệp để đánh giá hiệu quả hồ sơ.
 
 Acceptance Criteria
 
@@ -504,7 +504,7 @@ Priority: P2
 
 US-FUNDING-01 — Tạo bản nháp Funding Opportunity
 
-Là Business Owner, tôi muốn tạo bản nháp một cơ hội gọi vốn để hoàn thiện dần trước khi công khai.
+Là Business Owner, người dùng muốn tạo bản nháp một cơ hội gọi vốn để hoàn thiện dần trước khi công khai.
 
 Acceptance Criteria
 
@@ -522,7 +522,7 @@ Priority: P0
 
 US-FUNDING-02 — Nhập thông tin cơ bản
 
-Là Business Owner, tôi muốn mô tả tổng quan Funding Opportunity để nhà đầu tư hiểu cơ hội đang được đề xuất.
+Là Business Owner, người dùng muốn mô tả tổng quan Funding Opportunity để nhà đầu tư hiểu cơ hội đang được đề xuất.
 
 Acceptance Criteria
 
@@ -540,7 +540,7 @@ Priority: P0
 
 US-FUNDING-03 — Trình bày nhu cầu và kế hoạch phát triển
 
-Là Business Owner, tôi muốn mô tả lý do cần vốn và kế hoạch phát triển để thuyết phục nhà đầu tư về tính hợp lý của cơ hội.
+Là Business Owner, người dùng muốn mô tả lý do cần vốn và kế hoạch phát triển để thuyết phục nhà đầu tư về tính hợp lý của cơ hội.
 
 Acceptance Criteria
 
@@ -558,7 +558,7 @@ Priority: P0
 
 US-FUNDING-04 — Cung cấp thông tin thị trường và khách hàng
 
-Là Business Owner, tôi muốn mô tả thị trường và khách hàng để giúp nhà đầu tư đánh giá tiềm năng.
+Là Business Owner, người dùng muốn mô tả thị trường và khách hàng để giúp nhà đầu tư đánh giá tiềm năng.
 
 Acceptance Criteria
 
@@ -576,7 +576,7 @@ Priority: P1
 
 US-FUNDING-05 — Cung cấp financial highlights
 
-Là Business Owner, tôi muốn cung cấp thông tin tài chính liên quan cơ hội gọi vốn để nhà đầu tư có cơ sở đánh giá ban đầu.
+Là Business Owner, người dùng muốn cung cấp thông tin tài chính liên quan cơ hội gọi vốn để nhà đầu tư có cơ sở đánh giá ban đầu.
 
 Acceptance Criteria
 
@@ -588,13 +588,13 @@ Cho phép phân loại Public Summary và Confidential Details.
 
 Hệ thống hiển thị kỳ dữ liệu và đơn vị tiền tệ.
 
-Không được đặt presigned URL hết hạn vào database; chỉ lưu object key và metadata.
+Không được đặt URL đầy đủ vào database; chỉ lưu object key và metadata.
 
 Priority: P1
 
 US-FUNDING-06 — Khai báo số vốn và mục đích sử dụng vốn
 
-Là Business Owner, tôi muốn khai báo nhu cầu vốn để nhà đầu tư biết doanh nghiệp đang tìm kiếm điều gì.
+Là Business Owner, người dùng muốn khai báo nhu cầu vốn để nhà đầu tư biết doanh nghiệp đang tìm kiếm điều gì.
 
 Acceptance Criteria
 
@@ -614,7 +614,7 @@ Priority: P0
 
 US-FUNDING-07 — Chọn hình thức đầu tư hoặc hợp tác
 
-Là Business Owner, tôi muốn chọn hình thức tài trợ mong muốn để tiếp cận đúng nhóm nhà đầu tư.
+Là Business Owner, người dùng muốn chọn hình thức tài trợ mong muốn để tiếp cận đúng nhóm nhà đầu tư.
 
 Acceptance Criteria
 
@@ -630,13 +630,13 @@ Priority: P0
 
 US-FUNDING-08 — Upload ảnh và tài liệu
 
-Là Business Owner, tôi muốn tải tài liệu hỗ trợ để trình bày cơ hội rõ ràng hơn.
+Là Business Owner, người dùng muốn tải tài liệu hỗ trợ để trình bày cơ hội rõ ràng hơn.
 
 Acceptance Criteria
 
 Có thể upload ảnh sản phẩm, brochure, pitch deck PDF và tài liệu tài chính theo quyền.
 
-React xin S3 Presigned URL từ backend và upload trực tiếp lên S3.
+React gọi API Backend Proxy để upload file lên S3.
 
 Backend kiểm tra purpose, MIME type, kích thước, quyền sở hữu và object key.
 
@@ -650,7 +650,7 @@ Priority: P0
 
 US-FUNDING-09 — Thiết lập quyền xem thông tin
 
-Là Business Owner, tôi muốn thiết lập visibility cho thông tin và tài liệu để bảo vệ dữ liệu nhạy cảm.
+Là Business Owner, người dùng muốn thiết lập visibility cho thông tin và tài liệu để bảo vệ dữ liệu nhạy cảm.
 
 Acceptance Criteria
 
@@ -666,7 +666,7 @@ Priority: P1
 
 US-FUNDING-10 — Xem trước Funding Opportunity
 
-Là Business Owner, tôi muốn xem trước cơ hội gọi vốn để kiểm tra trước khi gửi duyệt.
+Là Business Owner, người dùng muốn xem trước cơ hội gọi vốn để kiểm tra trước khi gửi duyệt.
 
 Acceptance Criteria
 
@@ -682,7 +682,7 @@ Priority: P0
 
 US-FUNDING-11 — Gửi kiểm duyệt
 
-Là Business Owner, tôi muốn gửi Funding Opportunity để kiểm duyệt để được xuất bản trên nền tảng.
+Là Business Owner, người dùng muốn gửi Funding Opportunity để kiểm duyệt để được xuất bản trên nền tảng.
 
 Acceptance Criteria
 
@@ -700,7 +700,7 @@ Priority: P0
 
 US-FUNDING-12 — Chỉnh sửa Funding Opportunity đã xuất bản
 
-Là Business Owner, tôi muốn cập nhật opportunity đang công khai để phản ánh đúng tình trạng kinh doanh.
+Là Business Owner, người dùng muốn cập nhật opportunity đang công khai để phản ánh đúng tình trạng kinh doanh.
 
 Acceptance Criteria
 
@@ -716,7 +716,7 @@ Priority: P1
 
 US-FUNDING-13 — Đóng hoặc lưu trữ đợt gọi vốn
 
-Là Business Owner, tôi muốn đóng Funding Opportunity để ngừng nhận liên hệ cho cơ hội không còn hoạt động.
+Là Business Owner, người dùng muốn đóng Funding Opportunity để ngừng nhận liên hệ cho cơ hội không còn hoạt động.
 
 Acceptance Criteria
 
@@ -736,7 +736,7 @@ Priority: P1
 
 US-EXPLORE-01 — Xem danh sách doanh nghiệp
 
-Là người dùng, tôi muốn xem doanh nghiệp và cơ hội đang tìm vốn để khám phá cơ hội đầu tư hoặc hợp tác.
+Là người dùng, người dùng muốn xem doanh nghiệp và cơ hội đang tìm vốn để khám phá cơ hội đầu tư hoặc hợp tác.
 
 Acceptance Criteria
 
@@ -754,7 +754,7 @@ Priority: P0
 
 US-EXPLORE-02 — Tìm kiếm doanh nghiệp
 
-Là người dùng, tôi muốn tìm doanh nghiệp bằng từ khóa để nhanh chóng tìm đúng cơ hội.
+Là người dùng, người dùng muốn tìm doanh nghiệp bằng từ khóa để nhanh chóng tìm đúng cơ hội.
 
 Acceptance Criteria
 
@@ -772,7 +772,7 @@ Priority: P0
 
 US-EXPLORE-03 — Lọc doanh nghiệp
 
-Là User, tôi muốn lọc kết quả theo tiêu chí để tìm cơ hội phù hợp với chiến lược đầu tư.
+Là User, người dùng muốn lọc kết quả theo tiêu chí để tìm cơ hội phù hợp với chiến lược đầu tư.
 
 Acceptance Criteria
 
@@ -796,7 +796,7 @@ Priority: P0
 
 US-EXPLORE-04 — Sắp xếp kết quả
 
-Là người dùng, tôi muốn sắp xếp doanh nghiệp để xem kết quả theo thứ tự phù hợp.
+Là người dùng, người dùng muốn sắp xếp doanh nghiệp để xem kết quả theo thứ tự phù hợp.
 
 Acceptance Criteria
 
@@ -812,7 +812,7 @@ Priority: P1
 
 US-EXPLORE-05 — Phân trang
 
-Là người dùng, tôi muốn xem nhiều kết quả mà trang vẫn tải nhanh để duyệt dữ liệu hiệu quả.
+Là người dùng, người dùng muốn xem nhiều kết quả mà trang vẫn tải nhanh để duyệt dữ liệu hiệu quả.
 
 Acceptance Criteria
 
@@ -830,7 +830,7 @@ Priority: P0
 
 US-EXPLORE-06 — Xem Business Profile và Funding Opportunity Detail
 
-Là User, tôi muốn xem thông tin chi tiết để đánh giá cơ hội trước khi liên hệ.
+Là User, người dùng muốn xem thông tin chi tiết để đánh giá cơ hội trước khi liên hệ.
 
 Acceptance Criteria
 
@@ -848,7 +848,7 @@ Priority: P0
 
 US-EXPLORE-07 — Xem cơ hội liên quan
 
-Là người dùng, tôi muốn xem các Funding Opportunity tương tự để có thêm lựa chọn.
+Là người dùng, người dùng muốn xem các Funding Opportunity tương tự để có thêm lựa chọn.
 
 Acceptance Criteria
 
@@ -864,7 +864,7 @@ Priority: P1
 
 US-EXPLORE-08 — Chia sẻ doanh nghiệp hoặc cơ hội
 
-Là người dùng, tôi muốn chia sẻ nội dung để gửi cơ hội cho người khác.
+Là người dùng, người dùng muốn chia sẻ nội dung để gửi cơ hội cho người khác.
 
 Acceptance Criteria
 
@@ -882,7 +882,7 @@ Priority: P1
 
 US-INTERACT-01 — Lưu doanh nghiệp
 
-Là User, tôi muốn lưu Business Profile để xem lại sau.
+Là User, người dùng muốn lưu Business Profile để xem lại sau.
 
 Acceptance Criteria
 
@@ -898,7 +898,7 @@ Priority: P0
 
 US-INTERACT-02 — Lưu Funding Opportunity
 
-Là User, tôi muốn lưu một cơ hội gọi vốn cụ thể để theo dõi đúng đợt gọi vốn quan tâm.
+Là User, người dùng muốn lưu một cơ hội gọi vốn cụ thể để theo dõi đúng đợt gọi vốn quan tâm.
 
 Acceptance Criteria
 
@@ -914,7 +914,7 @@ Priority: P1
 
 US-INTERACT-03 — Theo dõi doanh nghiệp
 
-Là người dùng, tôi muốn Follow Business để nhận cập nhật mới.
+Là người dùng, người dùng muốn Follow Business để nhận cập nhật mới.
 
 Acceptance Criteria
 
@@ -928,7 +928,7 @@ Priority: P1
 
 US-INTERACT-04 — Bình luận trên Funding Opportunity
 
-Là người dùng đã đăng nhập, tôi muốn bình luận hoặc đặt câu hỏi để trao đổi công khai với doanh nghiệp.
+Là người dùng đã đăng nhập, người dùng muốn bình luận hoặc đặt câu hỏi để trao đổi công khai với doanh nghiệp.
 
 Acceptance Criteria
 
@@ -946,7 +946,7 @@ Priority: P1
 
 US-INTERACT-05 — Báo cáo nội dung
 
-Là người dùng, tôi muốn báo cáo nội dung hoặc tài khoản vi phạm để giúp cộng đồng an toàn.
+Là người dùng, người dùng muốn báo cáo nội dung hoặc tài khoản vi phạm để giúp cộng đồng an toàn.
 
 Acceptance Criteria
 
@@ -962,7 +962,7 @@ Priority: P0
 
 US-CONTACT-01 — Gửi Contact Request
 
-Là User hoặc User, tôi muốn gửi yêu cầu liên hệ tới doanh nghiệp để thảo luận về đầu tư hoặc hợp tác.
+Là User hoặc User, người dùng muốn gửi yêu cầu liên hệ tới doanh nghiệp để thảo luận về đầu tư hoặc hợp tác.
 
 Acceptance Criteria
 
@@ -982,7 +982,7 @@ Priority: P0
 
 US-CONTACT-02 — Phản hồi Contact Request
 
-Là Business Owner, tôi muốn chấp nhận hoặc từ chối yêu cầu liên hệ để kiểm soát người có thể trao đổi.
+Là Business Owner, người dùng muốn chấp nhận hoặc từ chối yêu cầu liên hệ để kiểm soát người có thể trao đổi.
 
 Acceptance Criteria
 
@@ -1000,7 +1000,7 @@ Priority: P0
 
 US-ACCESS-01 — Yêu cầu xem tài liệu confidential
 
-Là Logged-in User, tôi muốn gửi Document Access Request để xem dữ liệu cần thiết để đánh giá sâu hơn.
+Là Logged-in User, người dùng muốn gửi Document Access Request để xem dữ liệu cần thiết để đánh giá sâu hơn.
 
 Acceptance Criteria
 
@@ -1018,7 +1018,7 @@ Priority: P1
 
 US-ACCESS-02 — Cấp hoặc thu hồi quyền xem tài liệu
 
-Là Business Owner, tôi muốn quản lý Document Access Request để bảo vệ thông tin nhạy cảm.
+Là Business Owner, người dùng muốn quản lý Document Access Request để bảo vệ thông tin nhạy cảm.
 
 Acceptance Criteria
 
@@ -1036,7 +1036,7 @@ Priority: P1
 
 US-MESSAGE-01 — Nhắn tin trực tiếp
 
-Là Business Owner, User hoặc User, tôi muốn nhắn tin trong hệ thống để trao đổi mà không cần công khai thông tin cá nhân.
+Là Business Owner, User hoặc User, người dùng muốn nhắn tin trong hệ thống để trao đổi mà không cần công khai thông tin cá nhân.
 
 Acceptance Criteria
 
@@ -1056,7 +1056,7 @@ Priority: P1
 
 US-NEWS-01 — Xem danh sách News
 
-Là người dùng, tôi muốn xem tin tức về doanh nghiệp, đầu tư và thị trường để cập nhật thông tin mới.
+Là người dùng, người dùng muốn xem tin tức về doanh nghiệp, đầu tư và thị trường để cập nhật thông tin mới.
 
 Acceptance Criteria
 
@@ -1072,7 +1072,7 @@ Priority: P0
 
 US-NEWS-02 — Xem chi tiết News
 
-Là người dùng, tôi muốn đọc toàn bộ bài News để hiểu sự kiện hoặc thay đổi thị trường.
+Là người dùng, người dùng muốn đọc toàn bộ bài News để hiểu sự kiện hoặc thay đổi thị trường.
 
 Acceptance Criteria
 
@@ -1088,7 +1088,7 @@ Priority: P0
 
 US-NEWS-03 — Phân loại News
 
-Là người dùng, tôi muốn lọc News theo chủ đề để xem nội dung phù hợp.
+Là người dùng, người dùng muốn lọc News theo chủ đề để xem nội dung phù hợp.
 
 Acceptance Criteria
 
@@ -1104,7 +1104,7 @@ Priority: P1
 
 US-BLOG-01 — Xem danh sách Blog
 
-Là người dùng, tôi muốn xem bài hướng dẫn và phân tích để học kinh nghiệm kinh doanh và gọi vốn.
+Là người dùng, người dùng muốn xem bài hướng dẫn và phân tích để học kinh nghiệm kinh doanh và gọi vốn.
 
 Acceptance Criteria
 
@@ -1118,7 +1118,7 @@ Priority: P0
 
 US-BLOG-02 — Phân loại Blog
 
-Là người dùng, tôi muốn lọc Blog theo mục tiêu để tìm nội dung phù hợp.
+Là người dùng, người dùng muốn lọc Blog theo mục tiêu để tìm nội dung phù hợp.
 
 Acceptance Criteria
 
@@ -1132,7 +1132,7 @@ Priority: P1
 
 US-BLOG-03 — Xem chi tiết Blog
 
-Là người dùng, tôi muốn đọc bài Blog để tiếp thu nội dung chuyên sâu.
+Là người dùng, người dùng muốn đọc bài Blog để tiếp thu nội dung chuyên sâu.
 
 Acceptance Criteria
 
@@ -1148,7 +1148,7 @@ Priority: P0
 
 US-CONTENT-01 — Quản lý News và Blogs
 
-Là Content Editor, tôi muốn tạo và quản lý bài viết để duy trì nội dung nền tảng.
+Là Content Editor, người dùng muốn tạo và quản lý bài viết để duy trì nội dung nền tảng.
 
 Acceptance Criteria
 
@@ -1168,7 +1168,7 @@ Priority: P0
 
 US-FAQ-01 — Xem FAQ
 
-Là người dùng, tôi muốn xem câu hỏi thường gặp để tự giải quyết vấn đề.
+Là người dùng, người dùng muốn xem câu hỏi thường gặp để tự giải quyết vấn đề.
 
 Acceptance Criteria
 
@@ -1182,7 +1182,7 @@ Priority: P1
 
 US-SUPPORT-01 — Gửi yêu cầu hỗ trợ
 
-Là người dùng, tôi muốn tạo support ticket để được trợ giúp khi gặp sự cố.
+Là người dùng, người dùng muốn tạo support ticket để được trợ giúp khi gặp sự cố.
 
 Acceptance Criteria
 
@@ -1200,7 +1200,7 @@ Priority: P1
 
 US-ABOUT-01 — Xem About
 
-Là khách truy cập, tôi muốn xem thông tin về Startups Blogs để hiểu sứ mệnh và phạm vi nền tảng.
+Là khách truy cập, người dùng muốn xem thông tin về Startups Blogs để hiểu sứ mệnh và phạm vi nền tảng.
 
 Acceptance Criteria
 
@@ -1214,7 +1214,7 @@ Priority: P1
 
 US-LEGAL-01 — Xem Terms và Privacy
 
-Là người dùng, tôi muốn xem điều khoản và chính sách riêng tư để hiểu cách hệ thống xử lý dữ liệu.
+Là người dùng, người dùng muốn xem điều khoản và chính sách riêng tư để hiểu cách hệ thống xử lý dữ liệu.
 
 Acceptance Criteria
 
@@ -1232,7 +1232,7 @@ Priority: P0
 
 US-LEGAL-02 — Xem Investment Disclaimer
 
-Là người dùng, tôi muốn xem tuyên bố miễn trừ liên quan đầu tư để hiểu vai trò và giới hạn trách nhiệm của nền tảng.
+Là người dùng, người dùng muốn xem tuyên bố miễn trừ liên quan đầu tư để hiểu vai trò và giới hạn trách nhiệm của nền tảng.
 
 Acceptance Criteria
 
@@ -1250,7 +1250,7 @@ Priority: P0
 
 US-NOTIFICATION-01 — Nhận thông báo trong website
 
-Là người dùng, tôi muốn nhận thông báo về hoạt động quan trọng để không bỏ lỡ tương tác.
+Là người dùng, người dùng muốn nhận thông báo về hoạt động quan trọng để không bỏ lỡ tương tác.
 
 Acceptance Criteria
 
@@ -1268,7 +1268,7 @@ Priority: P1
 
 US-NOTIFICATION-02 — Quản lý trạng thái đã đọc
 
-Là người dùng, tôi muốn đánh dấu thông báo để quản lý inbox thông báo.
+Là người dùng, người dùng muốn đánh dấu thông báo để quản lý inbox thông báo.
 
 Acceptance Criteria
 
@@ -1284,7 +1284,7 @@ Priority: P1
 
 US-NOTIFICATION-03 — Cài đặt thông báo
 
-Là người dùng, tôi muốn chọn loại thông báo nhận để giảm thông báo không cần thiết.
+Là người dùng, người dùng muốn chọn loại thông báo nhận để giảm thông báo không cần thiết.
 
 Acceptance Criteria
 
@@ -1302,7 +1302,7 @@ Priority: P2
 
 US-ADMIN-01 — Admin Dashboard
 
-Là Admin, tôi muốn xem tổng quan hệ thống để theo dõi hoạt động và rủi ro.
+Là Admin, người dùng muốn xem tổng quan hệ thống để theo dõi hoạt động và rủi ro.
 
 Acceptance Criteria
 
@@ -1320,7 +1320,7 @@ Priority: P0
 
 US-ADMIN-02 — Duyệt Funding Opportunity
 
-Là Moderator, tôi muốn kiểm duyệt cơ hội gọi vốn để đảm bảo chất lượng và tuân thủ nội dung.
+Là Moderator, người dùng muốn kiểm duyệt cơ hội gọi vốn để đảm bảo chất lượng và tuân thủ nội dung.
 
 Acceptance Criteria
 
@@ -1338,7 +1338,7 @@ Priority: P0
 
 US-ADMIN-03 — Duyệt Business và User Verification
 
-Là Moderator hoặc Admin, tôi muốn xử lý yêu cầu xác minh để tăng độ tin cậy của nền tảng.
+Là Moderator hoặc Admin, người dùng muốn xử lý yêu cầu xác minh để tăng độ tin cậy của nền tảng.
 
 Acceptance Criteria
 
@@ -1356,7 +1356,7 @@ Priority: P1
 
 US-ADMIN-04 — Quản lý người dùng
 
-Là Admin, tôi muốn quản lý tài khoản để xử lý vi phạm và hỗ trợ vận hành.
+Là Admin, người dùng muốn quản lý tài khoản để xử lý vi phạm và hỗ trợ vận hành.
 
 Acceptance Criteria
 
@@ -1374,7 +1374,7 @@ Priority: P0
 
 US-ADMIN-05 — Quản lý báo cáo
 
-Là Moderator, tôi muốn xử lý report để duy trì môi trường an toàn.
+Là Moderator, người dùng muốn xử lý report để duy trì môi trường an toàn.
 
 Acceptance Criteria
 
@@ -1392,7 +1392,7 @@ Priority: P0
 
 US-ADMIN-06 — Quản lý Featured Opportunity
 
-Là Admin, tôi muốn chọn cơ hội hiển thị trên Home để tạo điểm nhấn nội dung.
+Là Admin, người dùng muốn chọn cơ hội hiển thị trên Home để tạo điểm nhấn nội dung.
 
 Acceptance Criteria
 
@@ -1410,7 +1410,7 @@ Priority: P0
 
 US-ADMIN-07 — Quản lý danh mục
 
-Là Admin, tôi muốn quản lý taxonomy để giữ dữ liệu thống nhất.
+Là Admin, người dùng muốn quản lý taxonomy để giữ dữ liệu thống nhất.
 
 Acceptance Criteria
 
@@ -1426,7 +1426,7 @@ Priority: P0
 
 US-ADMIN-08 — Audit Log
 
-Là Admin, tôi muốn xem lịch sử hành động quan trọng để truy vết thay đổi và sự cố.
+Là Admin, người dùng muốn xem lịch sử hành động quan trọng để truy vết thay đổi và sự cố.
 
 Acceptance Criteria
 
@@ -1444,7 +1444,7 @@ Priority: P1
 
 US-NFR-01 — Responsive
 
-Là người dùng, tôi muốn sử dụng website trên nhiều thiết bị để có trải nghiệm nhất quán.
+Là người dùng, người dùng muốn sử dụng website trên nhiều thiết bị để có trải nghiệm nhất quán.
 
 Acceptance Criteria
 
@@ -1462,7 +1462,7 @@ Priority: P0
 
 US-NFR-02 — Hiệu năng
 
-Là người dùng, tôi muốn tải trang nhanh để không phải chờ lâu.
+Là người dùng, người dùng muốn tải trang nhanh để không phải chờ lâu.
 
 Acceptance Criteria
 
@@ -1480,7 +1480,7 @@ Priority: P0
 
 US-NFR-03 — Bảo mật
 
-Là người dùng, tôi muốn bảo vệ tài khoản và dữ liệu để an tâm sử dụng nền tảng.
+Là người dùng, người dùng muốn bảo vệ tài khoản và dữ liệu để an tâm sử dụng nền tảng.
 
 Acceptance Criteria
 
@@ -1496,17 +1496,17 @@ Rate limit auth, search nặng, contact, comment, report và upload endpoints.
 
 Secret nằm trong AWS Secrets Manager hoặc cơ chế tương đương.
 
-Không log password, token, presigned URL đầy đủ hoặc tài liệu private.
+Không log password, token, URL đầy đủ hoặc tài liệu private.
 
 Priority: P0
 
 US-NFR-04 — Bảo mật file và tài liệu confidential
 
-Là Business Owner, tôi muốn kiểm soát file nhạy cảm để tránh truy cập trái phép.
+Là Business Owner, người dùng muốn kiểm soát file nhạy cảm để tránh truy cập trái phép.
 
 Acceptance Criteria
 
-Upload dùng S3 Presigned URL có thời hạn ngắn.
+Upload dùng Backend Proxy an toàn qua API.
 
 Private files không public-read.
 
@@ -1514,7 +1514,7 @@ Download URL chỉ được tạo sau authorization.
 
 Validate MIME type, extension, size và purpose.
 
-Lưu object key thay vì presigned URL.
+Lưu object key thay vì URL đầy đủ.
 
 Có audit cho quyền truy cập tài liệu quan trọng.
 
@@ -1522,7 +1522,7 @@ Priority: P0
 
 US-NFR-05 — Khả năng truy cập
 
-Là người dùng có nhu cầu hỗ trợ, tôi muốn dùng website bằng bàn phím và công cụ hỗ trợ để tiếp cận đầy đủ chức năng.
+Là người dùng có nhu cầu hỗ trợ, người dùng muốn dùng website bằng bàn phím và công cụ hỗ trợ để tiếp cận đầy đủ chức năng.
 
 Acceptance Criteria
 
@@ -1542,7 +1542,7 @@ Priority: P1
 
 US-NFR-06 — Sao lưu và phục hồi
 
-Là Admin, tôi muốn sao lưu dữ liệu để giảm rủi ro mất dữ liệu.
+Là Admin, người dùng muốn sao lưu dữ liệu để giảm rủi ro mất dữ liệu.
 
 Acceptance Criteria
 
@@ -1558,7 +1558,7 @@ Priority: P0
 
 US-NFR-07 — Monitoring và logging
 
-Là Admin kỹ thuật, tôi muốn giám sát hệ thống để phát hiện lỗi sớm.
+Là Admin kỹ thuật, người dùng muốn giám sát hệ thống để phát hiện lỗi sớm.
 
 Acceptance Criteria
 
@@ -1576,7 +1576,7 @@ Priority: P0
 
 US-NFR-08 — Tính toàn vẹn và nhất quán dữ liệu
 
-Là Admin kỹ thuật, tôi muốn duy trì dữ liệu nhất quán để tránh lỗi nghiệp vụ.
+Là Admin kỹ thuật, người dùng muốn duy trì dữ liệu nhất quán để tránh lỗi nghiệp vụ.
 
 Acceptance Criteria
 
@@ -1849,7 +1849,7 @@ Amazon S3
 
 Upload trực tiếp
 
-S3 Presigned URL
+Backend Proxy Upload
 
 Email giao dịch
 
@@ -1883,7 +1883,7 @@ Node.js API → verify JWT → load User and permissions from PostgreSQL
 
 19.2. Luồng upload
 
-React → Node.js xin Presigned URL
+React → Node.js qua UploadController
 Node.js kiểm tra quyền và metadata
 React → upload trực tiếp lên S3
 React → Node.js xác nhận hoàn tất
@@ -1901,7 +1901,7 @@ User Profile.
 
 Raise Capital và Funding Opportunity Draft/Submit/Review/Publish.
 
-Upload logo, ảnh và pitch deck bằng S3 Presigned URL.
+Upload logo, ảnh và pitch deck bằng Backend Proxy.
 
 Explore Businesses với search, filter, sort và pagination.
 
@@ -1975,7 +1975,7 @@ Cognito authentication và backend authorization hoạt động đúng.
 
 Dữ liệu được lưu đúng trong PostgreSQL qua Prisma.
 
-Upload private/public file tuân thủ S3 Presigned URL và access policy.
+Upload private/public file qua Backend Proxy và đảm bảo access policy.
 
 Có validate frontend và backend.
 
@@ -2037,43 +2037,42 @@ Contact Business / Contact Business Owner
 ## Epic 7: Cộng đồng và Thảo luận (User-Generated Content)
 
 **7.1. Đóng góp bài viết (Dành cho Business Owner)**
-- **Mô tả:** Tôi muốn có thể tự viết bài Blog/Insight trên nền tảng.
+- **Mô tả:** Người dùng muốn có thể tự viết bài Blog/Insight trên nền tảng.
 - **Acceptance Criteria:**
-  - Có giao diện soạn thảo văn bản (Rich-text editor).
-  - Có thể chọn danh mục (Funding, Growth, Product...).
-  - Lưu bản nháp (Draft) hoặc Gửi duyệt (Submit for Review).
-  - Có tính năng Chỉnh sửa bài viết (gửi duyệt lại khi sửa).
-  - Có tính năng Yêu cầu xóa bài viết (chuyển sang trạng thái chờ duyệt xóa `PENDING_DELETE`).
-  
-**7.1.1. Bảng điều khiển tác giả (Author Analytics Dashboard)**
-- **Mô tả:** Tôi muốn xem thống kê lượng truy cập và tương tác của bài viết mình đã đăng.
+ - Có giao diện soạn thảo văn bản (Rich-text editor).
+ - Có thể chọn danh mục (Funding, Growth, Product...).
+ - Lưu bản nháp (Draft) hoặc Gửi duyệt (Submit for Review).
+ - Có tính năng Chỉnh sửa bài viết (gửi duyệt lại khi sửa).
+ - Có tính năng Yêu cầu xóa bài viết (chuyển sang trạng thái chờ duyệt xóa `PENDING_DELETE`).
+ **7.1.1. Bảng điều khiển tác giả (Author Analytics Dashboard)**
+- **Mô tả:** Người dùng muốn xem thống kê lượng truy cập và tương tác của bài viết mình đã đăng.
 - **Acceptance Criteria:**
-  - Hiển thị bảng điều khiển ngay trên cùng của bài viết nếu người xem chính là tác giả.
-  - Cung cấp biểu đồ thống kê lượt xem theo thời gian (ví dụ: lượt xem trong tuần).
-  - Tích hợp sẵn các nút hành động nhanh như "Chỉnh sửa" và "Xóa" ngay trên giao diện đọc bài.
+ - Hiển thị bảng điều khiển ngay trên cùng của bài viết nếu người xem chính là tác giả.
+ - Cung cấp biểu đồ thống kê lượt xem theo thời gian (ví dụ: lượt xem trong tuần).
+ - Tích hợp sẵn các nút hành động nhanh như "Chỉnh sửa" và "Xóa" ngay trên giao diện đọc bài.
 
 **7.2. Kiểm duyệt nội dung (Dành cho Moderator)**
-- **Mô tả:** Tôi muốn kiểm duyệt các bài Blog do người dùng gửi lên trước khi hiển thị công khai.
+- **Mô tả:** Người dùng muốn kiểm duyệt các bài Blog do người dùng gửi lên trước khi hiển thị công khai.
 - **Acceptance Criteria:**
-  - Danh sách bài chờ duyệt (PENDING_REVIEW).
-  - Nút Phê duyệt (Publish) hoặc Từ chối (Reject) kèm lý do qua email.
+ - Danh sách bài chờ duyệt (PENDING_REVIEW).
+ - Nút Phê duyệt (Publish) hoặc Từ chối (Reject) kèm lý do qua email.
 
 **7.3. Bình luận bài viết (Dành cho User & Business Owner)**
-- **Mô tả:** Tôi muốn bình luận và thảo luận dưới các bài viết.
+- **Mô tả:** Người dùng muốn bình luận và thảo luận dưới các bài viết.
 - **Acceptance Criteria:**
-  - Người dùng đã đăng nhập có quyền bình luận.
-  - Có thể trả lời (Reply) bình luận của người khác (Nested comments 1 cấp).
-  - Moderator có quyền xóa các bình luận vi phạm.
+ - Người dùng đã đăng nhập có quyền bình luận.
+ - Có thể trả lời (Reply) bình luận của người khác (Nested comments 1 cấp).
+ - Moderator có quyền xóa các bình luận vi phạm.
 
 
 **7.4. Đánh dấu bài viết (Bookmark)**
-- **Mô tả:** Tôi muốn lưu (bookmark) các bài viết Blog/News hay để đọc lại sau.
+- **Mô tả:** Người dùng muốn lưu (bookmark) các bài viết Blog/News hay để đọc lại sau.
 - **Acceptance Criteria:**
-  - Có nút Bookmark trên thẻ bài viết và trang chi tiết bài viết.
-  - Xem danh sách "Saved Blogs" trong trang User Profile (Private view).
+ - Có nút Bookmark trên thẻ bài viết và trang chi tiết bài viết.
+ - Xem danh sách "Saved Blogs" trong trang User Profile (Private view).
 
 **7.5. Trang Cá Nhân & Doanh Nghiệp (Public Profiles)**
-- **Mô tả:** Tôi muốn xem hồ sơ công khai của Người dùng (Tác giả) và Doanh nghiệp (Startup) để đọc tất cả các bài viết của họ.
+- **Mô tả:** Người dùng muốn xem hồ sơ công khai của Người dùng (Tác giả) và Doanh nghiệp (Startup) để đọc tất cả các bài viết của họ.
 - **Acceptance Criteria:**
-  - **User Profile:** Hiển thị Avatar, Tên, Bio và danh sách các bài viết đã được duyệt của người dùng đó.
-  - **Startup Profile:** Bổ sung tab "Blogs & Updates" để hiển thị các bài viết được liên kết với doanh nghiệp đó.
+ - **User Profile:** Hiển thị Avatar, Tên, Bio và danh sách các bài viết đã được duyệt của người dùng đó.
+ - **Startup Profile:** Bổ sung tab "Blogs & Updates" để hiển thị các bài viết được liên kết với doanh nghiệp đó.

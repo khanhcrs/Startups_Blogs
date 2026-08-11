@@ -29,28 +29,25 @@ Sơ đồ tổng quan:
 * **Amazon CloudFront:** Là mạng lưới phân phối nội dung (CDN) toàn cầu. Nó đứng trước S3, giúp lưu trữ bộ nhớ đệm (cache) trang web ở các máy chủ biên (Edge Locations) trên toàn thế giới. Nhờ đó, tốc độ tải trang chỉ diễn ra trong vài mili-giây.
 
 ### 2.4. Tầng Xác thực & Bảo mật (Authentication)
-* **Amazon Cognito (User Pools):** Trái tim bảo mật của hệ thống. 
-  - Đảm nhận Đăng ký, Đăng nhập, Gửi email xác thực OTP.
-  - Tự động sinh ra Access Token (JWT) an toàn để Frontend dùng giao tiếp với Backend.
+* **Amazon Cognito (User Pools):** Trái tim bảo mật của hệ thống. - Đảm nhận Đăng ký, Đăng nhập, Gửi email xác thực OTP.
+ - Tự động sinh ra Access Token (JWT) an toàn để Frontend dùng giao tiếp với Backend.
 
 ### 2.5. Tầng Cửa ngõ API (API Gateway)
-* **Amazon API Gateway:** Đóng vai trò là người gác cổng (Bouncer) cho Backend. 
-  - Giấu kín địa chỉ IP thật của máy chủ Backend EC2.
-  - Nhận các Request từ Frontend và định tuyến (forward) an toàn vào trong máy chủ xử lý.
+* **Amazon API Gateway:** Đóng vai trò là người gác cổng (Bouncer) cho Backend. - Giấu kín địa chỉ IP thật của máy chủ Backend EC2.
+ - Nhận các Request từ Frontend và định tuyến (forward) an toàn vào trong máy chủ xử lý.
 
 ### 2.6. Tầng Xử lý Logic (Backend Compute)
 * **Amazon EC2 (Elastic Compute Cloud):** Máy chủ ảo chạy hệ điều hành Linux (Ubuntu).
-  - Chứa mã nguồn Backend (NestJS) và chạy liên tục 24/7 nhờ công cụ quản lý tiến trình **PM2**.
-  - Xử lý nghiệp vụ kinh doanh và kết nối Database.
+ - Chứa mã nguồn Backend (NestJS) và chạy liên tục 24/7 nhờ công cụ quản lý tiến trình **PM2**.
+ - Xử lý nghiệp vụ kinh doanh và kết nối Database.
 
 ### 2.7. Tầng Cơ sở Dữ liệu (Database)
 * **Amazon RDS (Relational Database Service) for PostgreSQL:** Trái tim dữ liệu của hệ thống.
-  - Tự động sao lưu (backup), chống lỗi phần cứng và duy trì dữ liệu an toàn tuyệt đối, tách biệt hoàn toàn khỏi máy chủ EC2.
+ - Tự động sao lưu (backup), chống lỗi phần cứng và duy trì dữ liệu an toàn tuyệt đối, tách biệt hoàn toàn khỏi máy chủ EC2.
 
 ### 2.8. Tầng Giám sát & Tự động hóa (Monitoring & IaC)
 * **Amazon CloudWatch:** Đóng vai trò là "Camera an ninh" giám sát 24/7.
-  - Ghi chép toàn bộ Logs từ API Gateway, EC2. 
-  - Theo dõi sức khỏe hệ thống (CPU, RAM của EC2 và RDS) để cảnh báo khi quá tải.
+ - Ghi chép toàn bộ Logs từ API Gateway, EC2. - Theo dõi sức khỏe hệ thống (CPU, RAM của EC2 và RDS) để cảnh báo khi quá tải.
 * **Terraform (Infrastructure as Code - IaC):** Thay vì click chuột thủ công trên web AWS, toàn bộ 100% các kiến trúc trên (VPC, S3, RDS, EC2...) đều được lập trình bằng code trong thư mục `terraform/`. Code này giúp việc tạo mới hoặc sao chép toàn bộ hệ thống sang một tài khoản AWS khác chỉ tốn chưa tới 5 phút.
 
 ---
