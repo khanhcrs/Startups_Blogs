@@ -3,7 +3,6 @@ import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { LayoutDashboard, Building2, Users, FileText, X } from 'lucide-react';
 import { useAuthStore } from '../../../store/authStore';
 import { useAdminTabsStore } from '../../../store/adminTabsStore';
-import { Reorder } from 'framer-motion';
 import styles from './AdminLayout.module.css';
 
 // Import all admin pages
@@ -127,34 +126,25 @@ export default function AdminLayout() {
 
       <main className={styles.mainContent}>
         {/* Tab Bar */}
-        <Reorder.Group 
-          axis="x" 
-          values={tabs} 
-          onReorder={setTabs} 
-          className={styles.tabBar}
-          style={{ display: 'flex', listStyle: 'none', margin: 0, padding: 0 }}
-        >
+        <div className={styles.tabBar} style={{ display: 'flex', listStyle: 'none', margin: 0, padding: 0 }}>
           {tabs.map((tab) => (
-            <Reorder.Item
+            <div
               key={tab.path}
-              value={tab}
               className={`${styles.tab} ${tab.path === activePath ? styles.activeTab : ''}`}
               onClick={() => handleTabClick(tab.path)}
-              style={{ cursor: 'grab' }}
-              whileDrag={{ cursor: 'grabbing', zIndex: 10, scale: 1.05 }}
+              style={{ cursor: 'pointer' }}
             >
               <span className={styles.tabTitle}>{tab.title}</span>
               <button 
                 className={styles.closeTabBtn} 
                 onClick={(e) => handleCloseTab(e, tab.path)}
                 title="Close tab"
-                onPointerDown={(e) => e.stopPropagation()}
               >
                 <X size={14} />
               </button>
-            </Reorder.Item>
+            </div>
           ))}
-        </Reorder.Group>
+        </div>
 
         {/* Render ALL tabs but hide inactive ones */}
         <div className={styles.tabContents}>

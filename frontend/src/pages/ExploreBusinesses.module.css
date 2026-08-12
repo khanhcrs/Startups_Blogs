@@ -96,11 +96,15 @@
 }
 
 /* Filter Toolbar */
+.filterAreaWrapper {
+  transition: margin-bottom 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  margin-bottom: var(--spacing-6);
+}
+
 .toolbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: var(--spacing-6);
   flex-wrap: wrap;
   gap: var(--spacing-4);
 }
