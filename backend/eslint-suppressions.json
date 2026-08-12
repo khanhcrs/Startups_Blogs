@@ -19,14 +19,6 @@
       "count": 37
     }
   },
-  "src/bookmarks/bookmarks.controller.ts": {
-    "@typescript-eslint/no-unsafe-member-access": {
-      "count": 3
-    },
-    "prettier/prettier": {
-      "count": 1
-    }
-  },
   "src/bookmarks/bookmarks.module.ts": {
     "prettier/prettier": {
       "count": 1
@@ -53,14 +45,6 @@
       "count": 10
     }
   },
-  "src/comments/comments.controller.ts": {
-    "@typescript-eslint/no-unsafe-member-access": {
-      "count": 3
-    },
-    "prettier/prettier": {
-      "count": 3
-    }
-  },
   "src/comments/comments.module.ts": {
     "prettier/prettier": {
       "count": 2
@@ -82,28 +66,9 @@
       "count": 3
     }
   },
-  "src/contact-requests/contact-requests.controller.ts": {
-    "@typescript-eslint/no-unsafe-assignment": {
-      "count": 1
-    },
-    "@typescript-eslint/no-unsafe-member-access": {
-      "count": 2
-    },
-    "prettier/prettier": {
-      "count": 5
-    }
-  },
   "src/contact-requests/contact-requests.service.ts": {
     "prettier/prettier": {
       "count": 5
-    }
-  },
-  "src/follows/follows.controller.ts": {
-    "@typescript-eslint/no-unsafe-member-access": {
-      "count": 4
-    },
-    "prettier/prettier": {
-      "count": 1
     }
   },
   "src/follows/follows.module.ts": {
@@ -126,28 +91,9 @@
       "count": 1
     }
   },
-  "src/funding-opportunities/funding-opportunities.controller.ts": {
-    "@typescript-eslint/no-unsafe-member-access": {
-      "count": 3
-    },
-    "prettier/prettier": {
-      "count": 5
-    }
-  },
   "src/funding-opportunities/funding-opportunities.module.ts": {
     "prettier/prettier": {
       "count": 1
-    }
-  },
-  "src/funding-opportunities/funding-opportunities.service.ts": {
-    "@typescript-eslint/no-unsafe-assignment": {
-      "count": 2
-    },
-    "@typescript-eslint/no-unsafe-member-access": {
-      "count": 12
-    },
-    "prettier/prettier": {
-      "count": 15
     }
   },
   "src/funding-rounds/dto/create-funding-round.dto.ts": {
@@ -155,49 +101,9 @@
       "count": 1
     }
   },
-  "src/funding-rounds/funding-rounds.controller.ts": {
-    "@typescript-eslint/no-unsafe-member-access": {
-      "count": 3
-    },
-    "prettier/prettier": {
-      "count": 3
-    }
-  },
   "src/funding-rounds/funding-rounds.module.ts": {
     "prettier/prettier": {
       "count": 1
-    }
-  },
-  "src/funding-rounds/funding-rounds.service.ts": {
-    "@typescript-eslint/no-unsafe-assignment": {
-      "count": 1
-    },
-    "@typescript-eslint/no-unsafe-member-access": {
-      "count": 3
-    },
-    "prettier/prettier": {
-      "count": 7
-    }
-  },
-  "src/notifications/notifications.controller.ts": {
-    "@typescript-eslint/no-unsafe-member-access": {
-      "count": 3
-    },
-    "prettier/prettier": {
-      "count": 1
-    }
-  },
-  "src/prisma/prisma.service.ts": {
-    "prettier/prettier": {
-      "count": 1
-    }
-  },
-  "src/team-members/team-members.controller.ts": {
-    "@typescript-eslint/no-unsafe-member-access": {
-      "count": 3
-    },
-    "prettier/prettier": {
-      "count": 3
     }
   },
   "src/team-members/team-members.module.ts": {
@@ -222,10 +128,7 @@
   },
   "src/upload/upload.service.ts": {
     "@typescript-eslint/no-unsafe-member-access": {
-      "count": 4
-    },
-    "prettier/prettier": {
-      "count": 14
+      "count": 2
     }
   }
 }
