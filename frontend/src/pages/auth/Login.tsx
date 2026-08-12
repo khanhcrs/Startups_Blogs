@@ -1,13 +1,14 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import styles from './Auth.module.css';
-import { api } from '../../lib/axios';
 import { loginWithCognito } from '../../services/cognitoAuth';
 import { getApplicationRole } from '../../services/cognitoToken';
 import { useAuthStore } from '../../store/authStore';
+import { getPostLoginDestination } from '../../features/admin/auth/adminAccess';
 
 const Login = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const login = useAuthStore((state) => state.login);
   
   const [email, setEmail] = useState('');
@@ -30,6 +31,7 @@ const Login = () => {
 
       const token = cognitoResult.accessToken;
       localStorage.setItem('token', token);
+      const role = getApplicationRole(token);
 
       // 2. Khởi tạo thông tin User Profile
       const userProfile = {
@@ -37,11 +39,14 @@ const Login = () => {
         email: email,
         firstName: email.split('@')[0],
         lastName: 'User',
-        role: getApplicationRole(token),
+        role,
       };
       
       login(userProfile, token);
-      navigate('/');
+      const locationState = location.state as { from?: unknown } | null;
+      const requestedPath =
+        typeof locationState?.from === 'string' ? locationState.from : undefined;
+      navigate(getPostLoginDestination(role, requestedPath), { replace: true });
     } catch (err: any) {
       const msg = String(err.message || err.response?.data?.message || '');
       if (msg.includes('UserNotFound') || msg.includes('User does not exist')) {

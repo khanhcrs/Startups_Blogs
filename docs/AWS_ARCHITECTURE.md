@@ -1,12 +1,12 @@
-# Thiết kế Kiến trúc AWS (Startups Blogs) - Phiên bản Hoàn chỉnh
+# Thiết kế Kiến trúc AWS (Startups Blogs)
 
-Tài liệu này mô tả chi tiết **kiến trúc đám mây thực tế và hoàn chỉnh** của dự án Startups Blogs sau khi đã tích hợp đầy đủ các dịch vụ chuẩn Enterprise của AWS. Kiến trúc này đảm bảo tính mở rộng cao, bảo mật chặt chẽ và hiệu năng xuất sắc.
+Tài liệu này mô tả kiến trúc được khai báo trong repository và các giới hạn triển khai hiện còn phải xác minh trên tài khoản AWS thực tế.
 
 ---
 
 ## 1. Tổng quan Kiến trúc (Architecture Overview)
 
-Hệ thống được thiết kế theo chuẩn Microservices & Serverless kết hợp, tách biệt hoàn toàn giữa Frontend, Backend, Database và Hệ thống Xác thực. Toàn bộ hạ tầng được tự động hóa bằng **Terraform** (Infrastructure as Code).
+Hệ thống tách Frontend, Backend, Database và xác thực. Terraform quản lý phần hạ tầng có trong thư mục `terraform/`; App Runner và quy trình cập nhật backend EC2 hiện chưa được quản lý đầy đủ tại đây.
 
 Sơ đồ tổng quan:
 `User -> CloudFront (CDN) -> S3 (Frontend)`
@@ -33,8 +33,7 @@ Sơ đồ tổng quan:
  - Tự động sinh ra Access Token (JWT) an toàn để Frontend dùng giao tiếp với Backend.
 
 ### 2.5. Tầng Cửa ngõ API (API Gateway)
-* **Amazon API Gateway:** Đóng vai trò là người gác cổng (Bouncer) cho Backend. - Giấu kín địa chỉ IP thật của máy chủ Backend EC2.
- - Nhận các Request từ Frontend và định tuyến (forward) an toàn vào trong máy chủ xử lý.
+* **Amazon API Gateway:** Cung cấp public endpoint và chuyển tiếp request từ Frontend tới backend. Trong Terraform hiện tại, cổng EC2 `3000` vẫn mở public nên API Gateway chưa làm EC2 thành private hay ngăn truy cập trực tiếp; cần siết Security Group hoặc dùng private integration nếu đó là yêu cầu production.
 
 ### 2.6. Tầng Xử lý Logic (Backend Compute)
 * **Amazon EC2 (Elastic Compute Cloud):** Máy chủ ảo chạy hệ điều hành Linux (Ubuntu).
@@ -46,9 +45,8 @@ Sơ đồ tổng quan:
  - Tự động sao lưu (backup), chống lỗi phần cứng và duy trì dữ liệu an toàn tuyệt đối, tách biệt hoàn toàn khỏi máy chủ EC2.
 
 ### 2.8. Tầng Giám sát & Tự động hóa (Monitoring & IaC)
-* **Amazon CloudWatch:** Đóng vai trò là "Camera an ninh" giám sát 24/7.
- - Ghi chép toàn bộ Logs từ API Gateway, EC2. - Theo dõi sức khỏe hệ thống (CPU, RAM của EC2 và RDS) để cảnh báo khi quá tải.
-* **Terraform (Infrastructure as Code - IaC):** Thay vì click chuột thủ công trên web AWS, toàn bộ 100% các kiến trúc trên (VPC, S3, RDS, EC2...) đều được lập trình bằng code trong thư mục `terraform/`. Code này giúp việc tạo mới hoặc sao chép toàn bộ hệ thống sang một tài khoản AWS khác chỉ tốn chưa tới 5 phút.
+* **Amazon CloudWatch:** Terraform hiện khai báo một cảnh báo CPU cao cho EC2 gửi trạng thái qua SNS, cùng dashboard hiển thị CPU EC2 và CPU/số kết nối RDS. Repository chưa khai báo thu thập log cho API Gateway/EC2 hoặc metric RAM EC2; cấu hình live ngoài Terraform phải được kiểm tra riêng.
+* **Terraform (Infrastructure as Code - IaC):** Khai báo VPC, S3/CloudFront, RDS, EC2, API Gateway, Cognito và các IAM policy trong thư mục `terraform/`. App Runner, biến môi trường runtime và bước triển khai/restart tiến trình backend trên EC2 chưa được tự động hóa trong repository.
 
 ---
 
@@ -57,5 +55,30 @@ Sơ đồ tổng quan:
 1. **Vào web:** Người dùng gõ link trang web, **CloudFront** lập tức trả về giao diện siêu tốc từ **S3**.
 2. **Đăng nhập:** Người dùng nhập Email/Mật khẩu. Giao diện gửi thẳng lên **Amazon Cognito**. Cognito kiểm tra đúng sẽ trả về "Thẻ bài" (JWT Token).
 3. **Thao tác:** Người dùng thao tác trên web. Giao diện kẹp chiếc "Thẻ bài" đó gửi qua **API Gateway**.
-4. **Xử lý:** API Gateway đẩy dữ liệu vào **EC2** nằm an toàn trong **VPC**. Backend trên EC2 kiểm tra Thẻ bài hợp lệ, kết nối tới **Amazon RDS** lấy dữ liệu và trả về.
-5. **Giám sát:** Mọi diễn biến trên đều được **CloudWatch** ghi chép lại đầy đủ và rõ ràng.
+4. **Xử lý theo topology Terraform:** API Gateway proxy vào **EC2:3000**. Cần đối chiếu integration của Gateway production trên AWS trước khi khẳng định URL hardcode của frontend đang trỏ đúng instance Terraform này.
+5. **Giám sát:** Terraform hiện cảnh báo CPU EC2 và hiển thị metric EC2/RDS; log ứng dụng và API Gateway phải được xác minh/cấu hình riêng.
+
+---
+
+## 4. Hợp đồng triển khai Production hiện tại
+
+Hai đường compute đang cùng tồn tại trong repository và **không phải cùng một đích đến**:
+
+- Terraform cấu hình một đường `API Gateway -> EC2:3000`; frontend production gọi một URL API Gateway cố định. Endpoint đó đã trả về đúng lỗi 401 của backend cho `/admin/stats`, nhưng repository không đủ bằng chứng để khẳng định integration production chính là EC2 do state Terraform này quản lý.
+- `.github/workflows/deploy-backend.yml` build và push image lên ECR cho App Runner. Workflow này không cập nhật tiến trình backend trên EC2.
+
+Vì vậy, trước khi phát hành phải kiểm tra integration thật của Gateway production, rồi triển khai backend vào đúng compute target đó. Không được xem việc push image ECR/App Runner là bằng chứng API Gateway đã cập nhật.
+
+### 4.1. Cấu hình Cognito cho backend runtime
+
+Runtime phải khai báo cùng một User Pool với frontend:
+
+- `COGNITO_USER_POOL_ID`
+- `COGNITO_CLIENT_ID`
+- `COGNITO_REGION` (tùy chọn; backend suy ra từ prefix của `COGNITO_USER_POOL_ID` khi không khai báo, thay vì mặc định theo region ECR hay EC2)
+
+Terraform xuất `backend_cognito_user_pool_id`, `backend_cognito_region` và `backend_cognito_client_id`. Nếu production dùng User Pool bên ngoài Terraform, phải truyền đồng thời ARN chính xác qua `backend_cognito_user_pool_arn` và App Client ID thuộc chính pool đó qua `backend_cognito_client_id`; Terraform chặn cấu hình chỉ có một trong hai. Các output không tự inject biến môi trường hoặc restart backend.
+
+EC2 instance role chỉ được cấp `cognito-idp:AdminListGroupsForUser`, `cognito-idp:AdminAddUserToGroup`, `cognito-idp:AdminRemoveUserFromGroup` và `cognito-idp:AdminUserGlobalSignOut` trên ARN User Pool này. Backend dùng chúng để xác minh membership hiện thời, đổi role và thu hồi phiên cũ sau khi đổi role; không cấp wildcard Cognito. `GetUser` được ủy quyền bằng access token của chính user nên không cần IAM action. Group `ADMIN` phải tồn tại trong chính User Pool đó.
+
+Nếu chọn App Runner là topology chính, cần chuyển API Gateway/frontend sang App Runner và gắn policy Cognito tương đương cho **App Runner instance role**. Repository hiện chưa quản lý App Runner service/instance role bằng Terraform, nên không tự động suy diễn hay thay đổi topology này.

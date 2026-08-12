@@ -15,6 +15,7 @@ import {
 import styles from './BlogDetail.module.css';
 import { api } from '../lib/axios';
 import { useAuthStore } from '../store/authStore';
+import { sanitizeRichText } from '../utils/sanitizeRichText';
 
 const BlogDetail = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -376,7 +377,7 @@ const BlogDetail = () => {
       <div className={styles.content}>
         <p><em>{article.summary}</em></p>
         <br/>
-        <div dangerouslySetInnerHTML={{ __html: article.content }} />
+        <div dangerouslySetInnerHTML={{ __html: sanitizeRichText(article.content) }} />
       </div>
 
       <div className={styles.tags}>

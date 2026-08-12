@@ -1,8 +1,16 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+  ServiceUnavailableException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { Prisma, User, Role } from '@prisma/client';
 import { CognitoGroupsService } from './cognito-groups.service';
 import type { UserStatus } from './dto/update-user-status.dto';
+import type { AdminUserQueryDto } from './dto/admin-user-query.dto';
 
 @Injectable()
 export class UsersService {
@@ -25,9 +33,14 @@ export class UsersService {
     });
   }
 
+  async findByCognitoSub(cognitoSub: string): Promise<User | null> {
+    return this.prisma.user.findUnique({ where: { cognitoSub } });
+  }
+
   async findOrCreateFromCognito(data: {
     cognitoSub: string;
     email: string;
+    emailVerified: boolean;
     name?: string;
   }): Promise<User> {
     const bySubject = await this.prisma.user.findUnique({
@@ -37,6 +50,16 @@ export class UsersService {
 
     const byEmail = await this.findByEmail(data.email);
     if (byEmail) {
+      if (byEmail.cognitoSub && byEmail.cognitoSub !== data.cognitoSub) {
+        throw new ConflictException(
+          'Email is already linked to another Cognito account',
+        );
+      }
+      if (!data.emailVerified) {
+        throw new UnauthorizedException(
+          'Verified Cognito email is required to link this account',
+        );
+      }
       return this.prisma.user.update({
         where: { id: byEmail.id },
         data: { cognitoSub: data.cognitoSub },
@@ -91,13 +114,14 @@ export class UsersService {
     });
   }
 
-  async getAllUsers(page: number, limit: number, role?: string) {
+  async getAllUsers(query: AdminUserQueryDto) {
+    const { page = 1, limit = 10, role } = query;
     const skip = (page - 1) * limit;
-    const whereCondition = role ? { role: role as Role } : {};
+    const where: Prisma.UserWhereInput = role ? { role } : {};
 
     const [users, total] = await Promise.all([
       this.prisma.user.findMany({
-        where: whereCondition,
+        where,
         skip,
         take: limit,
         orderBy: { joinedAt: 'desc' },
@@ -116,7 +140,7 @@ export class UsersService {
           },
         },
       }),
-      this.prisma.user.count({ where: whereCondition }),
+      this.prisma.user.count({ where }),
     ]);
 
     return {
@@ -130,44 +154,131 @@ export class UsersService {
     };
   }
 
-  async updateUserRole(id: string, role: Role) {
-    const user = await this.prisma.user.findUnique({
-      where: { id },
-      select: { email: true },
-    });
-    if (!user) throw new NotFoundException('User not found');
-
-    await this.cognitoGroups.setAdminMembership(
-      user.email,
-      role === Role.ADMIN,
-    );
-    return this.prisma.user.update({
-      where: { id },
-      data: { role },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        role: true,
+  private async ensureAnotherActiveAdmin(
+    client: Pick<PrismaService, 'user'>,
+    targetId: string,
+  ): Promise<void> {
+    const remainingAdmins = await client.user.count({
+      where: {
+        id: { not: targetId },
+        role: Role.ADMIN,
+        status: 'ACTIVE',
       },
     });
+    if (remainingAdmins === 0) {
+      throw new ConflictException('At least one active admin must remain');
+    }
+  }
+
+  async updateUserRole(id: string, role: Role, actorId: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        cognitoSub: true,
+        email: true,
+        name: true,
+        role: true,
+        status: true,
+      },
+    });
+    if (!user) throw new NotFoundException('User not found');
+    if (id === actorId && role !== Role.ADMIN) {
+      throw new ForbiddenException('Admins cannot demote their own account');
+    }
+    const removesActiveAdmin =
+      user.role === Role.ADMIN &&
+      user.status === 'ACTIVE' &&
+      role !== Role.ADMIN;
+    if (removesActiveAdmin) {
+      await this.ensureAnotherActiveAdmin(this.prisma, id);
+    }
+
+    const cognitoUsername = user.cognitoSub || user.email;
+    try {
+      await this.cognitoGroups.setAdminMembership(
+        cognitoUsername,
+        role === Role.ADMIN,
+      );
+      return await this.prisma.$transaction(
+        async (transaction) => {
+          const current = await transaction.user.findUnique({
+            where: { id },
+            select: { role: true, status: true },
+          });
+          if (!current) throw new NotFoundException('User not found');
+          if (
+            current.role === Role.ADMIN &&
+            current.status === 'ACTIVE' &&
+            role !== Role.ADMIN
+          ) {
+            await this.ensureAnotherActiveAdmin(transaction, id);
+          }
+          return transaction.user.update({
+            where: { id },
+            data: { role },
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              role: true,
+            },
+          });
+        },
+        { isolationLevel: Prisma.TransactionIsolationLevel.Serializable },
+      );
+    } catch (error) {
+      try {
+        await this.cognitoGroups.setAdminMembership(
+          cognitoUsername,
+          user.role === Role.ADMIN,
+        );
+      } catch {
+        throw new ServiceUnavailableException(
+          'Role update failed and Cognito membership could not be restored',
+        );
+      }
+      throw error;
+    }
   }
 
   async syncRoleFromCognito(id: string, role: Role): Promise<void> {
     await this.prisma.user.update({ where: { id }, data: { role } });
   }
 
-  async updateUserStatus(id: string, status: UserStatus) {
-    return this.prisma.user.update({
-      where: { id },
-      data: { status },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        status: true,
+  async updateUserStatus(id: string, status: UserStatus, actorId: string) {
+    if (id === actorId && status === 'LOCKED') {
+      throw new ForbiddenException('Admins cannot lock their own account');
+    }
+
+    return this.prisma.$transaction(
+      async (transaction) => {
+        const current = await transaction.user.findUnique({
+          where: { id },
+          select: { role: true, status: true },
+        });
+        if (!current) throw new NotFoundException('User not found');
+        if (
+          current.role === Role.ADMIN &&
+          current.status === 'ACTIVE' &&
+          status === 'LOCKED'
+        ) {
+          await this.ensureAnotherActiveAdmin(transaction, id);
+        }
+
+        return transaction.user.update({
+          where: { id },
+          data: { status },
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            status: true,
+          },
+        });
       },
-    });
+      { isolationLevel: Prisma.TransactionIsolationLevel.Serializable },
+    );
   }
 
   async getAdminUserDetails(id: string) {

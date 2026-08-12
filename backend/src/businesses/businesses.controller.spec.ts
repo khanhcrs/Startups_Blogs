@@ -11,7 +11,6 @@ describe('BusinessesController admin authorization', () => {
     BusinessesController.prototype.findAllForAdmin,
     BusinessesController.prototype.updateStatus,
     BusinessesController.prototype.findOneForAdmin,
-    BusinessesController.prototype.updateAsAdmin,
   ];
 
   it.each(adminHandlers)('requires ADMIN for an admin handler', (handler) => {

@@ -77,6 +77,7 @@ export const signUpWithCognito = async (email: string, password: string, name: s
       Password: password,
       UserAttributes: [
         { Name: 'email', Value: email },
+        { Name: 'name', Value: name },
       ],
     }),
   });

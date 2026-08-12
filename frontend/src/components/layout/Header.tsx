@@ -1,12 +1,16 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Search, Bell, Sun, ChevronDown, User, Settings, LogOut, Edit, Briefcase, Shield, ShieldAlert } from 'lucide-react';
+import { Search, Bell, Sun, ChevronDown, User, LogOut, Edit, Briefcase, ShieldAlert } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 import styles from './Header.module.css';
 import { useAuthStore } from '../../store/authStore';
 import { api } from '../../lib/axios';
+import { getApplicationRole } from '../../services/cognitoToken';
 
 const Header = () => {
-  const { user, isAuthenticated, logout } = useAuthStore();
+  const { user, token, isAuthenticated, logout } = useAuthStore();
+  const hasAdminGroup = Boolean(
+    token && user?.role === 'ADMIN' && getApplicationRole(token) === 'ADMIN',
+  );
   const [showDropdown, setShowDropdown] = useState(false);
   const [showNotif, setShowNotif] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -70,6 +74,9 @@ const Header = () => {
           <Link to="/blogs" className={`${styles.navLink} ${path.includes('/blogs') ? styles.active : ''}`}>Blogs</Link>
           {isAuthenticated && (
             <Link to="/notifications" className={`${styles.navLink} ${path.includes('/notifications') ? styles.active : ''}`}>Notifications</Link>
+          )}
+          {hasAdminGroup && (
+            <Link to="/admin/overview" className={`${styles.navLink} ${path.startsWith('/admin') ? styles.active : ''}`}>Admin</Link>
           )}
           <Link to="/about" className={`${styles.navLink} ${path.includes('/about') ? styles.active : ''}`}>About Us</Link>
         </nav>
@@ -156,7 +163,7 @@ const Header = () => {
                       <Briefcase size={16} /> Raise Capital
                     </Link>
                     
-                    {user?.role === 'ADMIN' && (
+                    {hasAdminGroup && (
                       <Link to="/admin" className={styles.dropdownItem} onClick={() => setShowDropdown(false)}>
                         <ShieldAlert size={16} /> Admin Panel
                       </Link>

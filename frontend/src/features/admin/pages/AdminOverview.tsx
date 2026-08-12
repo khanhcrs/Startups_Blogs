@@ -1,36 +1,35 @@
-import { useState, useEffect } from 'react';
-import { toast } from 'react-hot-toast';
+import { useQuery } from '@tanstack/react-query';
 import { Users, Building2, FileText, CheckCircle } from 'lucide-react';
 import commonStyles from '../AdminCommon.module.css';
+import { adminApi, adminQueryKeys } from '../services/adminApi';
 
 export default function AdminOverview() {
-  const [stats, setStats] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
+  const statsQuery = useQuery({
+    queryKey: adminQueryKeys.stats,
+    queryFn: adminApi.getStats,
+    staleTime: 30_000,
+  });
 
-  useEffect(() => {
-    fetchStats();
-  }, []);
-
-  const fetchStats = async () => {
-    try {
-      const token = localStorage.getItem('token');
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/admin/stats`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setStats(data.data);
-      }
-    } catch (error) {
-      toast.error('Failed to load stats');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  if (loading) {
+  if (statsQuery.isPending) {
     return <div className={commonStyles.loading}>Loading statistics...</div>;
   }
+
+  if (statsQuery.isError) {
+    return (
+      <div className={commonStyles.emptyState} role="alert">
+        <p>Dashboard statistics could not be loaded.</p>
+        <button
+          type="button"
+          className={commonStyles.actionBtn}
+          onClick={() => void statsQuery.refetch()}
+        >
+          Try again
+        </button>
+      </div>
+    );
+  }
+
+  const stats = statsQuery.data;
 
   return (
     <div>
@@ -39,8 +38,7 @@ export default function AdminOverview() {
         <p>System statistics and quick metrics</p>
       </header>
       
-      {stats && (
-        <div className={commonStyles.statsGrid}>
+      <div className={commonStyles.statsGrid}>
           <div className={commonStyles.statCard}>
             <div className={commonStyles.statIcon}><Users size={24} /></div>
             <div className={commonStyles.statInfo}>
@@ -71,8 +69,7 @@ export default function AdminOverview() {
               <p>{stats.pendingBusinesses}</p>
             </div>
           </div>
-        </div>
-      )}
+      </div>
     </div>
   );
 }

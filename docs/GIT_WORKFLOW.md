@@ -26,12 +26,14 @@ Thay vì người dùng phải gõ lệnh build thủ công trên máy tính c�
 5. (Nếu có) Chạy `npm run test` để chạy các bài unit test.
 6. **Mục đích:** Nếu bước 3, 4, hoặc 5 thất bại, "robot" sẽ báo đèn đỏ và dừng toàn bộ quá trình lại, báo cho người dùng biết code đang lỗi, không được phép đưa lên server.
 
-### 2.2. Luồng Continuous Deployment (CD - Triển khai liên tục)
-1. Khi quy trình CI "đèn xanh" (thành công), bước CD sẽ bắt đầu.
-2. GitHub Actions tiến hành đọc file `Dockerfile` trong source code và thực hiện lệnh `docker build`.
-3. Sau khi "gói" mã nguồn thành công vào Docker Image, GitHub Actions đăng nhập vào tài khoản AWS (thông qua cặp key bảo mật được cung cấp).
+### 2.2. Luồng publish backend hiện tại
+1. Push vào `main` có thay đổi `backend/**` sẽ kích hoạt workflow publish riêng. Workflow này tự chạy lại lint, unit test và build trước khi push image; hiện nó không chờ job trong workflow `CI` bằng dependency `needs` hay `workflow_run`.
+2. GitHub Actions tiến hành đọc file `Dockerfile` trong source code của bạn và thực hiện lệnh `docker build`.
+3. Sau khi "gói" mã nguồn thành công vào Docker Image, GitHub Actions đăng nhập vào tài khoản AWS của bạn (thông qua cặp key bảo mật được cung cấp).
 4. Đẩy (Push) Docker Image lên kho **Amazon ECR**.
-5. **AWS App Runner** (đã được cấu hình tự động) sẽ phát hiện có Image mới, tự tải về và chạy thay thế cho server cũ. Mọi thứ hoàn toàn tự động trong khoảng 5-10 phút.
+5. **AWS App Runner** có thể phát hiện image `latest` nếu service đã bật Automatic Deployment ngoài repository.
+
+> **Giới hạn hiện tại:** Frontend production gọi một URL API Gateway cố định, còn Terraform mô tả runtime API Gateway -> EC2:3000 với backend chạy bằng PM2. Workflow hiện chỉ publish image lên ECR; App Runner chỉ có thể tự deploy nếu service được cấu hình ngoài repository. Vì workflow không cập nhật EC2, workflow xanh chưa chứng minh backend mà frontend gọi đã được cập nhật. Cần xác minh integration live và chọn một compute target duy nhất trước khi gọi đây là CD end-to-end.
 
 ---
 
@@ -40,16 +42,15 @@ Thay vì người dùng phải gõ lệnh build thủ công trên máy tính c�
 ### Bước 1: Tạo IAM User trên AWS
 Để GitHub Actions có thể kết nối với AWS , cần tạo một "người dùng máy" (IAM User) trên AWS với quyền giới hạn (chỉ được phép đẩy file lên ECR).
 - Vào AWS IAM -> Create User (ví dụ tên: `github-actions-bot`).
-- Cấp quyền `AmazonEC2ContainerRegistryPowerUser`.
+- Cấp một policy tùy chỉnh chỉ cho phép các thao tác ECR mà workflow cần trên đúng repository; tránh policy quản trị rộng nếu không cần.
 - Lấy `AWS_ACCESS_KEY_ID` và `AWS_SECRET_ACCESS_KEY`.
 
 ### Bước 2: Khai báo Secrets trên GitHub
 - Vào trang Repo trên GitHub -> **Settings** -> **Secrets and variables** -> **Actions**.
 - Thêm các biến môi trường bảo mật:
- - `AWS_ACCESS_KEY_ID`
- - `AWS_SECRET_ACCESS_KEY`
- - `AWS_REGION` (ví dụ: `us-east-1`)
- - `ECR_REPOSITORY_URL` (URL của repo ECR tạo ở phần AWS).
+  - `AWS_ACCESS_KEY_ID`
+  - `AWS_SECRET_ACCESS_KEY`
+  - Workflow hiện đặt trực tiếp `AWS_REGION: us-east-1` và `ECR_REPOSITORY: startups-blogs-backend`; `AWS_REGION`/`ECR_REPOSITORY_URL` hiện không được đọc từ secrets. Nếu muốn cấu hình theo môi trường, hãy chuyển chúng sang GitHub Actions Variables rồi cập nhật workflow.
 
 ### Bước 3: File Cấu Hình (Workflow File)
-Người đọc sẽ tạo một file tại đường dẫn `.github/workflows/deploy.yml` ngay trong code Backend . Nội dung file sẽ là các chỉ thị (chạy lệnh docker build, aws ecr get-login-password...) để nói cho GitHub biết phải làm gì. Khi Backend được khởi tạo, file này sẽ được sinh ra tự động.
+Workflow backend hiện nằm tại `.github/workflows/deploy-backend.yml`; nó chạy lint/test/build rồi publish image lên ECR và không cập nhật tiến trình PM2 trên EC2. Sau khi xác minh API Gateway integration, vẫn phải triển khai phiên bản mới vào đúng compute target thực tế mà Gateway đang gọi.

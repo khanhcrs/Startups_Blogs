@@ -18,6 +18,8 @@ import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { Role } from '@prisma/client';
 import { UpdateBusinessStatusDto } from './dto/update-business-status.dto';
+import { AdminBusinessQueryDto } from './dto/admin-business-query.dto';
+import type { AuthenticatedRequest } from '../auth/auth.types';
 
 @Controller('businesses')
 export class BusinessesController {
@@ -25,7 +27,10 @@ export class BusinessesController {
 
   @UseGuards(JwtAuthGuard)
   @Post()
-  create(@Body() createBusinessDto: CreateBusinessDto, @Request() req: any) {
+  create(
+    @Body() createBusinessDto: CreateBusinessDto,
+    @Request() req: AuthenticatedRequest,
+  ) {
     return this.businessesService.create(createBusinessDto, req.user.userId);
   }
 
@@ -37,26 +42,8 @@ export class BusinessesController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
   @Get('admin/all')
-  findAllForAdmin(
-    @Query('skip') skip?: string,
-    @Query('take') take?: string,
-    @Query('status') status?: string,
-    @Query('search') search?: string,
-    @Query('stage') stage?: string,
-    @Query('industry') industry?: string,
-    @Query('startDate') startDate?: string,
-    @Query('endDate') endDate?: string,
-  ) {
-    return this.businessesService.findAllForAdmin(
-      skip ? +skip : 0,
-      take ? +take : 10,
-      status,
-      search,
-      stage,
-      industry,
-      startDate,
-      endDate,
-    );
+  findAllForAdmin(@Query() query: AdminBusinessQueryDto) {
+    return this.businessesService.findAllForAdmin(query);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
@@ -73,13 +60,6 @@ export class BusinessesController {
     return this.businessesService.findOneForAdmin(id);
   }
 
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.ADMIN)
-  @Put('admin/:id')
-  updateAsAdmin(@Param('id') id: string, @Body() updateBusinessDto: any) {
-    return this.businessesService.updateAsAdmin(id, updateBusinessDto);
-  }
-
   @Get(':slug')
   findOne(@Param('slug') slug: string) {
     return this.businessesService.findOneBySlug(slug);
@@ -90,7 +70,7 @@ export class BusinessesController {
   update(
     @Param('id') id: string,
     @Body() updateBusinessDto: UpdateBusinessDto,
-    @Request() req: any,
+    @Request() req: AuthenticatedRequest,
   ) {
     return this.businessesService.update(
       id,
@@ -101,7 +81,7 @@ export class BusinessesController {
 
   @UseGuards(JwtAuthGuard)
   @Delete(':id')
-  remove(@Param('id') id: string, @Request() req: any) {
+  remove(@Param('id') id: string, @Request() req: AuthenticatedRequest) {
     return this.businessesService.remove(id, req.user.userId);
   }
 }

@@ -1,4 +1,7 @@
 import axios from 'axios';
+import { useAuthStore } from '../store/authStore';
+import { isAdminApiRequest } from '../features/admin/auth/adminRequest';
+import { queryClient } from './queryClient';
 
 // Backend is running on port 3000
 const baseURL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
@@ -31,8 +34,23 @@ api.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401) {
       if (typeof window !== 'undefined') {
-        localStorage.removeItem('token');
-        // We will let the components handle the redirection or state updates
+        queryClient.removeQueries({ queryKey: ['admin'] });
+        useAuthStore.getState().logout();
+      }
+    }
+    if (
+      error.response?.status === 403 &&
+      isAdminApiRequest(error.config?.url)
+    ) {
+      const requestPath = error.config?.url?.split('?')[0] ?? '';
+      if (!requestPath.endsWith('/admin/stats')) {
+        // A domain rule can also return 403 (for example, a forbidden edit).
+        // Re-check the dedicated authorization endpoint before revoking UI
+        // access instead of treating every 403 as proof of lost membership.
+        void queryClient.refetchQueries({
+          queryKey: ['admin', 'stats'],
+          type: 'active',
+        });
       }
     }
     return Promise.reject(error);
