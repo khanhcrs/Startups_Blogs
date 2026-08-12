@@ -50,20 +50,22 @@ const Home = () => {
   };
 
   const handleIndustryClick = (industryName: string) => {
-    navigate(`/businesses?industry=${encodeURIComponent(industryName)}`);
+    const params = new URLSearchParams();
+    params.set('industry', industryName);
+    navigate(`/businesses?${params.toString()}`);
   };
 
   const industries = [
-    { name: 'Food & Beverage', icon: <Utensils size={28} />, color: 'var(--cat-food)' },
-    { name: 'Retail', icon: <ShoppingBag size={28} />, color: 'var(--cat-eco)' },
-    { name: 'Manufacturing', icon: <Factory size={28} />, color: 'var(--cat-tech)' },
-    { name: 'Agriculture', icon: <Sprout size={28} />, color: 'var(--cat-green)' },
-    { name: 'Technology', icon: <Cpu size={28} />, color: 'var(--primary-500)' },
-    { name: 'Education', icon: <GraduationCap size={28} />, color: 'var(--cat-edtech)' },
-    { name: 'Healthcare', icon: <Activity size={28} />, color: 'var(--cat-health)' },
+    { name: 'Fintech', icon: <Utensils size={28} />, color: 'var(--cat-food)' },
+    { name: 'Thương mại điện tử', icon: <ShoppingBag size={28} />, color: 'var(--cat-eco)' },
+    { name: 'Nông nghiệp sạch', icon: <Sprout size={28} />, color: 'var(--cat-green)' },
+    { name: 'Công nghệ AI', icon: <Cpu size={28} />, color: 'var(--primary-500)' },
+    { name: 'EdTech', icon: <GraduationCap size={28} />, color: 'var(--cat-edtech)' },
+    { name: 'HealthTech', icon: <Activity size={28} />, color: 'var(--cat-health)' },
     { name: 'Logistics', icon: <Truck size={28} />, color: 'var(--cat-ai)' },
-    { name: 'Hospitality', icon: <Hotel size={28} />, color: 'var(--cat-fintech)' },
-    { name: 'Professional Services', icon: <Briefcase size={28} />, color: 'var(--text-dark)' },
+    { name: 'PropTech', icon: <Hotel size={28} />, color: 'var(--cat-fintech)' },
+    { name: 'SaaS', icon: <Briefcase size={28} />, color: 'var(--text-dark)' },
+    { name: 'Blockchain', icon: <Factory size={28} />, color: 'var(--cat-tech)' },
   ];
 
   return (
