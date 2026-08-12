@@ -13,8 +13,8 @@ Dự án **Startups Blogs** được thiết kế theo kiến trúc Microservice
 - **Công nghệ:** Node.js, NestJS, TypeScript, Prisma ORM.
 - **Topology do Terraform khai báo:** API Gateway dùng HTTP proxy để chuyển request vào backend NestJS trên EC2, cổng `3000`.
 - **Trạng thái production:** Frontend production gọi một URL API Gateway cố định; chỉ từ repository chưa thể xác nhận Gateway live đó đang tích hợp với EC2 do state Terraform hiện tại quản lý.
-- **Luồng publish image:** `.github/workflows/deploy-backend.yml` build và push image lên ECR; image chỉ có thể kích hoạt App Runner nếu service được cấu hình automatic deployment ngoài repository. Workflow này không cập nhật backend trên EC2.
-- **Trước khi phát hành:** Xác minh integration live của API Gateway và triển khai/restart đúng compute target. Nếu live khác topology EC2 đã khai báo, cần đồng bộ lại IaC, CD và tài liệu.
+- **Tự động hóa hiện tại:** Workflow `CI` kiểm tra lint, unit test và build backend. Repository không còn workflow ECR/App Runner vì production không sử dụng đường triển khai này.
+- **Trước khi phát hành:** Xác minh integration live của API Gateway và quy trình chạy backend trên EC2 trước khi xây dựng CD; không tự động SSH, restart hoặc thay đổi production khi chưa có runbook và cơ chế rollback.
 
 ### 1.3 Database & Storage
 - **Relational Database:** Production sử dụng Amazon RDS for PostgreSQL. Prisma kết nối tới RDS để lưu dữ liệu nghiệp vụ; PostgreSQL Docker chỉ phục vụ phát triển local khi cần.
