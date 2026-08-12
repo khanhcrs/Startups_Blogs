@@ -13,13 +13,17 @@ import {
 import { BusinessesService } from './businesses.service';
 import { CreateBusinessDto } from './dto/create-business.dto';
 import { UpdateBusinessDto } from './dto/update-business.dto';
+import { CreateRaiseCapitalDto } from './dto/create-raise-capital.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { Role } from '@prisma/client';
 import { UpdateBusinessStatusDto } from './dto/update-business-status.dto';
 import { AdminBusinessQueryDto } from './dto/admin-business-query.dto';
-import type { AuthenticatedRequest } from '../auth/auth.types';
+import type {
+  AuthenticatedRequest,
+  AuthenticatedUser,
+} from '../auth/auth.types';
 
 @Controller('businesses')
 export class BusinessesController {
@@ -80,16 +84,19 @@ export class BusinessesController {
   @UseGuards(JwtAuthGuard)
   @Post('raise-capital')
   createRaiseCapitalSubmission(
-    @Body() dto: any,
+    @Body() dto: CreateRaiseCapitalDto,
     @Request() req: AuthenticatedRequest,
   ) {
-    return this.businessesService.createRaiseCapitalSubmission(dto, req.user.userId);
+    return this.businessesService.createRaiseCapitalSubmission(
+      dto,
+      req.user.userId,
+    );
   }
 
   @Get(':identifier/relationship')
   getRelationship(
     @Param('identifier') identifier: string,
-    @Request() req: any,
+    @Request() req: { user?: AuthenticatedUser },
   ) {
     const userId = req.user?.userId;
     return this.businessesService.getRelationship(identifier, userId);

@@ -7,8 +7,12 @@ import { PrismaService } from '../prisma/prisma.service';
 import type { BusinessStatus } from './dto/update-business-status.dto';
 import { CreateBusinessDto } from './dto/create-business.dto';
 import { UpdateBusinessDto } from './dto/update-business.dto';
+import {
+  CreateRaiseCapitalDto,
+  TeamMemberItemDto,
+} from './dto/create-raise-capital.dto';
 import type { AdminBusinessQueryDto } from './dto/admin-business-query.dto';
-import type { Prisma } from '@prisma/client';
+import type { Prisma, FundingOpportunity } from '@prisma/client';
 
 @Injectable()
 export class BusinessesService {
@@ -189,7 +193,10 @@ export class BusinessesService {
   }
 
   private async resolveBusiness(identifier: string) {
-    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(identifier);
+    const isUuid =
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+        identifier,
+      );
     const business = await this.prisma.business.findFirst({
       where: isUuid ? { id: identifier } : { slug: identifier },
     });
@@ -202,7 +209,11 @@ export class BusinessesService {
   async getRelationship(identifier: string, userId?: string) {
     const business = await this.resolveBusiness(identifier);
     if (!userId) {
-      return { saved: false, following: false, savedCount: business.savedCount };
+      return {
+        saved: false,
+        following: false,
+        savedCount: business.savedCount,
+      };
     }
     const [savedRecord, followRecord] = await Promise.all([
       this.prisma.savedBusiness.findUnique({
@@ -250,7 +261,11 @@ export class BusinessesService {
         }),
         this.prisma.business.update({
           where: { id: business.id },
-          data: { savedCount: { decrement: Math.max(0, business.savedCount > 0 ? 1 : 0) } },
+          data: {
+            savedCount: {
+              decrement: Math.max(0, business.savedCount > 0 ? 1 : 0),
+            },
+          },
         }),
       ]);
     }
@@ -287,18 +302,58 @@ export class BusinessesService {
     const businesses = await this.prisma.business.findMany({
       select: { industry: true, businessType: true, businessStage: true },
     });
-    const industries = Array.from(new Set(businesses.map((b) => b.industry).filter(Boolean))).sort();
-    const businessTypes = Array.from(new Set(businesses.map((b) => b.businessType).filter(Boolean))).sort();
-    const canonicalStages = ['Idea', 'Early Stage', 'Operating', 'Growing', 'Expansion', 'Mature'];
+    const industries = Array.from(
+      new Set(businesses.map((b) => b.industry).filter(Boolean)),
+    ).sort();
+    const businessTypes = Array.from(
+      new Set(businesses.map((b) => b.businessType).filter(Boolean)),
+    ).sort();
+    const canonicalStages = [
+      'Idea',
+      'Early Stage',
+      'Operating',
+      'Growing',
+      'Expansion',
+      'Mature',
+    ];
     return {
-      industries: industries.length > 0 ? industries : ['Fintech', 'EdTech', 'HealthTech', 'Thương mại điện tử', 'Logistics', 'PropTech', 'SaaS', 'Nông nghiệp sạch', 'Blockchain', 'Công nghệ AI'],
-      businessTypes: businessTypes.length > 0 ? businessTypes : ['Startup', 'Small Business', 'Family Business', 'Online Business', 'Franchise', 'Cooperative', 'Social Enterprise'],
+      industries:
+        industries.length > 0
+          ? industries
+          : [
+              'Fintech',
+              'EdTech',
+              'HealthTech',
+              'Thương mại điện tử',
+              'Logistics',
+              'PropTech',
+              'SaaS',
+              'Nông nghiệp sạch',
+              'Blockchain',
+              'Công nghệ AI',
+            ],
+      businessTypes:
+        businessTypes.length > 0
+          ? businessTypes
+          : [
+              'Startup',
+              'Small Business',
+              'Family Business',
+              'Online Business',
+              'Franchise',
+              'Cooperative',
+              'Social Enterprise',
+            ],
       stages: canonicalStages,
     };
   }
 
-  async createRaiseCapitalSubmission(dto: any, ownerId: string) {
-    const slug = dto.name.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-' + Date.now();
+  async createRaiseCapitalSubmission(
+    dto: CreateRaiseCapitalDto,
+    ownerId: string,
+  ) {
+    const slug =
+      dto.name.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-' + Date.now();
     return this.prisma.$transaction(async (tx) => {
       const business = await tx.business.create({
         data: {
@@ -321,7 +376,7 @@ export class BusinessesService {
 
       if (Array.isArray(dto.teamMembers) && dto.teamMembers.length > 0) {
         await tx.teamMember.createMany({
-          data: dto.teamMembers.map((tm: any) => ({
+          data: dto.teamMembers.map((tm: TeamMemberItemDto) => ({
             name: tm.name,
             role: tm.role,
             bio: tm.bio || null,
@@ -330,7 +385,7 @@ export class BusinessesService {
         });
       }
 
-      let fundingOpportunity: any = null;
+      let fundingOpportunity: FundingOpportunity | null = null;
       if (dto.fundingAmountMin || dto.fundingAmountMax || dto.fundingPurpose) {
         const oppSlug = `${slug}-funding-${Date.now()}`;
         fundingOpportunity = await tx.fundingOpportunity.create({
