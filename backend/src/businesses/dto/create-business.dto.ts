@@ -1,4 +1,12 @@
-import { IsString, IsNotEmpty, IsOptional, IsUrl } from 'class-validator';
+import {
+  IsInt,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  IsUrl,
+  Max,
+  Min,
+} from 'class-validator';
 
 export class CreateBusinessDto {
   @IsString()
@@ -44,4 +52,26 @@ export class CreateBusinessDto {
   @IsUrl()
   @IsOptional()
   coverUrl?: string;
+
+  @IsInt()
+  @Min(1800)
+  @Max(3000)
+  @IsOptional()
+  foundedYear?: number;
+
+  @IsString()
+  @IsOptional()
+  employeeRange?: string;
+
+  @IsString()
+  @IsOptional()
+  businessModel?: string;
+
+  @IsString()
+  @IsOptional()
+  productsOrServices?: string;
+
+  @IsString()
+  @IsOptional()
+  mainMarket?: string;
 }

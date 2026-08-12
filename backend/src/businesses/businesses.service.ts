@@ -7,6 +7,8 @@ import { PrismaService } from '../prisma/prisma.service';
 import type { BusinessStatus } from './dto/update-business-status.dto';
 import { CreateBusinessDto } from './dto/create-business.dto';
 import { UpdateBusinessDto } from './dto/update-business.dto';
+import type { AdminBusinessQueryDto } from './dto/admin-business-query.dto';
+import type { Prisma } from '@prisma/client';
 
 @Injectable()
 export class BusinessesService {
@@ -37,32 +39,34 @@ export class BusinessesService {
     });
   }
 
-  async findAllForAdmin(
-    skip: number = 0,
-    take: number = 10,
-    status?: string,
-    search?: string,
-    stage?: string,
-    industry?: string,
-    startDate?: string,
-    endDate?: string,
-  ) {
-    const where: any = {};
+  async findAllForAdmin(query: AdminBusinessQueryDto) {
+    const {
+      skip = 0,
+      take = 10,
+      status,
+      search,
+      stage,
+      industry,
+      startDate,
+      endDate,
+    } = query;
+    const where: Prisma.BusinessWhereInput = {};
     if (status) where.status = status;
     if (stage) where.businessStage = stage;
     if (industry) where.industry = { contains: industry, mode: 'insensitive' };
     if (search) where.name = { contains: search, mode: 'insensitive' };
 
     if (startDate || endDate) {
-      where.createdAt = {};
+      const createdAt: Prisma.DateTimeFilter = {};
       if (startDate) {
-        where.createdAt.gte = new Date(startDate);
+        createdAt.gte = new Date(startDate);
       }
       if (endDate) {
         const end = new Date(endDate);
         end.setHours(23, 59, 59, 999);
-        where.createdAt.lte = end;
+        createdAt.lte = end;
       }
+      where.createdAt = createdAt;
     }
 
     const [data, total] = await Promise.all([
@@ -117,8 +121,8 @@ export class BusinessesService {
   }
 
   async findOneBySlug(slug: string) {
-    const business = await this.prisma.business.findUnique({
-      where: { slug },
+    const business = await this.prisma.business.findFirst({
+      where: { slug, status: 'APPROVED' },
       include: {
         owner: { select: { id: true, name: true, avatarUrl: true } },
         teamMembers: true,
@@ -165,23 +169,6 @@ export class BusinessesService {
 
     return this.prisma.business.delete({
       where: { id },
-    });
-  }
-
-  async updateAsAdmin(id: string, updateData: any) {
-    const business = await this.prisma.business.findUnique({ where: { id } });
-    if (!business) {
-      throw new NotFoundException(`Business with id ${id} not found`);
-    }
-
-    // Ensure foundedYear is a number if it's provided as string
-    if (updateData.foundedYear) {
-      updateData.foundedYear = parseInt(updateData.foundedYear, 10);
-    }
-
-    return this.prisma.business.update({
-      where: { id },
-      data: updateData,
     });
   }
 }

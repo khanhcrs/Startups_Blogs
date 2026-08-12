@@ -32,6 +32,7 @@ import AdminViewBusiness from './features/admin/pages/AdminViewBusiness';
 import AdminEditArticle from './features/admin/pages/AdminEditArticle';
 import AdminViewArticle from './features/admin/pages/AdminViewArticle';
 import AdminViewUser from './features/admin/pages/AdminViewUser';
+import RequireAdmin from './features/admin/components/RequireAdmin';
 
 
 function LegacyRedirect({ to }: { to: string }) {
@@ -80,18 +81,20 @@ function App() {
             <Route path="proposals/:id" element={<ReviewProposal />} />
             <Route path="about" element={<About />} />
             <Route path="contact" element={<Contact />} />
-            <Route path="admin" element={<AdminLayout />}>
-              <Route index element={<LegacyRedirect to="/admin/overview" />} />
-              <Route path="dashboard" element={<LegacyRedirect to="/admin/overview" />} />
-              <Route path="overview" element={<AdminOverview />} />
-              <Route path="users" element={<AdminUsers />} />
-              <Route path="users/:id" element={<AdminViewUser />} />
-              <Route path="businesses" element={<AdminBusinesses />} />
-              <Route path="businesses/:id" element={<AdminViewBusiness />} />
-              <Route path="businesses/:id/edit" element={<AdminEditBusiness />} />
-              <Route path="articles" element={<AdminArticles />} />
-              <Route path="articles/:id" element={<AdminViewArticle />} />
-              <Route path="articles/:id/edit" element={<AdminEditArticle />} />
+            <Route element={<RequireAdmin />}>
+              <Route path="admin" element={<AdminLayout />}>
+                <Route index element={<LegacyRedirect to="/admin/overview" />} />
+                <Route path="dashboard" element={<LegacyRedirect to="/admin/overview" />} />
+                <Route path="overview" element={<AdminOverview />} />
+                <Route path="users" element={<AdminUsers />} />
+                <Route path="users/:id" element={<AdminViewUser />} />
+                <Route path="businesses" element={<AdminBusinesses />} />
+                <Route path="businesses/:id" element={<AdminViewBusiness />} />
+                <Route path="businesses/:id/edit" element={<AdminEditBusiness />} />
+                <Route path="articles" element={<AdminArticles />} />
+                <Route path="articles/:id" element={<AdminViewArticle />} />
+                <Route path="articles/:id/edit" element={<AdminEditArticle />} />
+              </Route>
             </Route>
             <Route path="403" element={<AccessDenied />} />
           </Route>

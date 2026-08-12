@@ -1,14 +1,16 @@
 import {
   AdminAddUserToGroupCommand,
   AdminRemoveUserFromGroupCommand,
+  AdminUserGlobalSignOutCommand,
   CognitoIdentityProviderClient,
 } from '@aws-sdk/client-cognito-identity-provider';
 import { Injectable, ServiceUnavailableException } from '@nestjs/common';
+import { resolveCognitoRegion } from '../auth/cognito-region';
 
 @Injectable()
 export class CognitoGroupsService {
   private readonly client = new CognitoIdentityProviderClient({
-    region: process.env.COGNITO_REGION || process.env.AWS_REGION,
+    region: resolveCognitoRegion(),
   });
 
   async setAdminMembership(username: string, isAdmin: boolean): Promise<void> {
@@ -28,5 +30,11 @@ export class CognitoGroupsService {
       ? new AdminAddUserToGroupCommand(input)
       : new AdminRemoveUserFromGroupCommand(input);
     await this.client.send(command);
+    await this.client.send(
+      new AdminUserGlobalSignOutCommand({
+        Username: username,
+        UserPoolId: userPoolId,
+      }),
+    );
   }
 }

@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
-import { useNavigate, useParams, Link } from 'react-router-dom';
-import { Image as ImageIcon, Cloud, ArrowLeft } from 'lucide-react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { Cloud, ArrowLeft } from 'lucide-react';
 import ReactQuill from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
 import { toast } from 'sonner';
@@ -9,6 +9,7 @@ import detailStyles from './BlogDetail.module.css';
 import { api } from '../lib/axios';
 import ImageUploader from '../components/ImageUploader';
 import TagInput from '../components/TagInput';
+import { sanitizeRichText } from '../utils/sanitizeRichText';
 
 const customScrollbarStyle = `
   .custom-scroll::-webkit-scrollbar {
@@ -127,7 +128,7 @@ const CreateBlog = () => {
 
   useEffect(() => {
     const styleEl = document.createElement('style');
-    styleEl.innerHTML = customScrollbarStyle;
+    styleEl.textContent = customScrollbarStyle;
     document.head.appendChild(styleEl);
     return () => { document.head.removeChild(styleEl); };
   }, []);
@@ -146,7 +147,7 @@ const CreateBlog = () => {
 
           setFormData({
             title: articleToEdit.title,
-            content: articleToEdit.content,
+            content: sanitizeRichText(articleToEdit.content),
             summary: articleToEdit.summary || '',
             topic: foundTopic,
             tags: remainingTags,
@@ -180,7 +181,7 @@ const CreateBlog = () => {
       [{ 'header': [1, 2, 3, false] }],
       ['bold', 'italic', 'underline', 'strike', 'blockquote'],
       [{'list': 'ordered'}, {'list': 'bullet'}],
-      ['link', 'image', 'video'],
+      ['link', 'image'],
       ['clean']
     ],
   };
@@ -189,7 +190,7 @@ const CreateBlog = () => {
     'header',
     'bold', 'italic', 'underline', 'strike', 'blockquote',
     'list', 'bullet',
-    'link', 'image', 'video'
+    'link', 'image'
   ];
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -219,7 +220,7 @@ const CreateBlog = () => {
     const payload = {
       title: formData.title,
       summary: formData.summary,
-      content: formData.content,
+      content: sanitizeRichText(formData.content),
       coverImage: formData.coverImage,
       category: 'BLOG',
       tags: getProcessedTags(),
@@ -459,7 +460,11 @@ const CreateBlog = () => {
                     </p>
                   )}
                   
-                  <div className="ql-editor" style={{ padding: 0, color: '#1e293b', fontSize: '1.125rem', lineHeight: 1.7 }} dangerouslySetInnerHTML={{ __html: formData.content || '<p style="color: #94a3b8;">Nội dung sẽ hiển thị ở đây...</p>' }} />
+                  {formData.content ? (
+                    <div className="ql-editor" style={{ padding: 0, color: '#1e293b', fontSize: '1.125rem', lineHeight: 1.7 }} dangerouslySetInnerHTML={{ __html: sanitizeRichText(formData.content) }} />
+                  ) : (
+                    <p style={{ color: '#94a3b8' }}>Nội dung sẽ hiển thị ở đây...</p>
+                  )}
                 </div>
               </div>
             </div>

@@ -1,4 +1,14 @@
-import { IsString, IsNotEmpty, IsOptional } from 'class-validator';
+import {
+  IsArray,
+  IsIn,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+} from 'class-validator';
+import {
+  ARTICLE_STATUSES,
+  type ArticleStatus,
+} from './update-article-status.dto';
 
 export class CreateArticleDto {
   @IsString()
@@ -17,9 +27,9 @@ export class CreateArticleDto {
   @IsNotEmpty()
   category!: string;
 
-  @IsString()
   @IsOptional()
-  status?: string; // DRAFT or PUBLISHED
+  @IsIn(ARTICLE_STATUSES)
+  status?: ArticleStatus;
 
   @IsString()
   @IsOptional()
@@ -30,5 +40,7 @@ export class CreateArticleDto {
   coverImage?: string;
 
   @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
   tags?: string[];
 }

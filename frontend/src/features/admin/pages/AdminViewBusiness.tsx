@@ -1,66 +1,86 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useParams, useLocation, useNavigate, Link } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import { useAdminTabsStore } from '../../../store/adminTabsStore';
 import { api } from '../../../lib/axios';
 import commonStyles from '../AdminCommon.module.css';
 import styles from '../../../pages/BusinessDetail.module.css';
+import { sanitizeRichText } from '../../../utils/sanitizeRichText';
+import { adminQueryKeys } from '../services/adminApi';
 import { 
-  Building2, Globe, MapPin, Calendar, Users, Edit3, CheckCircle2, Bookmark, Heart, Mail, ShieldAlert
+  Globe, MapPin, Calendar, Users, Edit3, CheckCircle2, Bookmark, Heart, Mail
 } from 'lucide-react';
 
 type Tab = 'overview' | 'updates' | 'team';
 
 export default function AdminViewBusiness({ businessId: propBusinessId }: { businessId?: string }) {
+  const queryClient = useQueryClient();
   const params = useParams();
   const location = useLocation();
   const navigate = useNavigate();
   const updateTabTitle = useAdminTabsStore(state => state.updateTabTitle);
   const businessId = propBusinessId || params.id;
   
-  const [business, setBusiness] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<Tab>('overview');
 
-  useEffect(() => {
-    fetchBusinessDetails();
-  }, [businessId]);
-
-  const fetchBusinessDetails = async () => {
-    try {
-      // First get the detailed business which includes relations
+  const businessQuery = useQuery({
+    queryKey: adminQueryKeys.business(businessId),
+    enabled: Boolean(businessId),
+    queryFn: async () => {
       const res = await api.get(`/businesses/admin/${businessId}`);
-      const b = res.data;
-      if (b) {
-        
-        // Fetch related articles for the updates tab
-        try {
-          const artRes = await api.get('/articles');
-          const bizArticles = artRes.data.data.filter((a: any) => a.author?.businessId === b.id || a.businessId === b.id);
-          b.articles = bizArticles;
-        } catch (e) {
-          console.error("Could not fetch business articles", e);
-          b.articles = [];
-        }
+      return res.data;
+    },
+  });
 
-        setBusiness(b);
-        updateTabTitle(location.pathname, `Business: ${b.name.length > 15 ? b.name.substring(0, 15) + '...' : b.name}`);
-      }
-    } catch (error) {
+  const businessArticlesQuery = useQuery({
+    queryKey: adminQueryKeys.businessArticles(businessId),
+    enabled: Boolean(businessId),
+    queryFn: async () => {
+      const response = await api.get('/articles', {
+        params: { businessId, take: 100 },
+      });
+      return response.data.data || [];
+    },
+  });
+
+  useEffect(() => {
+    const business = businessQuery.data;
+    if (business) {
+      updateTabTitle(location.pathname, `Business: ${business.name.length > 15 ? business.name.substring(0, 15) + '...' : business.name}`);
+    }
+  }, [businessQuery.data, location.pathname, updateTabTitle]);
+
+  useEffect(() => {
+    if (businessQuery.isError) {
       toast.error('Error fetching business details');
-    } finally {
-      setLoading(false);
     }
-  };
+  }, [businessQuery.errorUpdatedAt, businessQuery.isError]);
 
-  const handleUpdateStatus = async (status: string) => {
-    try {
-      await api.put(`/businesses/admin/${businessId}/status`, { status });
-      toast.success(`Business status updated to ${status}`);
-      fetchBusinessDetails();
-    } catch (error) {
-      toast.error('Error updating status');
+  useEffect(() => {
+    if (businessArticlesQuery.isError) {
+      console.error('Could not fetch business articles', businessArticlesQuery.error);
     }
+  }, [businessArticlesQuery.error, businessArticlesQuery.errorUpdatedAt, businessArticlesQuery.isError]);
+
+  const updateStatusMutation = useMutation({
+    mutationFn: (status: string) =>
+      api.put(`/businesses/admin/${businessId}/status`, { status }),
+    onSuccess: async (response, status) => {
+      toast.success(`Business status updated to ${status}`);
+      queryClient.setQueryData(
+        adminQueryKeys.business(businessId),
+        response.data,
+      );
+      await queryClient.invalidateQueries({
+        queryKey: adminQueryKeys.businessLists,
+      });
+    },
+    onError: () => toast.error('Error updating status'),
+  });
+
+  const handleUpdateStatus = (status: string) => {
+    updateStatusMutation.mutate(status);
   };
 
   const formatDate = (isoString: string) => {
@@ -69,7 +89,22 @@ export default function AdminViewBusiness({ businessId: propBusinessId }: { busi
     return new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', year: 'numeric' }).format(date);
   };
 
-  if (loading) {
+  const business = useMemo(
+    () => businessQuery.data
+      ? { ...businessQuery.data, articles: businessArticlesQuery.data || [] }
+      : null,
+    [businessArticlesQuery.data, businessQuery.data],
+  );
+  const sanitizedOverview = useMemo(
+    () => sanitizeRichText(business?.detailedOverview),
+    [business?.detailedOverview],
+  );
+
+  if (!businessId) {
+    return <div className={commonStyles.container} style={{ padding: '2rem' }}>Business not found.</div>;
+  }
+
+  if (businessQuery.isPending || businessArticlesQuery.isPending) {
     return <div className={commonStyles.container} style={{ padding: '2rem' }}>Loading business details...</div>;
   }
 
@@ -102,18 +137,18 @@ export default function AdminViewBusiness({ businessId: propBusinessId }: { busi
           
           {business.status === 'PENDING' && (
             <>
-              <button onClick={() => handleUpdateStatus('APPROVED')} style={{ padding: '0.5rem 1rem', background: '#22c55e', color: '#fff', borderRadius: '0.5rem', fontWeight: 600, border: 'none', cursor: 'pointer' }}>Approve</button>
-              <button onClick={() => handleUpdateStatus('REJECTED')} style={{ padding: '0.5rem 1rem', background: '#ef4444', color: '#fff', borderRadius: '0.5rem', fontWeight: 600, border: 'none', cursor: 'pointer' }}>Reject</button>
+              <button disabled={updateStatusMutation.isPending} onClick={() => handleUpdateStatus('APPROVED')} style={{ padding: '0.5rem 1rem', background: '#22c55e', color: '#fff', borderRadius: '0.5rem', fontWeight: 600, border: 'none', cursor: 'pointer' }}>Approve</button>
+              <button disabled={updateStatusMutation.isPending} onClick={() => handleUpdateStatus('REJECTED')} style={{ padding: '0.5rem 1rem', background: '#ef4444', color: '#fff', borderRadius: '0.5rem', fontWeight: 600, border: 'none', cursor: 'pointer' }}>Reject</button>
             </>
           )}
           {business.status === 'APPROVED' && (
-            <button onClick={() => handleUpdateStatus('SUSPENDED')} style={{ padding: '0.5rem 1rem', background: '#eab308', color: '#fff', borderRadius: '0.5rem', fontWeight: 600, border: 'none', cursor: 'pointer' }}>Suspend</button>
+            <button disabled={updateStatusMutation.isPending} onClick={() => handleUpdateStatus('SUSPENDED')} style={{ padding: '0.5rem 1rem', background: '#eab308', color: '#fff', borderRadius: '0.5rem', fontWeight: 600, border: 'none', cursor: 'pointer' }}>Suspend</button>
           )}
           {business.status === 'SUSPENDED' && (
-            <button onClick={() => handleUpdateStatus('APPROVED')} style={{ padding: '0.5rem 1rem', background: '#22c55e', color: '#fff', borderRadius: '0.5rem', fontWeight: 600, border: 'none', cursor: 'pointer' }}>Restore</button>
+            <button disabled={updateStatusMutation.isPending} onClick={() => handleUpdateStatus('APPROVED')} style={{ padding: '0.5rem 1rem', background: '#22c55e', color: '#fff', borderRadius: '0.5rem', fontWeight: 600, border: 'none', cursor: 'pointer' }}>Restore</button>
           )}
           {business.status === 'REJECTED' && (
-            <button onClick={() => handleUpdateStatus('APPROVED')} style={{ padding: '0.5rem 1rem', background: '#22c55e', color: '#fff', borderRadius: '0.5rem', fontWeight: 600, border: 'none', cursor: 'pointer' }}>Approve</button>
+            <button disabled={updateStatusMutation.isPending} onClick={() => handleUpdateStatus('APPROVED')} style={{ padding: '0.5rem 1rem', background: '#22c55e', color: '#fff', borderRadius: '0.5rem', fontWeight: 600, border: 'none', cursor: 'pointer' }}>Approve</button>
           )}
         </div>
       </div>
@@ -138,7 +173,7 @@ export default function AdminViewBusiness({ businessId: propBusinessId }: { busi
             <div className={styles.headerInfo}>
               <div className={styles.nameRow}>
                 <h1 className={styles.name}>{business.name}</h1>
-                {business.verified && (
+                {business.isVerified && (
                   <span className={styles.verifiedBadge} title="Verified Business">
                     <CheckCircle2 size={20} /> Verified
                   </span>
@@ -223,7 +258,7 @@ export default function AdminViewBusiness({ businessId: propBusinessId }: { busi
             <section className={styles.sectionCard}>
               <h2 className={styles.sectionTitle}>Business Overview</h2>
               {business.detailedOverview ? (
-                <div className={styles.bodyText} dangerouslySetInnerHTML={{ __html: business.detailedOverview }} />
+                <div className={styles.bodyText} dangerouslySetInnerHTML={{ __html: sanitizedOverview }} />
               ) : (
                 <p className={styles.bodyText}>
                   {business.description || 'No overview provided.'}

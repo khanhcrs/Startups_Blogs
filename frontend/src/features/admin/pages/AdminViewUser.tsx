@@ -1,8 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useParams, useLocation, Link } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import { useAdminTabsStore } from '../../../store/adminTabsStore';
 import { api } from '../../../lib/axios';
+import { adminQueryKeys } from '../services/adminApi';
 import commonStyles from '../AdminCommon.module.css';
 import profileStyles from '../../../pages/UserProfile.module.css';
 import { 
@@ -17,13 +19,11 @@ import {
 type Tab = 'overview' | 'posts' | 'businesses' | 'settings';
 
 export default function AdminViewUser({ userId: propUserId }: { userId?: string }) {
+  const queryClient = useQueryClient();
   const params = useParams();
   const location = useLocation();
   const updateTabTitle = useAdminTabsStore(state => state.updateTabTitle);
   const userId = propUserId || params.id;
-  
-  const [user, setUser] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
   
   const [activeTab, setActiveTab] = useState<Tab>('overview');
   const [settingsActiveTab, setSettingsActiveTab] = useState('profile');
@@ -39,42 +39,103 @@ export default function AdminViewUser({ userId: propUserId }: { userId?: string 
     status: 'ACTIVE'
   });
 
-  useEffect(() => {
-    fetchUserDetails();
-  }, [userId]);
-
-  const fetchUserDetails = async () => {
-    try {
+  const userQuery = useQuery({
+    queryKey: adminQueryKeys.user(userId),
+    enabled: Boolean(userId),
+    queryFn: async () => {
       const res = await api.get(`/users/admin/${userId}`);
       const data = res.data;
-      const userData = data.data || data;
-        setUser(userData);
-        setEditData({
-          name: userData.name || '',
-          email: userData.email || '',
-          bio: userData.bio || '',
-          location: userData.location || '',
-          avatarUrl: userData.avatarUrl || '',
-          role: userData.role || 'USER',
-          status: userData.status || 'ACTIVE'
-        });
-        updateTabTitle(location.pathname, `User: ${userData.name.length > 15 ? userData.name.substring(0, 15) + '...' : userData.name}`);
-    } catch (error) {
+      return data.data || data;
+    },
+  });
+
+  useEffect(() => {
+    const userData = userQuery.data;
+    if (!userData) return;
+
+    setEditData({
+      name: userData.name || '',
+      email: userData.email || '',
+      bio: userData.bio || '',
+      location: userData.location || '',
+      avatarUrl: userData.avatarUrl || '',
+      role: userData.role || 'USER',
+      status: userData.status || 'ACTIVE'
+    });
+    updateTabTitle(location.pathname, `User: ${userData.name.length > 15 ? userData.name.substring(0, 15) + '...' : userData.name}`);
+  }, [location.pathname, updateTabTitle, userQuery.data]);
+
+  useEffect(() => {
+    if (userQuery.isError) {
       toast.error('Error fetching user details');
-    } finally {
-      setLoading(false);
     }
+  }, [userQuery.errorUpdatedAt, userQuery.isError]);
+
+  const invalidateUserQueries = async () => {
+    await Promise.all([
+      queryClient.invalidateQueries({ queryKey: adminQueryKeys.user(userId) }),
+      queryClient.invalidateQueries({ queryKey: adminQueryKeys.userLists }),
+    ]);
   };
 
-  const handleSaveProfile = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      await api.put(`/users/admin/${userId}`, editData);
+  const updateProfileMutation = useMutation({
+    mutationFn: (profile: {
+      name: string;
+      bio: string;
+      location: string;
+      avatarUrl?: string;
+    }) => api.put(`/users/admin/${userId}`, profile),
+    onSuccess: async () => {
       toast.success('User profile updated successfully');
-      fetchUserDetails();
-    } catch (error) {
-      toast.error('Error updating profile');
-    }
+      await invalidateUserQueries();
+    },
+    onError: () => toast.error('Error updating profile'),
+  });
+
+  const updateAccessMutation = useMutation({
+    mutationFn: async ({
+      status,
+      role,
+      currentStatus,
+      currentRole,
+    }: {
+      status: string;
+      role: string;
+      currentStatus: string;
+      currentRole: string;
+    }) => {
+      if (status !== currentStatus) {
+        await api.put(`/users/admin/${userId}/status`, { status });
+      }
+      if (role !== currentRole) {
+        await api.put(`/users/admin/${userId}/role`, { role });
+      }
+    },
+    onSuccess: () => {
+      toast.success('User access controls updated successfully');
+    },
+    onError: () => toast.error('Error updating user access controls'),
+    onSettled: invalidateUserQueries,
+  });
+
+  const handleSaveProfile = (e: React.FormEvent) => {
+    e.preventDefault();
+    updateProfileMutation.mutate({
+      name: editData.name,
+      bio: editData.bio,
+      location: editData.location,
+      avatarUrl: editData.avatarUrl || undefined,
+    });
+  };
+
+  const handleSaveAdminControls = () => {
+    if (!userQuery.data) return;
+    updateAccessMutation.mutate({
+      status: editData.status,
+      role: editData.role,
+      currentStatus: userQuery.data.status,
+      currentRole: userQuery.data.role,
+    });
   };
 
   const formatDate = (isoString: string) => {
@@ -83,10 +144,15 @@ export default function AdminViewUser({ userId: propUserId }: { userId?: string 
     return new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', year: 'numeric' }).format(date);
   };
 
-  if (loading) {
+  if (!userId) {
+    return <div className={commonStyles.container} style={{ padding: '2rem' }}>User not found.</div>;
+  }
+
+  if (userQuery.isPending) {
     return <div className={commonStyles.container} style={{ padding: '2rem' }}>Loading user details...</div>;
   }
 
+  const user = userQuery.data;
   if (!user) {
     return <div className={commonStyles.container} style={{ padding: '2rem' }}>User not found.</div>;
   }
@@ -304,8 +370,8 @@ export default function AdminViewUser({ userId: propUserId }: { userId?: string 
                       <td>{business.industry}</td>
                       <td>
                         <span style={{
-                          backgroundColor: business.status === 'VERIFIED' ? '#dcfce7' : business.status === 'PENDING' ? '#fef08a' : business.status === 'REJECTED' ? '#fee2e2' : '#f3f4f6',
-                          color: business.status === 'VERIFIED' ? '#166534' : business.status === 'PENDING' ? '#854d0e' : business.status === 'REJECTED' ? '#991b1b' : '#374151',
+                          backgroundColor: business.status === 'APPROVED' ? '#dcfce7' : business.status === 'PENDING' ? '#fef08a' : business.status === 'REJECTED' ? '#fee2e2' : '#f3f4f6',
+                          color: business.status === 'APPROVED' ? '#166534' : business.status === 'PENDING' ? '#854d0e' : business.status === 'REJECTED' ? '#991b1b' : '#374151',
                           padding: '6px 12px',
                           borderRadius: '6px',
                           fontSize: '14px',
@@ -377,8 +443,7 @@ export default function AdminViewUser({ userId: propUserId }: { userId?: string 
                         type="email" 
                         className={profileStyles.inputField}
                         value={editData.email} 
-                        onChange={e => setEditData({...editData, email: e.target.value})}
-                        required
+                        readOnly
                       />
                     </div>
 
@@ -415,7 +480,11 @@ export default function AdminViewUser({ userId: propUserId }: { userId?: string 
                       />
                     </div>
                     
-                    <button type="submit" className={profileStyles.primaryBtn}>
+                    <button
+                      type="submit"
+                      className={profileStyles.primaryBtn}
+                      disabled={updateProfileMutation.isPending}
+                    >
                       Save Changes
                     </button>
                   </form>
@@ -432,10 +501,10 @@ export default function AdminViewUser({ userId: propUserId }: { userId?: string 
                       className={profileStyles.inputField}
                       value={editData.status} 
                       onChange={e => setEditData({...editData, status: e.target.value})}
+                      disabled={updateAccessMutation.isPending}
                     >
                       <option value="ACTIVE">Active</option>
                       <option value="LOCKED">Locked</option>
-                      <option value="BANNED">Banned</option>
                     </select>
                   </div>
                   
@@ -445,15 +514,18 @@ export default function AdminViewUser({ userId: propUserId }: { userId?: string 
                       className={profileStyles.inputField}
                       value={editData.role} 
                       onChange={e => setEditData({...editData, role: e.target.value})}
+                      disabled={updateAccessMutation.isPending}
                     >
                       <option value="USER">User</option>
+                      <option value="MODERATOR">Moderator</option>
                       <option value="ADMIN">Admin</option>
                     </select>
                   </div>
 
                   <button 
                     className={profileStyles.primaryBtn} 
-                    onClick={handleSaveProfile}
+                    onClick={() => void handleSaveAdminControls()}
+                    disabled={updateAccessMutation.isPending}
                   >
                     Save Changes
                   </button>

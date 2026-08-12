@@ -1,6 +1,14 @@
-import { Controller, Get, Post, Param, UseGuards, Request } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Param,
+  UseGuards,
+  Request,
+} from '@nestjs/common';
 import { ProposalsService } from './proposals.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import type { AuthenticatedRequest } from '../auth/auth.types';
 
 @Controller('proposals')
 @UseGuards(JwtAuthGuard)
@@ -8,26 +16,41 @@ export class ProposalsController {
   constructor(private readonly proposalsService: ProposalsService) {}
 
   @Get('me')
-  async getMyProposals(@Request() req: any) {
-    const data = await this.proposalsService.getMyProposals(req.user.id);
+  async getMyProposals(@Request() req: AuthenticatedRequest) {
+    const data = await this.proposalsService.getMyProposals(req.user.userId);
     return { success: true, data };
   }
 
   @Get(':id')
-  async getProposal(@Param('id') id: string, @Request() req: any) {
-    const data = await this.proposalsService.getProposal(id, req.user.id);
+  async getProposal(
+    @Param('id') id: string,
+    @Request() req: AuthenticatedRequest,
+  ) {
+    const data = await this.proposalsService.getProposal(id, req.user.userId);
     return { success: true, data };
   }
 
   @Post(':id/approve')
-  async approveProposal(@Param('id') id: string, @Request() req: any) {
-    const data = await this.proposalsService.approveProposal(id, req.user.id);
+  async approveProposal(
+    @Param('id') id: string,
+    @Request() req: AuthenticatedRequest,
+  ) {
+    const data = await this.proposalsService.approveProposal(
+      id,
+      req.user.userId,
+    );
     return { success: true, data };
   }
 
   @Post(':id/reject')
-  async rejectProposal(@Param('id') id: string, @Request() req: any) {
-    const data = await this.proposalsService.rejectProposal(id, req.user.id);
+  async rejectProposal(
+    @Param('id') id: string,
+    @Request() req: AuthenticatedRequest,
+  ) {
+    const data = await this.proposalsService.rejectProposal(
+      id,
+      req.user.userId,
+    );
     return { success: true, data };
   }
 }

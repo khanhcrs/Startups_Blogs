@@ -16,11 +16,12 @@ import { SignUpDto } from './dto/sign-up.dto';
 import { ConfirmSignUpDto } from './dto/confirm-sign-up.dto';
 import { LoginDto } from './dto/login.dto';
 import { ConfirmForgotPasswordDto } from './dto/confirm-forgot-password.dto';
+import { resolveCognitoRegion } from './cognito-region';
 
 @Injectable()
 export class AuthService {
   private readonly client = new CognitoIdentityProviderClient({
-    region: process.env.COGNITO_REGION || 'ap-southeast-1',
+    region: resolveCognitoRegion(),
   });
   private readonly clientId = process.env.COGNITO_CLIENT_ID!;
 

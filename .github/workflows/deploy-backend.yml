@@ -1,4 +1,4 @@
-name: Deploy Backend to AWS App Runner
+name: Publish Backend Image for AWS App Runner
 
 on:
   push:
@@ -20,7 +20,7 @@ env:
   ECR_REPOSITORY: startups-blogs-backend
 
 jobs:
-  build-and-deploy:
+  publish-image:
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -75,14 +75,16 @@ jobs:
         docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
         docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
 
-    - name: Write deployment summary
+    - name: Write publish summary
       env:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         IMAGE_TAG: ${{ github.sha }}
       run: |
-        echo "## Backend deployment" >> "$GITHUB_STEP_SUMMARY"
+        echo "## Backend image publish" >> "$GITHUB_STEP_SUMMARY"
         echo "- Image: \`$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG\`" >> "$GITHUB_STEP_SUMMARY"
-        echo "- App Runner deployment: triggered by the \`latest\` tag" >> "$GITHUB_STEP_SUMMARY"
+        echo "- App Runner: automatic deployment can be triggered by the \`latest\` tag when the service is configured for it" >> "$GITHUB_STEP_SUMMARY"
+        echo "- API Gateway target: unchanged; verify the live integration before deploying the image to its actual compute target" >> "$GITHUB_STEP_SUMMARY"
 
-    # Note: AWS App Runner is configured with "Automatic Deployment" watching the ECR 'latest' tag.
-    # So pushing to ECR will automatically trigger the zero-downtime deployment in App Runner.
+    # This workflow publishes an image. App Runner automatic deployment is
+    # configured outside this repository. The Terraform-declared API Gateway
+    # targets EC2, but the live integration must be verified independently.

@@ -45,3 +45,10 @@ Giao diện quản trị viên (Admin Panel) được thiết kế theo kiến t
 - **State Tabs:** Quản lý bằng `adminTabsStore.ts` (Zustand), lưu giữ các tab đang mở thay vì chỉ rely hoàn toàn vào React Router.
 - **Render Cơ chế ẩn/hiện:** Thay vì unmount component cũ khi route thay đổi (như `<Outlet />`), hệ thống render tất cả các tab đang mở và dùng `display: none` cho những tab không active.
 - **Điều hướng bên ngoài:** Nếu ở trong giao diện Admin mà user click vào một đường link dẫn ra trang ngoài (VD: Trang chủ, Business Detail public, Article Detail public), bắt buộc phải sử dụng `target="_blank" rel="noopener noreferrer"` để mở ở tab trình duyệt mới, giữ nguyên Workspace của Admin.
+
+### 4.2. Bảo vệ Admin Route
+- `/admin/**` phải đi qua `RequireAdmin` trước khi render bất kỳ dữ liệu quản trị nào.
+- Frontend chỉ dùng claim `cognito:groups` trong access token để điều hướng và ẩn/hiện UI; không xem dữ liệu decode phía client là bằng chứng phân quyền.
+- Mỗi lần vào Admin workspace, frontend gọi endpoint backend được bảo vệ (`GET /admin/stats`) qua API Gateway. Chỉ response thành công từ `JwtAuthGuard + RolesGuard` mới cho phép render workspace.
+- `401` phải xóa toàn bộ session local và chuyển về Login; `403` phải chuyển tới Access Denied.
+- HTML do user nhập (nội dung Article/Business) phải đi qua allowlist sanitizer trước mọi `dangerouslySetInnerHTML`; không render trực tiếp dữ liệu lưu trong database.

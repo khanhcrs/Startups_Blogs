@@ -24,6 +24,26 @@ output "cognito_user_pool_id" {
 }
 
 output "cognito_client_id" {
-  description = "Client ID của Cognito App Client"
+  description = "Client ID của Cognito App Client do Terraform này tạo (không dùng output này với external User Pool)"
   value       = aws_cognito_user_pool_client.client.id
+}
+
+output "backend_cognito_user_pool_arn" {
+  description = "Cognito User Pool ARN mà IAM role của backend được phép quản lý group ADMIN"
+  value       = local.backend_cognito_user_pool_arn
+}
+
+output "backend_cognito_user_pool_id" {
+  description = "Giá trị COGNITO_USER_POOL_ID cho backend runtime"
+  value       = local.backend_cognito_user_pool_id
+}
+
+output "backend_cognito_region" {
+  description = "Giá trị COGNITO_REGION cho backend runtime, suy ra từ ARN của pool"
+  value       = local.backend_cognito_region
+}
+
+output "backend_cognito_client_id" {
+  description = "Giá trị COGNITO_CLIENT_ID khớp với backend_cognito_user_pool_id"
+  value       = local.backend_cognito_client_id
 }

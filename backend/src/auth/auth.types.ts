@@ -15,6 +15,7 @@ export interface AuthenticatedRequest extends Request {
 export interface CognitoIdentityPayload {
   sub: string;
   email?: unknown;
+  email_verified?: unknown;
   username?: unknown;
   name?: unknown;
   'custom:role'?: unknown;

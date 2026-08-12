@@ -39,6 +39,8 @@ Mọi Request đi vào Controller sẽ được xử lý qua quy trình:
 6. **Interceptor:** Format lại kết quả trả về đúng chuẩn (`{ success, data }`).
 7. **Exception Filter:** Nếu có lỗi, chuyển về format lỗi chuẩn (`{ success: false, error }`).
 
+Đối với quyền `ADMIN`, backend trước hết xác minh chữ ký, issuer, client và expiration của Cognito access token, sau đó kiểm tra membership `ADMIN` hiện tại bằng Cognito cho mọi request có claim/role admin. Vì vậy token cũ không tiếp tục cấp quyền sau khi membership bị gỡ. Role do frontend gửi lên hoặc lưu trong Local Storage không được dùng để cấp quyền. Tài khoản `LOCKED` bị từ chối ngay tại guard.
+
 ## 3. Quản lý Prisma & Database
 
 - Không sử dụng các câu query SQL thuần trừ trường hợp đặc biệt. Mọi truy vấn phải thông qua `PrismaClient`.

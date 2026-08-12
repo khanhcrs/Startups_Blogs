@@ -1,52 +1,12 @@
 {
-  "src/admin/admin.controller.ts": {
-    "@typescript-eslint/no-unsafe-member-access": {
-      "count": 2
-    },
-    "prettier/prettier": {
-      "count": 6
-    }
-  },
-  "src/admin/admin.service.ts": {
-    "@typescript-eslint/no-unsafe-assignment": {
-      "count": 1
-    },
-    "prettier/prettier": {
-      "count": 15
-    }
-  },
   "src/app.module.ts": {
     "prettier/prettier": {
       "count": 1
     }
   },
-  "src/articles/articles.controller.ts": {
-    "@typescript-eslint/no-unsafe-member-access": {
-      "count": 4
-    },
-    "prettier/prettier": {
-      "count": 6
-    }
-  },
   "src/articles/articles.module.ts": {
     "prettier/prettier": {
       "count": 1
-    }
-  },
-  "src/articles/articles.service.spec.ts": {
-    "prettier/prettier": {
-      "count": 16
-    }
-  },
-  "src/articles/articles.service.ts": {
-    "@typescript-eslint/no-unsafe-assignment": {
-      "count": 5
-    },
-    "@typescript-eslint/no-unsafe-member-access": {
-      "count": 14
-    },
-    "prettier/prettier": {
-      "count": 40
     }
   },
   "src/auth/auth.module.ts": {
@@ -77,11 +37,6 @@
       "count": 9
     }
   },
-  "src/businesses/businesses.controller.ts": {
-    "@typescript-eslint/no-unsafe-member-access": {
-      "count": 3
-    }
-  },
   "src/businesses/businesses.module.ts": {
     "prettier/prettier": {
       "count": 1
@@ -95,14 +50,6 @@
       "count": 3
     },
     "prettier/prettier": {
-      "count": 10
-    }
-  },
-  "src/businesses/businesses.service.ts": {
-    "@typescript-eslint/no-unsafe-assignment": {
-      "count": 3
-    },
-    "@typescript-eslint/no-unsafe-member-access": {
       "count": 10
     }
   },
@@ -245,28 +192,6 @@
       "count": 1
     }
   },
-  "src/proposals/proposals.controller.ts": {
-    "@typescript-eslint/no-unsafe-member-access": {
-      "count": 4
-    },
-    "prettier/prettier": {
-      "count": 1
-    }
-  },
-  "src/proposals/proposals.service.ts": {
-    "@typescript-eslint/no-unsafe-assignment": {
-      "count": 5
-    },
-    "@typescript-eslint/no-unsafe-member-access": {
-      "count": 2
-    },
-    "@typescript-eslint/no-unused-vars": {
-      "count": 1
-    },
-    "prettier/prettier": {
-      "count": 27
-    }
-  },
   "src/team-members/team-members.controller.ts": {
     "@typescript-eslint/no-unsafe-member-access": {
       "count": 3
@@ -301,11 +226,6 @@
     },
     "prettier/prettier": {
       "count": 14
-    }
-  },
-  "src/users/users.controller.ts": {
-    "@typescript-eslint/no-unsafe-member-access": {
-      "count": 2
     }
   }
 }

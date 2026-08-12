@@ -2,12 +2,14 @@ import {
   CanActivate,
   ExecutionContext,
   Injectable,
+  ServiceUnavailableException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { CognitoJwtVerifier } from 'aws-jwt-verify';
 import { Role } from '@prisma/client';
 import { UsersService } from '../../users/users.service';
 import type { AuthenticatedRequest } from '../auth.types';
+import { CognitoIdentityService } from '../cognito-identity.service';
 
 @Injectable()
 export class JwtAuthGuard implements CanActivate {
@@ -17,7 +19,10 @@ export class JwtAuthGuard implements CanActivate {
     tokenUse: 'access',
   });
 
-  constructor(private readonly usersService: UsersService) {}
+  constructor(
+    private readonly usersService: UsersService,
+    private readonly cognitoIdentity: CognitoIdentityService,
+  ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest<AuthenticatedRequest>();
@@ -29,24 +34,49 @@ export class JwtAuthGuard implements CanActivate {
 
     try {
       const payload = await this.verifier.verify(token);
-      const email =
-        typeof payload.email === 'string' && payload.email
-          ? payload.email
-          : typeof payload.username === 'string' && payload.username
-            ? payload.username
-            : undefined;
-      if (!email) {
-        throw new Error('Cognito token does not contain a valid identity');
+      let user = await this.usersService.findByCognitoSub(payload.sub);
+      if (!user) {
+        const tokenEmail =
+          typeof payload.email === 'string' && payload.email.includes('@')
+            ? payload.email.trim().toLowerCase()
+            : typeof payload.username === 'string' &&
+                payload.username.includes('@')
+              ? payload.username.trim().toLowerCase()
+              : undefined;
+        const tokenEmailVerified = payload.email_verified === true;
+        const profile =
+          tokenEmail && tokenEmailVerified
+            ? {
+                email: tokenEmail,
+                emailVerified: true,
+                name:
+                  typeof payload.name === 'string' ? payload.name : undefined,
+              }
+            : await this.cognitoIdentity.getProfile(token);
+
+        user = await this.usersService.findOrCreateFromCognito({
+          cognitoSub: payload.sub,
+          email: profile.email,
+          emailVerified: profile.emailVerified,
+          name: profile.name,
+        });
       }
-      const user = await this.usersService.findOrCreateFromCognito({
-        cognitoSub: payload.sub,
-        email,
-        name: typeof payload.name === 'string' ? payload.name : undefined,
-      });
+      if (user.status === 'LOCKED') {
+        throw new UnauthorizedException('User account is locked');
+      }
       const groups = Array.isArray(payload['cognito:groups'])
         ? payload['cognito:groups']
         : [];
-      const effectiveRole = groups.includes('ADMIN')
+      const shouldVerifyAdminMembership =
+        groups.includes('ADMIN') || user.role === Role.ADMIN;
+      const cognitoUsername =
+        typeof payload.username === 'string' && payload.username.length > 0
+          ? payload.username
+          : payload.sub;
+      const hasCurrentAdminMembership = shouldVerifyAdminMembership
+        ? await this.cognitoIdentity.isAdminMember(cognitoUsername)
+        : false;
+      const effectiveRole = hasCurrentAdminMembership
         ? Role.ADMIN
         : user.role === Role.ADMIN
           ? Role.USER
@@ -61,7 +91,13 @@ export class JwtAuthGuard implements CanActivate {
         role: effectiveRole,
       };
       return true;
-    } catch {
+    } catch (error) {
+      if (
+        error instanceof UnauthorizedException ||
+        error instanceof ServiceUnavailableException
+      ) {
+        throw error;
+      }
       throw new UnauthorizedException(
         'Invalid or expired Cognito access token',
       );

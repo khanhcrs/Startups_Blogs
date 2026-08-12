@@ -1,4 +1,5 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import ReactQuill from 'react-quill-new';
@@ -7,8 +8,45 @@ import commonStyles from '../AdminCommon.module.css';
 import ImageUploader from '../../../components/ImageUploader';
 import TagInput from '../../../components/TagInput';
 import detailStyles from '../../../pages/BlogDetail.module.css';
-import { useAuthStore } from '../../../store/authStore';
 import { useAdminTabsStore } from '../../../store/adminTabsStore';
+import { api } from '../../../lib/axios';
+import { sanitizeRichText } from '../../../utils/sanitizeRichText';
+import { adminQueryKeys } from '../services/adminApi';
+import { createProposalDiff } from '../utils/proposalDiff';
+
+const DEFAULT_TOPICS = [
+  'Startup Guide',
+  'Funding',
+  'Growth',
+  'Product',
+  'Community',
+] as const;
+
+const ARTICLE_PROPOSAL_FIELDS = [
+  'title',
+  'summary',
+  'content',
+  'category',
+  'tags',
+  'coverImage',
+] as const;
+
+function getProcessedTags(form: Record<string, any>): string[] {
+  const customTags = [...form.tags];
+  if (!customTags.includes(form.topic)) customTags.unshift(form.topic);
+  return customTags;
+}
+
+function toArticleProposal(form: Record<string, any>) {
+  return {
+    title: form.title,
+    summary: form.summary,
+    content: sanitizeRichText(form.content),
+    category: form.category,
+    tags: getProcessedTags(form),
+    coverImage: form.coverImage,
+  };
+}
 
 const customScrollbarStyle = `
   .custom-scroll::-webkit-scrollbar {
@@ -112,8 +150,8 @@ export default function AdminEditArticle({ articleId }: { articleId?: string }) 
   const navigate = useNavigate();
   const location = useLocation();
   const updateTabTitle = useAdminTabsStore(state => state.updateTabTitle);
-  const [loading, setLoading] = useState(true);
-  const [submitting, setSubmitting] = useState(false);
+  const initializedArticleIdRef = useRef<string | undefined>(undefined);
+  const originalProposalRef = useRef<Record<string, unknown> | null>(null);
   const [step, setStep] = useState<'write' | 'settings'>('write');
   const [showPreview, setShowPreview] = useState(location.state?.showPreview || false);
   
@@ -121,7 +159,7 @@ export default function AdminEditArticle({ articleId }: { articleId?: string }) 
     title: '',
     summary: '',
     content: '',
-    category: '',
+    category: 'BLOG',
     tags: [] as string[],
     coverImage: '',
     topic: 'Startup Guide',
@@ -133,14 +171,6 @@ export default function AdminEditArticle({ articleId }: { articleId?: string }) 
 
   const titleRef = useRef<HTMLTextAreaElement>(null);
   const summaryRef = useRef<HTMLTextAreaElement>(null);
-
-  useEffect(() => {
-    fetchArticle();
-    const styleEl = document.createElement('style');
-    styleEl.innerHTML = customScrollbarStyle;
-    document.head.appendChild(styleEl);
-    return () => { document.head.removeChild(styleEl); };
-  }, [id]);
 
   useEffect(() => {
     if (titleRef.current) {
@@ -156,51 +186,77 @@ export default function AdminEditArticle({ articleId }: { articleId?: string }) 
     }
   }, [formData.summary]);
 
-  const fetchArticle = async () => {
-    try {
-      const token = localStorage.getItem('token');
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/articles/admin/all?limit=50`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      if (res.ok) {
-        const data = await res.json();
-        const a = data.data.find((x: any) => x.id === id);
-        if (a) {
-          const defaultTopics = ['Startup Guide', 'Funding', 'Growth', 'Product', 'Community'];
-          const existingTags = Array.isArray(a.tags) ? a.tags : [];
-          const foundTopic = existingTags.find((t: string) => defaultTopics.includes(t)) || 'Startup Guide';
-          const remainingTags = existingTags.filter((t: string) => !defaultTopics.includes(t));
+  const articleQuery = useQuery({
+    queryKey: adminQueryKeys.article(id),
+    enabled: Boolean(id),
+    refetchOnMount: 'always',
+    queryFn: async () => {
+      const response = await api.get(`/articles/admin/${id}`);
+      return response.data.data ?? response.data;
+    },
+  });
 
-          setFormData({
-            title: a.title,
-            summary: a.summary || '',
-            content: a.content,
-            category: a.category || 'Blog',
-            topic: foundTopic,
-            tags: remainingTags,
-            coverImage: a.coverImage || '',
-            authorName: a.author?.name || 'Unknown Author',
-            authorBio: a.author?.bio || '',
-            createdAt: a.createdAt || new Date().toISOString(),
-            viewCount: a.viewCount || 0
-          });
-          
-          updateTabTitle(location.pathname, `Edit: ${a.title.length > 20 ? a.title.substring(0, 20) + '...' : a.title}`);
-        }
-      }
-    } catch (error) {
+  useEffect(() => {
+    const article = articleQuery.data;
+    if (
+      !article ||
+      !articleQuery.isFetchedAfterMount ||
+      initializedArticleIdRef.current === id
+    ) return;
+
+    const existingTags = Array.isArray(article.tags) ? article.tags : [];
+    const foundTopic =
+      existingTags.find((tag: string) =>
+        DEFAULT_TOPICS.includes(tag as (typeof DEFAULT_TOPICS)[number]),
+      ) || 'Startup Guide';
+    const remainingTags = existingTags.filter(
+      (tag: string) =>
+        !DEFAULT_TOPICS.includes(tag as (typeof DEFAULT_TOPICS)[number]),
+    );
+    const nextFormData = {
+      title: article.title,
+      summary: article.summary || '',
+      content: sanitizeRichText(article.content),
+      category: article.category || 'BLOG',
+      topic: foundTopic,
+      tags: remainingTags,
+      coverImage: article.coverImage || '',
+      authorName: article.author?.name || 'Unknown Author',
+      authorBio: article.author?.bio || '',
+      createdAt: article.createdAt || new Date().toISOString(),
+      viewCount: article.viewCount || 0
+    };
+    setFormData(nextFormData);
+    originalProposalRef.current = toArticleProposal(nextFormData);
+    initializedArticleIdRef.current = id;
+    updateTabTitle(location.pathname, `Edit: ${article.title.length > 20 ? article.title.substring(0, 20) + '...' : article.title}`);
+  }, [
+    articleQuery.data,
+    articleQuery.isFetchedAfterMount,
+    id,
+    location.pathname,
+    updateTabTitle,
+  ]);
+
+  useEffect(() => {
+    if (articleQuery.isError) {
       toast.error('Failed to load article');
-    } finally {
-      setLoading(false);
     }
-  };
+  }, [articleQuery.errorUpdatedAt, articleQuery.isError]);
+
+  useEffect(() => {
+    const styleEl = document.createElement('style');
+    styleEl.textContent = customScrollbarStyle;
+    document.head.appendChild(styleEl);
+    return () => { document.head.removeChild(styleEl); };
+  }, []);
 
   const modules = {
     toolbar: [
       [{ 'header': [1, 2, 3, false] }],
       ['bold', 'italic', 'underline', 'strike', 'blockquote'],
       [{'list': 'ordered'}, {'list': 'bullet'}],
-      ['link', 'image', 'video'],
+      ['link', 'image'],
       ['clean']
     ],
   };
@@ -209,7 +265,7 @@ export default function AdminEditArticle({ articleId }: { articleId?: string }) 
     'header',
     'bold', 'italic', 'underline', 'strike', 'blockquote',
     'list', 'bullet',
-    'link', 'image', 'video'
+    'link', 'image'
   ];
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -224,40 +280,34 @@ export default function AdminEditArticle({ articleId }: { articleId?: string }) 
     setStep('settings');
   };
 
-  const getProcessedTags = () => {
-    const customTags = [...formData.tags];
-    if (!customTags.includes(formData.topic)) {
-      customTags.unshift(formData.topic);
-    }
-    return customTags;
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSubmitting(true);
-    
-    const submitData = {
-      ...formData,
-      tags: getProcessedTags()
-    };
-
-    try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/admin/proposals/article/${id}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify(submitData)
-      });
-      if (!res.ok) throw new Error('Failed to propose changes');
+  const proposalMutation = useMutation({
+    mutationFn: (proposal: Record<string, unknown>) =>
+      api.post(`/admin/proposals/article/${id}`, proposal),
+    onSuccess: () => {
       toast.success('Change proposal created and sent to author for review!');
       navigate('/admin/articles');
-    } catch (error) {
-      toast.error('Error creating proposal');
-    } finally {
-      setSubmitting(false);
+    },
+    onError: () => toast.error('Error creating proposal'),
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!articleQuery.isSuccess || !originalProposalRef.current) {
+      toast.error('Load the current article before proposing changes');
+      return;
     }
+
+    const changes = createProposalDiff(
+      originalProposalRef.current,
+      toArticleProposal(formData),
+      ARTICLE_PROPOSAL_FIELDS,
+    );
+    if (Object.keys(changes).length === 0) {
+      toast.error('No changes to propose');
+      return;
+    }
+
+    proposalMutation.mutate(changes);
   };
 
   const getInitials = (name: string) => {
@@ -269,7 +319,36 @@ export default function AdminEditArticle({ articleId }: { articleId?: string }) 
     return new Intl.DateTimeFormat('en-US', { month: 'long', day: 'numeric', year: 'numeric' }).format(date);
   };
 
-  if (loading) return <div className={commonStyles.loading}>Loading...</div>;
+  const sanitizedPreviewContent = useMemo(
+    () => sanitizeRichText(formData.content),
+    [formData.content],
+  );
+
+  if (!id) return <div className={commonStyles.loading}>Article not found.</div>;
+  if (articleQuery.isPending) return <div className={commonStyles.loading}>Loading...</div>;
+  if (articleQuery.isError || !articleQuery.data) {
+    return (
+      <div className={commonStyles.emptyState} role="alert">
+        <p>The current article could not be loaded. No proposal can be submitted.</p>
+        <button
+          type="button"
+          className={commonStyles.actionBtn}
+          onClick={() => void articleQuery.refetch()}
+        >
+          Try again
+        </button>
+      </div>
+    );
+  }
+  if (
+    !articleQuery.isFetchedAfterMount ||
+    initializedArticleIdRef.current !== id ||
+    !originalProposalRef.current
+  ) {
+    return <div className={commonStyles.loading}>Loading current article data...</div>;
+  }
+
+  const submitting = proposalMutation.isPending;
 
   if (step === 'settings') {
     return (
@@ -507,7 +586,11 @@ export default function AdminEditArticle({ articleId }: { articleId?: string }) 
                     </p>
                   )}
                   
-                  <div className="ql-editor" style={{ padding: 0, color: '#1e293b', fontSize: '1.125rem', lineHeight: 1.7 }} dangerouslySetInnerHTML={{ __html: formData.content || '<p style="color: #94a3b8;">Start typing to see the content here...</p>' }} />
+                  {sanitizedPreviewContent ? (
+                    <div className="ql-editor" style={{ padding: 0, color: '#1e293b', fontSize: '1.125rem', lineHeight: 1.7 }} dangerouslySetInnerHTML={{ __html: sanitizedPreviewContent }} />
+                  ) : (
+                    <p style={{ color: '#94a3b8' }}>Start typing to see the content here...</p>
+                  )}
                 </div>
               </div>
             </div>

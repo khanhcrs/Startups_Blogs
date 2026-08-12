@@ -1,10 +1,54 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { useParams, useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import commonStyles from '../AdminCommon.module.css';
 import ImageUploader from '../../../components/ImageUploader';
 import { useAdminTabsStore } from '../../../store/adminTabsStore';
 import { useLocation } from 'react-router-dom';
+import { api } from '../../../lib/axios';
+import { adminQueryKeys } from '../services/adminApi';
+import { createProposalDiff } from '../utils/proposalDiff';
+
+const BUSINESS_PROPOSAL_FIELDS = [
+  'name',
+  'legalName',
+  'description',
+  'detailedOverview',
+  'industry',
+  'businessStage',
+  'businessType',
+  'location',
+  'website',
+  'logoUrl',
+  'coverUrl',
+  'foundedYear',
+  'employeeRange',
+  'businessModel',
+  'productsOrServices',
+  'mainMarket',
+] as const;
+
+function toBusinessProposal(form: Record<string, any>) {
+  return {
+    name: form.name,
+    legalName: form.legalName,
+    description: form.description,
+    detailedOverview: form.detailedOverview,
+    industry: form.industry,
+    businessStage: form.businessStage,
+    businessType: form.businessType,
+    location: form.location,
+    website: form.website || undefined,
+    logoUrl: form.logoUrl || undefined,
+    coverUrl: form.coverUrl || undefined,
+    foundedYear: form.foundedYear ? Number(form.foundedYear) : undefined,
+    employeeRange: form.employeeRange,
+    businessModel: form.businessModel,
+    productsOrServices: form.productsOrServices,
+    mainMarket: form.mainMarket,
+  };
+}
 
 export default function AdminEditBusiness({ businessId }: { businessId?: string }) {
   const params = useParams();
@@ -12,8 +56,8 @@ export default function AdminEditBusiness({ businessId }: { businessId?: string 
   const updateTabTitle = useAdminTabsStore(state => state.updateTabTitle);
   const id = businessId || params.id;
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(true);
-  const [submitting, setSubmitting] = useState(false);
+  const initializedBusinessIdRef = useRef<string | undefined>(undefined);
+  const originalProposalRef = useRef<Record<string, unknown> | null>(null);
   const [formData, setFormData] = useState<any>({
     name: '',
     legalName: '',
@@ -33,71 +77,88 @@ export default function AdminEditBusiness({ businessId }: { businessId?: string 
     mainMarket: ''
   });
 
+  const businessQuery = useQuery({
+    queryKey: adminQueryKeys.business(id),
+    enabled: Boolean(id),
+    refetchOnMount: 'always',
+    queryFn: async () => {
+      const response = await api.get(`/businesses/admin/${id}`);
+      return response.data;
+    },
+  });
+
   useEffect(() => {
-    fetchBusiness();
-  }, [id]);
+    const business = businessQuery.data;
+    if (
+      !business ||
+      !businessQuery.isFetchedAfterMount ||
+      initializedBusinessIdRef.current === id
+    ) return;
 
-  const fetchBusiness = async () => {
-    try {
-      const token = localStorage.getItem('token');
-      // For now, we fetch all businesses and find the one with the correct ID.
-      // This is a workaround since there's no single business admin endpoint yet.
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/businesses/admin/all?status=`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      if (res.ok) {
-        const data = await res.json();
-        const b = data.data ? data.data.find((x: any) => x.id === id) : data.find((x: any) => x.id === id);
-        if (b) {
-          setFormData({
-            name: b.name || '',
-            legalName: b.legalName || '',
-            description: b.description || '',
-            detailedOverview: b.detailedOverview || '',
-            industry: b.industry || '',
-            businessStage: b.businessStage || 'Idea',
-            businessType: b.businessType || 'B2B',
-            location: b.location || '',
-            website: b.website || '',
-            logoUrl: b.logoUrl || '',
-            coverUrl: b.coverUrl || '',
-            foundedYear: b.foundedYear || '',
-            employeeRange: b.employeeRange || '',
-            businessModel: b.businessModel || '',
-            productsOrServices: b.productsOrServices || '',
-            mainMarket: b.mainMarket || ''
-          });
-          
-          updateTabTitle(location.pathname, `Edit: ${b.name.length > 20 ? b.name.substring(0, 20) + '...' : b.name}`);
-        }
-      }
-    } catch (error) {
+    const nextFormData = {
+      name: business.name || '',
+      legalName: business.legalName || '',
+      description: business.description || '',
+      detailedOverview: business.detailedOverview || '',
+      industry: business.industry || '',
+      businessStage: business.businessStage || 'Idea',
+      businessType: business.businessType || 'B2B',
+      location: business.location || '',
+      website: business.website || '',
+      logoUrl: business.logoUrl || '',
+      coverUrl: business.coverUrl || '',
+      foundedYear: business.foundedYear || '',
+      employeeRange: business.employeeRange || '',
+      businessModel: business.businessModel || '',
+      productsOrServices: business.productsOrServices || '',
+      mainMarket: business.mainMarket || ''
+    };
+    setFormData(nextFormData);
+    originalProposalRef.current = toBusinessProposal(nextFormData);
+    initializedBusinessIdRef.current = id;
+    updateTabTitle(location.pathname, `Edit: ${business.name.length > 20 ? business.name.substring(0, 20) + '...' : business.name}`);
+  }, [
+    businessQuery.data,
+    businessQuery.isFetchedAfterMount,
+    id,
+    location.pathname,
+    updateTabTitle,
+  ]);
+
+  useEffect(() => {
+    if (businessQuery.isError) {
       toast.error('Failed to load business');
-    } finally {
-      setLoading(false);
     }
-  };
+  }, [businessQuery.errorUpdatedAt, businessQuery.isError]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSubmitting(true);
-    try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/businesses/admin/${id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify(formData)
-      });
-      if (!res.ok) throw new Error('Failed to update business');
-      toast.success('Business updated successfully! (Direct Force Update)');
+  const proposalMutation = useMutation({
+    mutationFn: (proposal: Record<string, unknown>) =>
+      api.post(`/admin/proposals/business/${id}`, proposal),
+    onSuccess: () => {
+      toast.success('Change proposal sent to the business owner for review');
       navigate('/admin/businesses');
-    } catch (error) {
-      toast.error('Error updating business');
-    } finally {
-      setSubmitting(false);
+    },
+    onError: () => toast.error('Error updating business'),
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!businessQuery.isSuccess || !originalProposalRef.current) {
+      toast.error('Load the current business before proposing changes');
+      return;
     }
+
+    const changes = createProposalDiff(
+      originalProposalRef.current,
+      toBusinessProposal(formData),
+      BUSINESS_PROPOSAL_FIELDS,
+    );
+    if (Object.keys(changes).length === 0) {
+      toast.error('No changes to propose');
+      return;
+    }
+
+    proposalMutation.mutate(changes);
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -108,13 +169,37 @@ export default function AdminEditBusiness({ businessId }: { businessId?: string 
     setFormData({ ...formData, [field]: url });
   };
 
-  if (loading) return <div className={commonStyles.loading}>Loading...</div>;
+  if (!id) return <div className={commonStyles.loading}>Business not found.</div>;
+  if (businessQuery.isPending) return <div className={commonStyles.loading}>Loading...</div>;
+  if (businessQuery.isError || !businessQuery.data) {
+    return (
+      <div className={commonStyles.emptyState} role="alert">
+        <p>The current business could not be loaded. No proposal can be submitted.</p>
+        <button
+          type="button"
+          className={commonStyles.actionBtn}
+          onClick={() => void businessQuery.refetch()}
+        >
+          Try again
+        </button>
+      </div>
+    );
+  }
+  if (
+    !businessQuery.isFetchedAfterMount ||
+    initializedBusinessIdRef.current !== id ||
+    !originalProposalRef.current
+  ) {
+    return <div className={commonStyles.loading}>Loading current business data...</div>;
+  }
+
+  const submitting = proposalMutation.isPending;
 
   return (
     <div>
       <header className={commonStyles.header}>
-        <h1>Directly Edit Business</h1>
-        <p>You have Supreme Admin Authority. Your changes will be saved directly and overwrite existing data.</p>
+        <h1>Propose Business Changes</h1>
+        <p>The current public profile stays unchanged until the owner reviews this proposal.</p>
       </header>
       
       <div className={commonStyles.contentCard}>
@@ -234,7 +319,7 @@ export default function AdminEditBusiness({ businessId }: { businessId?: string 
               disabled={submitting}
               style={{ padding: '0.75rem 1.5rem', fontSize: '1rem', background: '#e11d48' }}
             >
-              {submitting ? 'Saving...' : 'Save Changes (Force Update)'}
+              {submitting ? 'Submitting...' : 'Send Change Proposal'}
             </button>
             <button 
               type="button" 
