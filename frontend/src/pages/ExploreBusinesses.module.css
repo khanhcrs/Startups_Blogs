@@ -95,13 +95,16 @@
   mix-blend-mode: multiply;
 }
 
-/* Filter Toolbar */
+/* Filter Toolbar Stacking Context */
 .filterAreaWrapper {
-  transition: margin-bottom 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  z-index: 50;
   margin-bottom: var(--spacing-6);
 }
 
 .toolbar {
+  position: relative;
+  z-index: 50;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -110,6 +113,8 @@
 }
 
 .filtersGroup {
+  position: relative;
+  z-index: 50;
   display: flex;
   gap: var(--spacing-3);
   flex-wrap: wrap;
@@ -136,6 +141,8 @@
 }
 
 .sortGroup {
+  position: relative;
+  z-index: 50;
   display: flex;
   align-items: center;
   gap: var(--spacing-3);
@@ -147,8 +154,15 @@
   font-weight: 500;
 }
 
-/* Tabs */
+.secondaryToolbar {
+  position: relative;
+  z-index: 40;
+}
+
+/* Tabs Lower Stacking Context */
 .tabsContainer {
+  position: relative;
+  z-index: 1;
   border-bottom: 1px solid var(--border-color);
   margin-bottom: var(--spacing-6);
 }
@@ -190,8 +204,10 @@
   background-color: var(--primary-500);
 }
 
-/* Results Info */
+/* Results Info Lower Stacking Context */
 .resultsInfo {
+  position: relative;
+  z-index: 1;
   margin-bottom: var(--spacing-6);
   font-size: var(--font-size-sm);
   color: var(--text-body);
@@ -201,8 +217,10 @@
   color: var(--text-dark);
 }
 
-/* Grid & States */
+/* Grid & States Lower Stacking Context */
 .gridContainer {
+  position: relative;
+  z-index: 1;
   min-height: 400px;
 }
 
@@ -346,57 +364,6 @@
 
 .pageEllipsis {
   color: var(--text-muted);
-}
-
-/* Dropdown Overlay */
-.dropdownContainer {
-  position: relative;
-  display: inline-block;
-}
-
-.dropdownMenu {
-  position: absolute;
-  top: calc(100% + var(--spacing-2));
-  left: 0;
-  min-width: 220px;
-  background-color: white;
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-lg);
-  z-index: 10;
-  padding: var(--spacing-2) 0;
-  display: flex;
-  flex-direction: column;
-  max-height: 280px;
-  overflow-y: auto;
-}
-
-.sortGroup .dropdownMenu {
-  left: auto;
-  right: 0;
-}
-
-.dropdownItem {
-  padding: var(--spacing-2) var(--spacing-4);
-  text-align: left;
-  background: none;
-  border: none;
-  font-size: var(--font-size-sm);
-  color: var(--text-dark);
-  cursor: pointer;
-  transition: background-color 0.2s;
-  width: 100%;
-}
-
-.dropdownItem:hover, .dropdownItem:focus {
-  background-color: var(--bg-accent);
-  outline: none;
-}
-
-.activeDropdownItem {
-  background-color: var(--primary-50);
-  color: var(--primary-600);
-  font-weight: 500;
 }
 
 .activeFilterButton {

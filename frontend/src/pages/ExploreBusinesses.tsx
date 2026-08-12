@@ -25,19 +25,12 @@ const ExploreBusinesses = () => {
   const [showMoreFilters, setShowMoreFilters] = useState(false);
   const [searchInput, setSearchInput] = useState(searchParams.get('search') || '');
   
-  // Single active open dropdown management & dynamic height measurement
+  // Single active open dropdown management
   const [activeDropdownId, setActiveDropdownId] = useState<string | null>(null);
-  const [dropdownHeightMap, setDropdownHeightMap] = useState<Record<string, number>>({});
 
   const handleToggleDropdown = (id: string) => {
     setActiveDropdownId((prev) => (prev === id ? null : id));
   };
-
-  const handleHeightChange = (id: string, height: number) => {
-    setDropdownHeightMap((prev) => ({ ...prev, [id]: height }));
-  };
-
-  const activeHeight = activeDropdownId ? dropdownHeightMap[activeDropdownId] || 250 : 0;
 
   const filters = useMemo<BusinessBrowseState>(() => ({
     search: searchParams.get('search') || '',
@@ -256,13 +249,8 @@ const ExploreBusinesses = () => {
           </div>
         </div>
 
-        {/* Filter Area Wrapper with Dynamic Space Reservation */}
-        <div 
-          className={styles.filterAreaWrapper}
-          style={{
-            marginBottom: activeDropdownId ? `${Math.max(activeHeight, 180) + 16}px` : undefined
-          }}
-        >
+        {/* Filter Area Wrapper */}
+        <div className={styles.filterAreaWrapper}>
           {/* Main Filter Toolbar */}
           <div className={styles.toolbar}>
             <div className={styles.filtersGroup}>
@@ -274,7 +262,6 @@ const ExploreBusinesses = () => {
                 onChange={(v) => updateFilter('industry', v)} 
                 isOpen={activeDropdownId === 'industry'}
                 onToggle={handleToggleDropdown}
-                onHeightChange={(h) => handleHeightChange('industry', h)}
               />
               <FilterDropdown 
                 id="businessType"
@@ -284,7 +271,6 @@ const ExploreBusinesses = () => {
                 onChange={(v) => updateFilter('businessType', v)} 
                 isOpen={activeDropdownId === 'businessType'}
                 onToggle={handleToggleDropdown}
-                onHeightChange={(h) => handleHeightChange('businessType', h)}
               />
               <FilterDropdown 
                 id="businessStage"
@@ -294,7 +280,6 @@ const ExploreBusinesses = () => {
                 onChange={(v) => updateFilter('businessStage', v)} 
                 isOpen={activeDropdownId === 'businessStage'}
                 onToggle={handleToggleDropdown}
-                onHeightChange={(h) => handleHeightChange('businessStage', h)}
               />
               <FilterDropdown 
                 id="fundingPurpose"
@@ -304,7 +289,6 @@ const ExploreBusinesses = () => {
                 onChange={(v) => updateFilter('fundingPurpose', v)} 
                 isOpen={activeDropdownId === 'fundingPurpose'}
                 onToggle={handleToggleDropdown}
-                onHeightChange={(h) => handleHeightChange('fundingPurpose', h)}
               />
               <FilterDropdown 
                 id="fundingRange"
@@ -314,7 +298,6 @@ const ExploreBusinesses = () => {
                 onChange={(v) => updateFilter('fundingRange', v)} 
                 isOpen={activeDropdownId === 'fundingRange'}
                 onToggle={handleToggleDropdown}
-                onHeightChange={(h) => handleHeightChange('fundingRange', h)}
               />
               <FilterDropdown 
                 id="location"
@@ -324,7 +307,6 @@ const ExploreBusinesses = () => {
                 onChange={(v) => updateFilter('location', v)} 
                 isOpen={activeDropdownId === 'location'}
                 onToggle={handleToggleDropdown}
-                onHeightChange={(h) => handleHeightChange('location', h)}
               />
               
               <button 
@@ -359,7 +341,6 @@ const ExploreBusinesses = () => {
                 onChange={(v) => updateFilter('sort', v)} 
                 isOpen={activeDropdownId === 'sort'}
                 onToggle={handleToggleDropdown}
-                onHeightChange={(h) => handleHeightChange('sort', h)}
                 alignRight
               />
             </div>
@@ -376,7 +357,6 @@ const ExploreBusinesses = () => {
                 onChange={(v) => updateFilter('fundingType', v)} 
                 isOpen={activeDropdownId === 'fundingType'}
                 onToggle={handleToggleDropdown}
-                onHeightChange={(h) => handleHeightChange('fundingType', h)}
               />
               <FilterDropdown 
                 id="verified"
@@ -386,7 +366,6 @@ const ExploreBusinesses = () => {
                 onChange={(v) => updateFilter('verified', v)} 
                 isOpen={activeDropdownId === 'verified'}
                 onToggle={handleToggleDropdown}
-                onHeightChange={(h) => handleHeightChange('verified', h)}
               />
               <FilterDropdown 
                 id="postedWithin"
@@ -396,7 +375,6 @@ const ExploreBusinesses = () => {
                 onChange={(v) => updateFilter('postedWithin', v)} 
                 isOpen={activeDropdownId === 'postedWithin'}
                 onToggle={handleToggleDropdown}
-                onHeightChange={(h) => handleHeightChange('postedWithin', h)}
               />
             </div>
           )}

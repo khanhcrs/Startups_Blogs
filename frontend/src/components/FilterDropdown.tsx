@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback, useEffect, useLayoutEffect } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { ChevronDown } from 'lucide-react';
 import styles from './FilterDropdown.module.css';
 
@@ -10,7 +10,6 @@ type DropdownProps = {
   onChange: (value: string) => void;
   isOpen?: boolean;
   onToggle?: (id: string) => void;
-  onHeightChange?: (height: number) => void;
   alignRight?: boolean;
 };
 
@@ -22,12 +21,10 @@ const FilterDropdown = ({
   onChange,
   isOpen: controlledIsOpen,
   onToggle,
-  onHeightChange,
   alignRight = false,
 }: DropdownProps) => {
   const [internalIsOpen, setInternalIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
-  const menuRef = useRef<HTMLDivElement>(null);
 
   const isControlled = typeof controlledIsOpen === 'boolean';
   const isOpen = isControlled ? controlledIsOpen : internalIsOpen;
@@ -83,21 +80,15 @@ const FilterDropdown = ({
     };
   }, [isOpen, handleClickOutside, handleKeyDown]);
 
-  useLayoutEffect(() => {
-    if (isOpen && menuRef.current && onHeightChange) {
-      const height = menuRef.current.offsetHeight;
-      onHeightChange(height);
-    } else if (!isOpen && onHeightChange) {
-      onHeightChange(0);
-    }
-  }, [isOpen, onHeightChange, options]);
-
   const selectedOption = options.find((opt) => opt.value === value);
   const displayLabel =
     value === 'all' || value === 'newest' ? label : selectedOption?.label || label;
 
   return (
-    <div className={styles.dropdownContainer} ref={containerRef}>
+    <div
+      className={`${styles.dropdownContainer} ${isOpen ? styles.dropdownContainerOpen : ''}`}
+      ref={containerRef}
+    >
       <button
         type="button"
         className={`${styles.filterDropdown} ${value !== 'all' && value !== 'newest' ? styles.activeFilterButton : ''}`}
@@ -109,7 +100,6 @@ const FilterDropdown = ({
       </button>
       {isOpen && (
         <div
-          ref={menuRef}
           className={`${styles.dropdownMenu} ${alignRight ? styles.alignRightMenu : ''}`}
           role="listbox"
         >
