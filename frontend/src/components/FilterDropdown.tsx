@@ -1,62 +1,118 @@
-import { useState, useRef, useCallback, useEffect } from 'react';
+import { useState, useRef, useCallback, useEffect, useLayoutEffect } from 'react';
 import { ChevronDown } from 'lucide-react';
 import styles from './FilterDropdown.module.css';
 
 type DropdownProps = {
+  id?: string;
   label: string;
   value: string;
   options: { label: string; value: string }[];
   onChange: (value: string) => void;
+  isOpen?: boolean;
+  onToggle?: (id: string) => void;
+  onHeightChange?: (height: number) => void;
+  alignRight?: boolean;
 };
 
-const FilterDropdown = ({ label, value, options, onChange }: DropdownProps) => {
-  const [isOpen, setIsOpen] = useState(false);
+const FilterDropdown = ({
+  id = '',
+  label,
+  value,
+  options,
+  onChange,
+  isOpen: controlledIsOpen,
+  onToggle,
+  onHeightChange,
+  alignRight = false,
+}: DropdownProps) => {
+  const [internalIsOpen, setInternalIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
 
-  const handleToggle = () => setIsOpen(!isOpen);
-  
-  const handleSelect = (val: string) => {
-    onChange(val);
-    setIsOpen(false);
+  const isControlled = typeof controlledIsOpen === 'boolean';
+  const isOpen = isControlled ? controlledIsOpen : internalIsOpen;
+
+  const handleToggle = () => {
+    if (isControlled && onToggle && id) {
+      onToggle(id);
+    } else {
+      setInternalIsOpen((prev) => !prev);
+    }
   };
 
-  const handleClickOutside = useCallback((e: MouseEvent) => {
-    if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
-      setIsOpen(false);
+  const handleClose = useCallback(() => {
+    if (isControlled && onToggle && id && isOpen) {
+      onToggle(id);
+    } else if (!isControlled) {
+      setInternalIsOpen(false);
     }
-  }, []);
+  }, [isControlled, onToggle, id, isOpen]);
 
-  const handleKeyDown = useCallback((e: KeyboardEvent) => {
-    if (e.key === 'Escape' && isOpen) {
-      setIsOpen(false);
-    }
-  }, [isOpen]);
+  const handleSelect = (val: string) => {
+    onChange(val);
+    handleClose();
+  };
+
+  const handleClickOutside = useCallback(
+    (e: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        if (isOpen) {
+          handleClose();
+        }
+      }
+    },
+    [isOpen, handleClose],
+  );
+
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isOpen) {
+        handleClose();
+      }
+    },
+    [isOpen, handleClose],
+  );
 
   useEffect(() => {
+    if (!isOpen) return;
     document.addEventListener('mousedown', handleClickOutside);
     document.addEventListener('keydown', handleKeyDown);
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
       document.removeEventListener('keydown', handleKeyDown);
     };
-  }, [handleClickOutside, handleKeyDown]);
+  }, [isOpen, handleClickOutside, handleKeyDown]);
 
-  const selectedOption = options.find(opt => opt.value === value);
-  const displayLabel = value === 'all' ? label : selectedOption?.label || label;
+  useLayoutEffect(() => {
+    if (isOpen && menuRef.current && onHeightChange) {
+      const height = menuRef.current.offsetHeight;
+      onHeightChange(height);
+    } else if (!isOpen && onHeightChange) {
+      onHeightChange(0);
+    }
+  }, [isOpen, onHeightChange, options]);
+
+  const selectedOption = options.find((opt) => opt.value === value);
+  const displayLabel =
+    value === 'all' || value === 'newest' ? label : selectedOption?.label || label;
 
   return (
     <div className={styles.dropdownContainer} ref={containerRef}>
-      <button 
+      <button
         type="button"
-        className={`${styles.filterDropdown} ${value !== 'all' ? styles.activeFilterButton : ''}`}
+        className={`${styles.filterDropdown} ${value !== 'all' && value !== 'newest' ? styles.activeFilterButton : ''}`}
         onClick={handleToggle}
         aria-haspopup="listbox"
         aria-expanded={isOpen}
       >
-        {displayLabel} <ChevronDown size={16}/>
+        {displayLabel} <ChevronDown size={16} />
       </button>
       {isOpen && (
-        <div className={styles.dropdownMenu} role="listbox">
+        <div
+          ref={menuRef}
+          className={`${styles.dropdownMenu} ${alignRight ? styles.alignRightMenu : ''}`}
+          role="listbox"
+        >
           {options.map((opt) => (
             <button
               key={opt.value}

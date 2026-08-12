@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import type { BusinessOpportunityRecord } from '../types/business';
-import { useSearchParams, useNavigate } from 'react-router-dom';
-import { Search, ChevronDown, SlidersHorizontal, Lock } from 'lucide-react';
+import { useSearchParams } from 'react-router-dom';
+import { Search, SlidersHorizontal, Lock } from 'lucide-react';
 import BusinessCard from '../components/business/BusinessCard';
 import BusinessSkeleton from '../components/business/BusinessSkeleton';
 import styles from './ExploreBusinesses.module.css';
@@ -19,13 +19,26 @@ import FilterDropdown from '../components/FilterDropdown';
 
 const ExploreBusinesses = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const navigate = useNavigate();
   
   const [businesses, setBusinesses] = useState<BusinessOpportunityRecord[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showMoreFilters, setShowMoreFilters] = useState(false);
   const [searchInput, setSearchInput] = useState(searchParams.get('search') || '');
   
+  // Single active open dropdown management & dynamic height measurement
+  const [activeDropdownId, setActiveDropdownId] = useState<string | null>(null);
+  const [dropdownHeightMap, setDropdownHeightMap] = useState<Record<string, number>>({});
+
+  const handleToggleDropdown = (id: string) => {
+    setActiveDropdownId((prev) => (prev === id ? null : id));
+  };
+
+  const handleHeightChange = (id: string, height: number) => {
+    setDropdownHeightMap((prev) => ({ ...prev, [id]: height }));
+  };
+
+  const activeHeight = activeDropdownId ? dropdownHeightMap[activeDropdownId] || 250 : 0;
+
   const filters = useMemo<BusinessBrowseState>(() => ({
     search: searchParams.get('search') || '',
     industry: searchParams.get('industry') || 'all',
@@ -44,10 +57,9 @@ const ExploreBusinesses = () => {
 
   useEffect(() => {
     api.get('/businesses?take=100').then((res) => {
-      // Map backend Prisma structure to BusinessOpportunityRecord structure
       const mapped = res.data.map((b: any) => ({
         business: b,
-        opportunity: b.fundingOpportunities?.[0] // If they have an active funding opportunity
+        opportunity: b.fundingOpportunities?.[0]
       }));
       setBusinesses(mapped);
       setIsLoading(false);
@@ -90,6 +102,7 @@ const ExploreBusinesses = () => {
     if (searchParams.has('sort')) newParams.set('sort', searchParams.get('sort')!);
     setSearchParams(newParams);
     setSearchInput('');
+    setActiveDropdownId(null);
   };
 
   const hasActiveFilters = 
@@ -106,7 +119,6 @@ const ExploreBusinesses = () => {
     filters.tab !== 'all' ||
     filters.sort !== 'newest';
 
-  // Pure logic calculations
   const filteredData = useMemo(() => filterBusinessRecords(businesses, filters), [businesses, filters]);
   const sortedData = useMemo(() => sortBusinessRecords(filteredData, filters.sort, filters.tab), [filteredData, filters.sort, filters.tab]);
   
@@ -122,7 +134,6 @@ const ExploreBusinesses = () => {
     document.querySelector('.gridHeading')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
-  // Derive filter dropdown options
   const industryOptions = [
     { label: 'All Industries', value: 'all' },
     ...getUniqueIndustries(businesses).map(ind => ({ label: ind, value: ind }))
@@ -245,49 +256,151 @@ const ExploreBusinesses = () => {
           </div>
         </div>
 
-        {/* Filter Toolbar */}
-        <div className={styles.toolbar}>
-          <div className={styles.filtersGroup}>
-            <FilterDropdown label="Industry" value={filters.industry} options={industryOptions} onChange={(v) => updateFilter('industry', v)} />
-            <FilterDropdown label="Business Type" value={filters.businessType} options={typeOptions} onChange={(v) => updateFilter('businessType', v)} />
-            <FilterDropdown label="Business Stage" value={filters.businessStage} options={stageOptions} onChange={(v) => updateFilter('businessStage', v)} />
-            <FilterDropdown label="Funding Purpose" value={filters.fundingPurpose} options={purposeOptions} onChange={(v) => updateFilter('fundingPurpose', v)} />
-            <FilterDropdown label="Funding Amount" value={filters.fundingRange} options={rangeOptions} onChange={(v) => updateFilter('fundingRange', v)} />
-            <FilterDropdown label="Location" value={filters.location} options={locationOptions} onChange={(v) => updateFilter('location', v)} />
-            
-            <button 
-              type="button" 
-              className={`${styles.filterDropdown} ${showMoreFilters ? styles.activeFilterButton : ''}`}
-              onClick={() => setShowMoreFilters(!showMoreFilters)}
-            >
-              <SlidersHorizontal size={16} /> More Filters
-            </button>
-
-            {hasActiveFilters && (
+        {/* Filter Area Wrapper with Dynamic Space Reservation */}
+        <div 
+          className={styles.filterAreaWrapper}
+          style={{
+            marginBottom: activeDropdownId ? `${Math.max(activeHeight, 180) + 16}px` : undefined
+          }}
+        >
+          {/* Main Filter Toolbar */}
+          <div className={styles.toolbar}>
+            <div className={styles.filtersGroup}>
+              <FilterDropdown 
+                id="industry"
+                label="Industry" 
+                value={filters.industry} 
+                options={industryOptions} 
+                onChange={(v) => updateFilter('industry', v)} 
+                isOpen={activeDropdownId === 'industry'}
+                onToggle={handleToggleDropdown}
+                onHeightChange={(h) => handleHeightChange('industry', h)}
+              />
+              <FilterDropdown 
+                id="businessType"
+                label="Business Type" 
+                value={filters.businessType} 
+                options={typeOptions} 
+                onChange={(v) => updateFilter('businessType', v)} 
+                isOpen={activeDropdownId === 'businessType'}
+                onToggle={handleToggleDropdown}
+                onHeightChange={(h) => handleHeightChange('businessType', h)}
+              />
+              <FilterDropdown 
+                id="businessStage"
+                label="Business Stage" 
+                value={filters.businessStage} 
+                options={stageOptions} 
+                onChange={(v) => updateFilter('businessStage', v)} 
+                isOpen={activeDropdownId === 'businessStage'}
+                onToggle={handleToggleDropdown}
+                onHeightChange={(h) => handleHeightChange('businessStage', h)}
+              />
+              <FilterDropdown 
+                id="fundingPurpose"
+                label="Funding Purpose" 
+                value={filters.fundingPurpose} 
+                options={purposeOptions} 
+                onChange={(v) => updateFilter('fundingPurpose', v)} 
+                isOpen={activeDropdownId === 'fundingPurpose'}
+                onToggle={handleToggleDropdown}
+                onHeightChange={(h) => handleHeightChange('fundingPurpose', h)}
+              />
+              <FilterDropdown 
+                id="fundingRange"
+                label="Funding Amount" 
+                value={filters.fundingRange} 
+                options={rangeOptions} 
+                onChange={(v) => updateFilter('fundingRange', v)} 
+                isOpen={activeDropdownId === 'fundingRange'}
+                onToggle={handleToggleDropdown}
+                onHeightChange={(h) => handleHeightChange('fundingRange', h)}
+              />
+              <FilterDropdown 
+                id="location"
+                label="Location" 
+                value={filters.location} 
+                options={locationOptions} 
+                onChange={(v) => updateFilter('location', v)} 
+                isOpen={activeDropdownId === 'location'}
+                onToggle={handleToggleDropdown}
+                onHeightChange={(h) => handleHeightChange('location', h)}
+              />
+              
               <button 
                 type="button" 
-                className={styles.clearBtn} 
-                onClick={handleClearAll}
-                style={{ background: 'transparent', color: 'var(--text-muted)' }}
+                className={`${styles.filterDropdown} ${showMoreFilters ? styles.activeFilterButton : ''}`}
+                onClick={() => {
+                  setActiveDropdownId(null);
+                  setShowMoreFilters(!showMoreFilters);
+                }}
               >
-                Clear all
+                <SlidersHorizontal size={16} /> More Filters
               </button>
-            )}
-          </div>
-          <div className={styles.sortGroup}>
-            <span className={styles.sortLabel}>Sort by:</span>
-            <FilterDropdown label="Sort" value={filters.sort} options={sortOptions} onChange={(v) => updateFilter('sort', v)} />
-          </div>
-        </div>
 
-        {/* Secondary Filter Row */}
-        {showMoreFilters && (
-          <div className={styles.secondaryToolbar} style={{ display: 'flex', gap: 'var(--spacing-3)', marginBottom: 'var(--spacing-6)', padding: 'var(--spacing-4)', backgroundColor: 'var(--bg-secondary)', borderRadius: 'var(--radius-lg)' }}>
-            <FilterDropdown label="Funding Type" value={filters.fundingType} options={fundingTypeOptions} onChange={(v) => updateFilter('fundingType', v)} />
-            <FilterDropdown label="Verified Status" value={filters.verified} options={verifiedOptions} onChange={(v) => updateFilter('verified', v)} />
-            <FilterDropdown label="Time Posted" value={filters.postedWithin} options={timeOptions} onChange={(v) => updateFilter('postedWithin', v)} />
+              {hasActiveFilters && (
+                <button 
+                  type="button" 
+                  className={styles.clearBtn} 
+                  onClick={handleClearAll}
+                  style={{ background: 'transparent', color: 'var(--text-muted)' }}
+                >
+                  Clear all
+                </button>
+              )}
+            </div>
+            <div className={styles.sortGroup}>
+              <span className={styles.sortLabel}>Sort by:</span>
+              <FilterDropdown 
+                id="sort"
+                label="Sort" 
+                value={filters.sort} 
+                options={sortOptions} 
+                onChange={(v) => updateFilter('sort', v)} 
+                isOpen={activeDropdownId === 'sort'}
+                onToggle={handleToggleDropdown}
+                onHeightChange={(h) => handleHeightChange('sort', h)}
+                alignRight
+              />
+            </div>
           </div>
-        )}
+
+          {/* Secondary Filter Row */}
+          {showMoreFilters && (
+            <div className={styles.secondaryToolbar} style={{ display: 'flex', gap: 'var(--spacing-3)', marginTop: 'var(--spacing-4)', padding: 'var(--spacing-4)', backgroundColor: 'var(--bg-secondary)', borderRadius: 'var(--radius-lg)' }}>
+              <FilterDropdown 
+                id="fundingType"
+                label="Funding Type" 
+                value={filters.fundingType} 
+                options={fundingTypeOptions} 
+                onChange={(v) => updateFilter('fundingType', v)} 
+                isOpen={activeDropdownId === 'fundingType'}
+                onToggle={handleToggleDropdown}
+                onHeightChange={(h) => handleHeightChange('fundingType', h)}
+              />
+              <FilterDropdown 
+                id="verified"
+                label="Verified Status" 
+                value={filters.verified} 
+                options={verifiedOptions} 
+                onChange={(v) => updateFilter('verified', v)} 
+                isOpen={activeDropdownId === 'verified'}
+                onToggle={handleToggleDropdown}
+                onHeightChange={(h) => handleHeightChange('verified', h)}
+              />
+              <FilterDropdown 
+                id="postedWithin"
+                label="Time Posted" 
+                value={filters.postedWithin} 
+                options={timeOptions} 
+                onChange={(v) => updateFilter('postedWithin', v)} 
+                isOpen={activeDropdownId === 'postedWithin'}
+                onToggle={handleToggleDropdown}
+                onHeightChange={(h) => handleHeightChange('postedWithin', h)}
+              />
+            </div>
+          )}
+        </div>
 
         {/* Navigation Tabs */}
         <div className={styles.tabsContainer}>
@@ -302,7 +415,10 @@ const ExploreBusinesses = () => {
                 key={tab.value}
                 type="button"
                 className={`${styles.tabBtn} ${filters.tab === tab.value ? styles.activeTab : ''}`}
-                onClick={() => updateFilter('tab', tab.value)}
+                onClick={() => {
+                  setActiveDropdownId(null);
+                  updateFilter('tab', tab.value);
+                }}
               >
                 {tab.label}
               </button>
