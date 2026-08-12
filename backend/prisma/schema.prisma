@@ -20,16 +20,16 @@ enum Role {
 }
 
 model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
+  id         String   @id @default(uuid())
+  email      String   @unique
   cognitoSub String?  @unique
-  name      String
-  bio       String?
-  location  String?
-  joinedAt  DateTime @default(now())
-  avatarUrl String?
-  role      Role     @default(USER)
-  status    String   @default("ACTIVE") // ACTIVE, LOCKED
+  name       String
+  bio        String?
+  location   String?
+  joinedAt   DateTime @default(now())
+  avatarUrl  String?
+  role       Role     @default(USER)
+  status     String   @default("ACTIVE") // ACTIVE, LOCKED
 
   // Quan hệ
   ownedBusinesses Business[]
@@ -44,6 +44,11 @@ model User {
   // Tự tham chiếu cho hệ thống Follow
   followers Follow[] @relation("UserFollowers")
   following Follow[] @relation("UserFollowing")
+
+  savedBusinesses SavedBusiness[]  @relation("UserSavedBusinesses")
+  businessFollows BusinessFollow[] @relation("UserBusinessFollows")
+
+  @@map("users")
 }
 
 model Follow {
@@ -56,6 +61,7 @@ model Follow {
   following User @relation("UserFollowers", fields: [followingId], references: [id], onDelete: Cascade)
 
   @@unique([followerId, followingId])
+  @@map("follows")
 }
 
 model Bookmark {
@@ -68,6 +74,7 @@ model Bookmark {
   article Article @relation(fields: [articleId], references: [id], onDelete: Cascade)
 
   @@unique([userId, articleId])
+  @@map("bookmarks")
 }
 
 // -----------------------------------------------------------------------------
@@ -75,27 +82,27 @@ model Bookmark {
 // -----------------------------------------------------------------------------
 
 model Business {
-  id               String   @id @default(uuid())
-  slug             String   @unique
-  name             String
-  legalName        String?
-  description      String
-  detailedOverview String?
-  businessType     String
-  businessStage    String
-  industry         String
-  location         String
-  website          String?
-  logoUrl          String?
-  coverUrl         String?
-  status           String   @default("PENDING")
-  isVerified       Boolean  @default(false)
-  foundedYear      Int?
-  employeeRange    String?
-  businessModel    String?
-  productsOrServices String?
-  operatingRegions String[] @default([])
-  mainMarket       String?
+  id                  String   @id @default(uuid())
+  slug                String   @unique
+  name                String
+  legalName           String?
+  description         String
+  detailedOverview    String?
+  businessType        String
+  businessStage       String
+  industry            String
+  location            String
+  website             String?
+  logoUrl             String?
+  coverUrl            String?
+  status              String   @default("PENDING")
+  isVerified          Boolean  @default(false)
+  foundedYear         Int?
+  employeeRange       String?
+  businessModel       String?
+  productsOrServices  String?
+  operatingRegions    String[] @default([])
+  mainMarket          String?
   financialHighlights Json?
 
   // Owner Relation
@@ -107,7 +114,9 @@ model Business {
   fundingRounds   FundingRound[]
   opportunities   FundingOpportunity[]
   articles        Article[]
-  contactRequests ContactRequest[] @relation("BusinessContactRequests")
+  contactRequests ContactRequest[]     @relation("BusinessContactRequests")
+  savedBy         SavedBusiness[]      @relation("BusinessSavedBy")
+  followers       BusinessFollow[]     @relation("BusinessFollowers")
 
   // Stats
   savedCount   Int      @default(0)
@@ -116,17 +125,18 @@ model Business {
   createdAt    DateTime @default(now())
 
   @@index([ownerId])
+  @@map("businesses")
 }
 
 model TeamMember {
-  id         String  @id @default(uuid())
-  name       String
-  role       String
-  bio        String?
-  avatarUrl  String?
-  
-  userId     String?
-  user       User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  id        String  @id @default(uuid())
+  name      String
+  role      String
+  bio       String?
+  avatarUrl String?
+
+  userId String?
+  user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
 
   businessId String
   business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
@@ -140,30 +150,30 @@ model FundingRound {
   date       DateTime
   investors  String
   isVerified Boolean  @default(false)
-  
+
   businessId String
   business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
 }
 
 model FundingOpportunity {
-  id               String   @id @default(uuid())
-  slug             String   @unique
+  id               String    @id @default(uuid())
+  slug             String    @unique
   title            String
   shortDescription String
   detailedOverview String?
   fundingAmountMin Float
   fundingAmountMax Float
-  currency         String   @default("USD")
+  currency         String    @default("USD")
   fundingPurpose   String
   fundingType      String
-  status           String   @default("Pending Review") // Draft, Pending Review, Published
+  status           String    @default("Pending Review") // Draft, Pending Review, Published
   publishedAt      DateTime?
   deadline         DateTime?
-  
-  businessId       String
-  business         Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
-  
-  createdAt        DateTime @default(now())
+
+  businessId String
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
 }
 
 // -----------------------------------------------------------------------------
@@ -171,25 +181,25 @@ model FundingOpportunity {
 // -----------------------------------------------------------------------------
 
 model Article {
-  id          String    @id @default(uuid())
-  slug        String    @unique
-  title       String
-  summary     String
-  content     String    @db.Text
-  status      String    @default("DRAFT")
-  category    String
-  coverImage  String?
-  tags        String[]  @default([])
+  id         String   @id @default(uuid())
+  slug       String   @unique
+  title      String
+  summary    String
+  content    String   @db.Text
+  status     String   @default("DRAFT")
+  category   String
+  coverImage String?
+  tags       String[] @default([])
 
-  authorId    String
-  author      User      @relation(fields: [authorId], references: [id], onDelete: Restrict)
+  authorId String
+  author   User   @relation(fields: [authorId], references: [id], onDelete: Restrict)
 
-  businessId  String?
-  business    Business? @relation(fields: [businessId], references: [id], onDelete: SetNull)
+  businessId String?
+  business   Business? @relation(fields: [businessId], references: [id], onDelete: SetNull)
 
-  comments    Comment[]
-  bookmarks   Bookmark[]
-  
+  comments  Comment[]
+  bookmarks Bookmark[]
+
   viewCount   Int       @default(0)
   likesCount  Int       @default(0)
   createdAt   DateTime  @default(now())
@@ -200,19 +210,19 @@ model Article {
 }
 
 model Comment {
-  id        String   @id @default(uuid())
-  content   String   @db.Text
-  
-  authorId  String
-  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  
+  id      String @id @default(uuid())
+  content String @db.Text
+
+  authorId String
+  author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
   articleId String
-  article   Article  @relation(fields: [articleId], references: [id], onDelete: Cascade)
-  
-  parentId  String?
-  parent    Comment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
-  replies   Comment[] @relation("CommentReplies")
-  
+  article   Article @relation(fields: [articleId], references: [id], onDelete: Cascade)
+
+  parentId String?
+  parent   Comment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies  Comment[] @relation("CommentReplies")
+
   createdAt DateTime @default(now())
 
   @@index([articleId])
@@ -223,19 +233,19 @@ model Comment {
 // -----------------------------------------------------------------------------
 
 model ContactRequest {
-  id         String   @id @default(uuid())
-  title      String
-  message    String   @db.Text
-  status     String   @default("PENDING") // PENDING, REPLIED, SPAM
-  
-  senderId   String
-  sender     User     @relation("UserContactRequests", fields: [senderId], references: [id], onDelete: Cascade)
-  
+  id      String @id @default(uuid())
+  title   String
+  message String @db.Text
+  status  String @default("PENDING") // PENDING, REPLIED, SPAM
+
+  senderId String
+  sender   User   @relation("UserContactRequests", fields: [senderId], references: [id], onDelete: Cascade)
+
   businessId String
   business   Business @relation("BusinessContactRequests", fields: [businessId], references: [id], onDelete: Cascade)
-  
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([businessId])
   @@index([senderId])
@@ -249,16 +259,16 @@ enum NotificationType {
 }
 
 model Notification {
-  id        String   @id @default(uuid())
+  id        String           @id @default(uuid())
   userId    String
   title     String
   message   String
   type      NotificationType @default(GENERAL)
-  isRead    Boolean  @default(false)
+  isRead    Boolean          @default(false)
   linkUrl   String?
-  createdAt DateTime @default(now())
+  createdAt DateTime         @default(now())
 
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 // -----------------------------------------------------------------------------
@@ -266,18 +276,48 @@ model Notification {
 // -----------------------------------------------------------------------------
 
 model ChangeProposal {
-  id              String   @id @default(uuid())
-  entityType      String   // "ARTICLE" or "BUSINESS"
+  id              String @id @default(uuid())
+  entityType      String // "ARTICLE" or "BUSINESS"
   entityId        String
-  proposedChanges Json     // Lưu cấu trúc JSON chứa dữ liệu thay đổi
-  status          String   @default("PENDING") // PENDING, APPROVED, REJECTED
-  
-  proposerId      String
-  proposer        User     @relation("UserChangeProposals", fields: [proposerId], references: [id], onDelete: Cascade)
-  
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  proposedChanges Json // Lưu cấu trúc JSON chứa dữ liệu thay đổi
+  status          String @default("PENDING") // PENDING, APPROVED, REJECTED
+
+  proposerId String
+  proposer   User   @relation("UserChangeProposals", fields: [proposerId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([entityType, entityId])
   @@index([proposerId])
+}
+
+model SavedBusiness {
+  id         String   @id @default(uuid())
+  userId     String
+  businessId String
+  createdAt  DateTime @default(now())
+
+  user     User     @relation("UserSavedBusinesses", fields: [userId], references: [id], onDelete: Cascade)
+  business Business @relation("BusinessSavedBy", fields: [businessId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, businessId])
+  @@index([businessId])
+  @@index([userId])
+  @@map("saved_businesses")
+}
+
+model BusinessFollow {
+  id         String   @id @default(uuid())
+  userId     String
+  businessId String
+  createdAt  DateTime @default(now())
+
+  user     User     @relation("UserBusinessFollows", fields: [userId], references: [id], onDelete: Cascade)
+  business Business @relation("BusinessFollowers", fields: [businessId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, businessId])
+  @@index([businessId])
+  @@index([userId])
+  @@map("business_follows")
 }

@@ -19,17 +19,25 @@ export class ArticlesService {
   constructor(private prisma: PrismaService) {}
 
   async create(createArticleDto: CreateArticleDto, authorId: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: authorId },
+    });
+
+    // Role-governed initial status: ADMIN and MODERATOR can publish directly; regular USER defaults to PENDING_REVIEW
+    let initialStatus = 'PENDING_REVIEW';
+    if (user?.role === 'ADMIN' || user?.role === 'MODERATOR') {
+      initialStatus = createArticleDto.status || 'PUBLISHED';
+    } else if (createArticleDto.status === 'DRAFT') {
+      initialStatus = 'DRAFT';
+    }
+
     if (isNewsCategory(createArticleDto.category)) {
-      const user = await this.prisma.user.findUnique({
-        where: { id: authorId },
-      });
       if (user?.role !== 'ADMIN' && user?.role !== 'MODERATOR') {
         throw new ForbiddenException('Only admins or moderators can post News');
       }
     }
 
     if (createArticleDto.businessId) {
-      // Option A Secure check: Ensure author owns this business
       const business = await this.prisma.business.findUnique({
         where: { id: createArticleDto.businessId },
       });
@@ -52,6 +60,7 @@ export class ArticlesService {
       data: {
         ...createArticleDto,
         slug,
+        status: initialStatus,
         authorId,
       },
     });

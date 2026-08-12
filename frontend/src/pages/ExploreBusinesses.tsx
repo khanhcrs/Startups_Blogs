@@ -16,9 +16,12 @@ import type { BusinessBrowseState } from '../types/business';
 import { api } from '../lib/axios';
 import toast from 'react-hot-toast';
 import FilterDropdown from '../components/FilterDropdown';
+import { useAuthStore } from '../store/authStore';
 
 const ExploreBusinesses = () => {
   const [searchParams, setSearchParams] = useSearchParams();
+  const user = useAuthStore(state => state.user);
+  const [savedBusinessIds, setSavedBusinessIds] = useState<string[]>([]);
   
   const [businesses, setBusinesses] = useState<BusinessOpportunityRecord[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -27,6 +30,37 @@ const ExploreBusinesses = () => {
   
   // Single active open dropdown management
   const [activeDropdownId, setActiveDropdownId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (user) {
+      api.get('/businesses/user/saved-ids')
+        .then(res => setSavedBusinessIds(res.data))
+        .catch(err => console.error('Failed to fetch saved business ids', err));
+    } else {
+      setSavedBusinessIds([]);
+    }
+  }, [user]);
+
+  const handleToggleSave = async (id: string) => {
+    if (!user) {
+      toast.error('Vui lòng đăng nhập để lưu doanh nghiệp.');
+      return;
+    }
+    const isCurrentlySaved = savedBusinessIds.includes(id);
+    setSavedBusinessIds(prev => isCurrentlySaved ? prev.filter(x => x !== id) : [...prev, id]);
+    try {
+      if (isCurrentlySaved) {
+        await api.delete(`/businesses/${id}/save`);
+        toast.success('Đã bỏ lưu doanh nghiệp');
+      } else {
+        await api.post(`/businesses/${id}/save`);
+        toast.success('Đã lưu doanh nghiệp');
+      }
+    } catch (err) {
+      setSavedBusinessIds(prev => isCurrentlySaved ? [...prev, id] : prev.filter(x => x !== id));
+      toast.error('Có lỗi xảy ra khi thay đổi trạng thái lưu.');
+    }
+  };
 
   const handleToggleDropdown = (id: string) => {
     setActiveDropdownId((prev) => (prev === id ? null : id));
@@ -441,7 +475,12 @@ const ExploreBusinesses = () => {
             <>
               <div className={styles.grid}>
                 {paginatedData.map(record => (
-                  <BusinessCard key={record.business.id} {...record} />
+                  <BusinessCard 
+                    key={record.business.id} 
+                    {...record} 
+                    isSaved={savedBusinessIds.includes(record.business.id)}
+                    onSave={handleToggleSave}
+                  />
                 ))}
               </div>
               

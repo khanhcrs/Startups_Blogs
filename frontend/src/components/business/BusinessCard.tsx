@@ -5,10 +5,11 @@ import type { Business } from '../../types/business';
 
 export type BusinessCardProps = {
   business: Business;
+  isSaved?: boolean;
   onSave?: (id: string) => void;
 };
 
-const BusinessCard = ({ business, onSave }: BusinessCardProps) => {
+const BusinessCard = ({ business, isSaved = false, onSave }: BusinessCardProps) => {
   const { id, name, industry, businessType, businessStage, location, description, verified, savedCount, commentCount, employeeRange } = business;
 
   return (
@@ -36,11 +37,13 @@ const BusinessCard = ({ business, onSave }: BusinessCardProps) => {
           </div>
         </div>
         <button 
-          className={styles.saveBtn} 
-          aria-label={`Save ${name}`}
+          className={`${styles.saveBtn} ${isSaved ? styles.savedBtnActive : ''}`} 
+          aria-label={isSaved ? `Unsave ${name}` : `Save ${name}`}
+          title={isSaved ? "Saved" : "Save"}
+          style={isSaved ? { color: 'var(--primary-600, #2563eb)' } : undefined}
           onClick={() => onSave && onSave(id)}
         >
-          <Bookmark size={20} />
+          <Bookmark size={20} fill={isSaved ? "currentColor" : "none"} />
         </button>
       </div>
       

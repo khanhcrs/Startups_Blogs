@@ -60,6 +60,77 @@ export class BusinessesController {
     return this.businessesService.findOneForAdmin(id);
   }
 
+  @Get('taxonomy')
+  getTaxonomy() {
+    return this.businessesService.getTaxonomy();
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('user/saved-ids')
+  getSavedBusinessIds(@Request() req: AuthenticatedRequest) {
+    return this.businessesService.getSavedBusinessIds(req.user.userId);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('user/followed-ids')
+  getFollowedBusinessIds(@Request() req: AuthenticatedRequest) {
+    return this.businessesService.getFollowedBusinessIds(req.user.userId);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('raise-capital')
+  createRaiseCapitalSubmission(
+    @Body() dto: any,
+    @Request() req: AuthenticatedRequest,
+  ) {
+    return this.businessesService.createRaiseCapitalSubmission(dto, req.user.userId);
+  }
+
+  @Get(':identifier/relationship')
+  getRelationship(
+    @Param('identifier') identifier: string,
+    @Request() req: any,
+  ) {
+    const userId = req.user?.userId;
+    return this.businessesService.getRelationship(identifier, userId);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post(':identifier/save')
+  saveBusiness(
+    @Param('identifier') identifier: string,
+    @Request() req: AuthenticatedRequest,
+  ) {
+    return this.businessesService.saveBusiness(identifier, req.user.userId);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Delete(':identifier/save')
+  unsaveBusiness(
+    @Param('identifier') identifier: string,
+    @Request() req: AuthenticatedRequest,
+  ) {
+    return this.businessesService.unsaveBusiness(identifier, req.user.userId);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post(':identifier/follow')
+  followBusiness(
+    @Param('identifier') identifier: string,
+    @Request() req: AuthenticatedRequest,
+  ) {
+    return this.businessesService.followBusiness(identifier, req.user.userId);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Delete(':identifier/follow')
+  unfollowBusiness(
+    @Param('identifier') identifier: string,
+    @Request() req: AuthenticatedRequest,
+  ) {
+    return this.businessesService.unfollowBusiness(identifier, req.user.userId);
+  }
+
   @Get(':slug')
   findOne(@Param('slug') slug: string) {
     return this.businessesService.findOneBySlug(slug);
