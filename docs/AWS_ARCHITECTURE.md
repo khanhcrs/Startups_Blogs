@@ -6,7 +6,7 @@ Tài liệu này mô tả kiến trúc được khai báo trong repository và c
 
 ## 1. Tổng quan Kiến trúc (Architecture Overview)
 
-Hệ thống tách Frontend, Backend, Database và xác thực. Terraform quản lý phần hạ tầng có trong thư mục `terraform/`; App Runner và quy trình cập nhật backend EC2 hiện chưa được quản lý đầy đủ tại đây.
+Hệ thống tách Frontend, Backend, Database và xác thực. Terraform quản lý phần hạ tầng có trong thư mục `terraform/`; quy trình cập nhật backend EC2 hiện chưa được tự động hóa tại đây.
 
 Sơ đồ tổng quan:
 `User -> CloudFront (CDN) -> S3 (Frontend)`
@@ -46,7 +46,7 @@ Sơ đồ tổng quan:
 
 ### 2.8. Tầng Giám sát & Tự động hóa (Monitoring & IaC)
 * **Amazon CloudWatch:** Terraform hiện khai báo một cảnh báo CPU cao cho EC2 gửi trạng thái qua SNS, cùng dashboard hiển thị CPU EC2 và CPU/số kết nối RDS. Repository chưa khai báo thu thập log cho API Gateway/EC2 hoặc metric RAM EC2; cấu hình live ngoài Terraform phải được kiểm tra riêng.
-* **Terraform (Infrastructure as Code - IaC):** Khai báo VPC, S3/CloudFront, RDS, EC2, API Gateway, Cognito và các IAM policy trong thư mục `terraform/`. App Runner, biến môi trường runtime và bước triển khai/restart tiến trình backend trên EC2 chưa được tự động hóa trong repository.
+* **Terraform (Infrastructure as Code - IaC):** Khai báo VPC, S3/CloudFront, RDS, EC2, API Gateway, Cognito và các IAM policy trong thư mục `terraform/`. Biến môi trường runtime và bước triển khai/restart tiến trình backend trên EC2 chưa được tự động hóa trong repository.
 
 ---
 
@@ -62,12 +62,9 @@ Sơ đồ tổng quan:
 
 ## 4. Hợp đồng triển khai Production hiện tại
 
-Hai đường compute đang cùng tồn tại trong repository và **không phải cùng một đích đến**:
+Terraform cấu hình đường `API Gateway -> EC2:3000`; frontend production gọi một URL API Gateway cố định. Endpoint đó đã trả về đúng lỗi 401 của backend cho `/admin/stats`, nhưng repository không đủ bằng chứng để khẳng định integration production chính là EC2 do state Terraform này quản lý.
 
-- Terraform cấu hình một đường `API Gateway -> EC2:3000`; frontend production gọi một URL API Gateway cố định. Endpoint đó đã trả về đúng lỗi 401 của backend cho `/admin/stats`, nhưng repository không đủ bằng chứng để khẳng định integration production chính là EC2 do state Terraform này quản lý.
-- `.github/workflows/deploy-backend.yml` build và push image lên ECR cho App Runner. Workflow này không cập nhật tiến trình backend trên EC2.
-
-Vì vậy, trước khi phát hành phải kiểm tra integration thật của Gateway production, rồi triển khai backend vào đúng compute target đó. Không được xem việc push image ECR/App Runner là bằng chứng API Gateway đã cập nhật.
+Workflow `CI` hiện chỉ kiểm tra lint, unit test và build backend. Dự án không dùng ECR/App Runner và chưa có CD backend tự động. Trước khi phát hành phải kiểm tra integration thật của Gateway production và xác định runbook deploy/restart/rollback trên EC2; không tự động thay đổi production khi các bước này chưa được xác minh.
 
 ### 4.1. Cấu hình Cognito cho backend runtime
 
@@ -75,10 +72,8 @@ Runtime phải khai báo cùng một User Pool với frontend:
 
 - `COGNITO_USER_POOL_ID`
 - `COGNITO_CLIENT_ID`
-- `COGNITO_REGION` (tùy chọn; backend suy ra từ prefix của `COGNITO_USER_POOL_ID` khi không khai báo, thay vì mặc định theo region ECR hay EC2)
+- `COGNITO_REGION` (tùy chọn; backend suy ra từ prefix của `COGNITO_USER_POOL_ID` khi không khai báo, thay vì mặc định theo region EC2)
 
 Terraform xuất `backend_cognito_user_pool_id`, `backend_cognito_region` và `backend_cognito_client_id`. Nếu production dùng User Pool bên ngoài Terraform, phải truyền đồng thời ARN chính xác qua `backend_cognito_user_pool_arn` và App Client ID thuộc chính pool đó qua `backend_cognito_client_id`; Terraform chặn cấu hình chỉ có một trong hai. Các output không tự inject biến môi trường hoặc restart backend.
 
 EC2 instance role chỉ được cấp `cognito-idp:AdminListGroupsForUser`, `cognito-idp:AdminAddUserToGroup`, `cognito-idp:AdminRemoveUserFromGroup` và `cognito-idp:AdminUserGlobalSignOut` trên ARN User Pool này. Backend dùng chúng để xác minh membership hiện thời, đổi role và thu hồi phiên cũ sau khi đổi role; không cấp wildcard Cognito. `GetUser` được ủy quyền bằng access token của chính user nên không cần IAM action. Group `ADMIN` phải tồn tại trong chính User Pool đó.
-
-Nếu chọn App Runner là topology chính, cần chuyển API Gateway/frontend sang App Runner và gắn policy Cognito tương đương cho **App Runner instance role**. Repository hiện chưa quản lý App Runner service/instance role bằng Terraform, nên không tự động suy diễn hay thay đổi topology này.
