@@ -1,5 +1,7 @@
 import { UsersService } from './users.service';
 import { UpdateProfileDto } from './dto/update-profile.dto';
+import { UpdateUserRoleDto } from './dto/update-user-role.dto';
+import { UpdateUserStatusDto } from './dto/update-user-status.dto';
 export declare class UsersController {
     private readonly usersService;
     constructor(usersService: UsersService);
@@ -27,7 +29,7 @@ export declare class UsersController {
             totalPages: number;
         };
     }>;
-    updateUserRole(id: string, role: string): Promise<{
+    updateUserRole(id: string, dto: UpdateUserRoleDto): Promise<{
         success: boolean;
         data: {
             id: string;
@@ -36,7 +38,7 @@ export declare class UsersController {
             role: import("@prisma/client").$Enums.Role;
         };
     }>;
-    updateUserStatus(id: string, status: string): Promise<{
+    updateUserStatus(id: string, dto: UpdateUserStatusDto): Promise<{
         success: boolean;
         data: {
             id: string;
@@ -45,42 +47,45 @@ export declare class UsersController {
             status: string;
         };
     }>;
-    getAdminUserDetails(id: string): Promise<{
+    getAdminUserDetails(id: string): Promise<({
         ownedBusinesses: {
             id: string;
             name: string;
             status: string;
             slug: string;
-            industry: string;
             createdAt: Date;
+            industry: string;
         }[];
         articles: {
             id: string;
             status: string;
             slug: string;
+            title: string;
             viewCount: number;
             createdAt: Date;
-            title: string;
         }[];
         _count: {
             comments: number;
             followers: number;
             following: number;
         };
+    } & {
         id: string;
         email: string;
         name: string;
+        cognitoSub: string | null;
         bio: string | null;
         location: string | null;
         joinedAt: Date;
         avatarUrl: string | null;
         role: import("@prisma/client").$Enums.Role;
         status: string;
-    } | null>;
+    }) | null>;
     adminUpdateUser(id: string, updateProfileDto: UpdateProfileDto): Promise<{
         id: string;
         email: string;
         name: string;
+        cognitoSub: string | null;
         bio: string | null;
         location: string | null;
         joinedAt: Date;
@@ -92,6 +97,7 @@ export declare class UsersController {
         id: string;
         email: string;
         name: string;
+        cognitoSub: string | null;
         bio: string | null;
         location: string | null;
         joinedAt: Date;
@@ -112,6 +118,7 @@ export declare class UsersController {
         id: string;
         email: string;
         name: string;
+        cognitoSub: string | null;
         bio: string | null;
         location: string | null;
         joinedAt: Date;

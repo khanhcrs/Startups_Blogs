@@ -21,9 +21,13 @@ const ExploreBusinesses = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   
   const [businesses, setBusinesses] = useState<BusinessOpportunityRecord[]>([]);
+  const [savedBusinessIds, setSavedBusinessIds] = useState<Set<string>>(new Set());
   const [isLoading, setIsLoading] = useState(true);
   const [showMoreFilters, setShowMoreFilters] = useState(false);
   const [searchInput, setSearchInput] = useState(searchParams.get('search') || '');
+  
+  // Use auth context or a way to know if user is logged in
+  const token = localStorage.getItem('token');
   
   // Single active open dropdown management
   const [activeDropdownId, setActiveDropdownId] = useState<string | null>(null);
@@ -49,20 +53,59 @@ const ExploreBusinesses = () => {
   }), [searchParams]);
 
   useEffect(() => {
-    api.get('/businesses?take=100').then((res) => {
-      const mapped = res.data.map((b: any) => ({
-        business: b,
-        opportunity: b.fundingOpportunities?.[0]
-      }));
-      setBusinesses(mapped);
-      setIsLoading(false);
-    }).catch(err => {
-      console.error('Failed to fetch businesses', err);
-      toast.error('Failed to load businesses. Please try again later.');
-      setBusinesses([]);
-      setIsLoading(false);
-    });
-  }, []);
+    const fetchData = async () => {
+      try {
+        const res = await api.get('/businesses?take=100');
+        const mapped = res.data.map((b: any) => ({
+          business: b,
+          opportunity: b.fundingOpportunities?.[0]
+        }));
+        setBusinesses(mapped);
+        
+        if (token) {
+          const savedRes = await api.get('/saved-businesses');
+          setSavedBusinessIds(new Set(savedRes.data.map((sb: any) => sb.businessId)));
+        }
+      } catch (err) {
+        console.error('Failed to fetch data', err);
+        toast.error('Failed to load businesses. Please try again later.');
+        setBusinesses([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchData();
+  }, [token]);
+
+  const handleSaveBusiness = async (id: string) => {
+    if (!token) {
+      toast.error('Vui lòng đăng nhập để lưu business');
+      return;
+    }
+    const isSaved = savedBusinessIds.has(id);
+    
+    try {
+      if (isSaved) {
+        await api.delete(`/saved-businesses/${id}`);
+        setSavedBusinessIds(prev => {
+          const next = new Set(prev);
+          next.delete(id);
+          return next;
+        });
+        toast.success('Đã bỏ lưu business');
+      } else {
+        await api.post(`/saved-businesses/${id}`);
+        setSavedBusinessIds(prev => {
+          const next = new Set(prev);
+          next.add(id);
+          return next;
+        });
+        toast.success('Đã lưu business');
+      }
+    } catch (err) {
+      toast.error('Có lỗi xảy ra');
+    }
+  };
 
   // Sync Search Input to URL with 300ms debounce
   useEffect(() => {
@@ -112,7 +155,14 @@ const ExploreBusinesses = () => {
     filters.tab !== 'all' ||
     filters.sort !== 'newest';
 
-  const filteredData = useMemo(() => filterBusinessRecords(businesses, filters), [businesses, filters]);
+  const baseData = useMemo(() => {
+    if (filters.tab === 'following') {
+      return businesses.filter(b => savedBusinessIds.has(b.business.id));
+    }
+    return businesses;
+  }, [businesses, filters.tab, savedBusinessIds]);
+
+  const filteredData = useMemo(() => filterBusinessRecords(baseData, filters), [baseData, filters]);
   const sortedData = useMemo(() => sortBusinessRecords(filteredData, filters.sort, filters.tab), [filteredData, filters.sort, filters.tab]);
   
   const LIMIT = 9;
@@ -419,7 +469,7 @@ const ExploreBusinesses = () => {
                 <BusinessSkeleton key={idx} />
               ))}
             </div>
-          ) : filters.tab === 'following' ? (
+          ) : filters.tab === 'following' && !token ? (
             <div className={styles.emptyState}>
               <Lock size={48} className={styles.emptyIcon} />
               <h3>Sign in to view businesses you follow.</h3>
@@ -441,7 +491,12 @@ const ExploreBusinesses = () => {
             <>
               <div className={styles.grid}>
                 {paginatedData.map(record => (
-                  <BusinessCard key={record.business.id} {...record} />
+                  <BusinessCard 
+                    key={record.business.id} 
+                    {...record} 
+                    isSaved={savedBusinessIds.has(record.business.id)}
+                    onSave={handleSaveBusiness}
+                  />
                 ))}
               </div>
               

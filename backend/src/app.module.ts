@@ -11,6 +11,7 @@ import { FundingOpportunitiesModule } from './funding-opportunities/funding-oppo
 import { ArticlesModule } from './articles/articles.module';
 import { CommentsModule } from './comments/comments.module';
 import { BookmarksModule } from './bookmarks/bookmarks.module';
+import { SavedBusinessesModule } from './saved-businesses/saved-businesses.module';
 import { FollowsModule } from './follows/follows.module';
 import { UploadModule } from './upload/upload.module';
 import { ContactRequestsModule } from './contact-requests/contact-requests.module';
@@ -30,6 +31,7 @@ import { ProposalsModule } from './proposals/proposals.module';
     ArticlesModule,
     CommentsModule,
     BookmarksModule,
+    SavedBusinessesModule,
     FollowsModule,
     UploadModule,
     ContactRequestsModule,

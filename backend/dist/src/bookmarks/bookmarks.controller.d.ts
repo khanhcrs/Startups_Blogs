@@ -18,9 +18,9 @@ export declare class BookmarksController {
         article: {
             id: string;
             slug: string;
-            createdAt: Date;
             title: string;
             summary: string;
+            createdAt: Date;
         };
     } & {
         id: string;

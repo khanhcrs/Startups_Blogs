@@ -1,10 +1,18 @@
 import { PrismaService } from '../prisma/prisma.service';
-import { Prisma, User } from '@prisma/client';
+import { Prisma, User, Role } from '@prisma/client';
+import { CognitoGroupsService } from './cognito-groups.service';
+import type { UserStatus } from './dto/update-user-status.dto';
 export declare class UsersService {
-    private prisma;
-    constructor(prisma: PrismaService);
+    private readonly prisma;
+    private readonly cognitoGroups;
+    constructor(prisma: PrismaService, cognitoGroups: CognitoGroupsService);
     findByEmail(email: string): Promise<User | null>;
     findById(id: string): Promise<User | null>;
+    findOrCreateFromCognito(data: {
+        cognitoSub: string;
+        email: string;
+        name?: string;
+    }): Promise<User>;
     getPublicProfile(id: string): Promise<{
         id: string;
         name: string;
@@ -40,19 +48,20 @@ export declare class UsersService {
             totalPages: number;
         };
     }>;
-    updateUserRole(id: string, role: string): Promise<{
+    updateUserRole(id: string, role: Role): Promise<{
         id: string;
         email: string;
         name: string;
         role: import("@prisma/client").$Enums.Role;
     }>;
-    updateUserStatus(id: string, status: string): Promise<{
+    syncRoleFromCognito(id: string, role: Role): Promise<void>;
+    updateUserStatus(id: string, status: UserStatus): Promise<{
         id: string;
         email: string;
         name: string;
         status: string;
     }>;
-    getAdminUserDetails(id: string): Promise<{
+    getAdminUserDetails(id: string): Promise<({
         ownedBusinesses: {
             id: string;
             name: string;
@@ -74,8 +83,10 @@ export declare class UsersService {
             followers: number;
             following: number;
         };
+    } & {
         id: string;
         email: string;
+        cognitoSub: string | null;
         name: string;
         bio: string | null;
         location: string | null;
@@ -83,5 +94,5 @@ export declare class UsersService {
         avatarUrl: string | null;
         role: import("@prisma/client").$Enums.Role;
         status: string;
-    } | null>;
+    }) | null>;
 }

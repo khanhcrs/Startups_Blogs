@@ -69,6 +69,14 @@ const BlogDetail = () => {
           const likedState = localStorage.getItem(`liked_${user.id}_${res.data.id}`);
           if (likedState === 'true') setLiked(true);
         }
+
+        // Fetch follow state if user is logged in
+        if (user && res.data.author?.id) {
+          api.get('/follows/following').then(followRes => {
+            const isFollowingUser = followRes.data.some((f: any) => f.followingId === res.data.author.id);
+            setFollowing(isFollowingUser);
+          }).catch(console.error);
+        }
       })
       .catch(err => {
         console.error('Failed to fetch article', err);
@@ -101,6 +109,24 @@ const BlogDetail = () => {
     const newLiked = !liked;
     setLiked(newLiked);
     localStorage.setItem(`liked_${user.id}_${article.id}`, newLiked ? 'true' : 'false');
+  };
+
+  const toggleFollow = () => {
+    if (!user) {
+      toast.error('Vui lòng đăng nhập để theo dõi');
+      return;
+    }
+    
+    const authorId = article.author.id;
+    if (following) {
+      api.delete(`/follows/${authorId}`)
+        .then(() => setFollowing(false))
+        .catch(() => toast.error('Lỗi khi bỏ theo dõi'));
+    } else {
+      api.post(`/follows/${authorId}`)
+        .then(() => setFollowing(true))
+        .catch(() => toast.error('Lỗi khi theo dõi'));
+    }
   };
 
   const isAuthor = user && article?.author?.id === user.id;
@@ -328,7 +354,7 @@ const BlogDetail = () => {
               <Link to={`/user/${article.author.id}`} className={styles.authorName}>{article.author.name}</Link>
               <button 
                 className={`${styles.followBtn} ${following ? styles.followingBtn : ''}`}
-                onClick={() => setFollowing(!following)}
+                onClick={toggleFollow}
               >
                 {following ? 'Following' : 'Follow'}
               </button>

@@ -62,6 +62,18 @@ const BusinessDetail = () => {
           } catch (e) {
             console.error('Failed to fetch articles', e);
           }
+          
+          // Try to fetch save status
+          const token = localStorage.getItem('token');
+          if (token) {
+            try {
+              const savedRes = await api.get('/saved-businesses');
+              const saved = savedRes.data.some((sb: any) => sb.businessId === bizRes.data.id);
+              setIsSaved(saved);
+            } catch (e) {
+              console.error('Failed to fetch saved businesses', e);
+            }
+          }
 
           // Try to fetch related
           try {
@@ -109,6 +121,26 @@ const BusinessDetail = () => {
       </div>
     );
   }
+
+  const handleToggleSave = async () => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      alert('Vui lòng đăng nhập để lưu business');
+      return;
+    }
+    try {
+      if (isSaved) {
+        await api.delete(`/saved-businesses/${business.id}`);
+        setIsSaved(false);
+      } else {
+        await api.post(`/saved-businesses/${business.id}`);
+        setIsSaved(true);
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Có lỗi xảy ra');
+    }
+  };
 
   // variables populated by state
 
@@ -160,10 +192,10 @@ const BusinessDetail = () => {
               <button 
                 type="button"
                 className={`${styles.actionBtn} ${isSaved ? styles.savedBtn : ''}`}
-                onClick={() => setIsSaved(!isSaved)}
+                onClick={handleToggleSave}
                 aria-label={isSaved ? 'Remove from saved' : 'Save business'}
               >
-                <Bookmark size={18} /> {isSaved ? 'Saved' : 'Save'}
+                <Bookmark size={18} fill={isSaved ? "currentColor" : "none"} /> {isSaved ? 'Saved' : 'Save'}
               </button>
               <button 
                 type="button"

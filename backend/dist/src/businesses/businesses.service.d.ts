@@ -1,4 +1,5 @@
 import { PrismaService } from '../prisma/prisma.service';
+import type { BusinessStatus } from './dto/update-business-status.dto';
 import { CreateBusinessDto } from './dto/create-business.dto';
 import { UpdateBusinessDto } from './dto/update-business.dto';
 export declare class BusinessesService {
@@ -164,7 +165,7 @@ export declare class BusinessesService {
         createdAt: Date;
         ownerId: string;
     }>;
-    updateStatus(id: string, status: string): Promise<{
+    updateStatus(id: string, status: BusinessStatus): Promise<{
         id: string;
         name: string;
         location: string;

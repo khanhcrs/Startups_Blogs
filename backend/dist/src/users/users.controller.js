@@ -20,6 +20,8 @@ const roles_guard_1 = require("../auth/guards/roles.guard");
 const roles_decorator_1 = require("../auth/decorators/roles.decorator");
 const client_1 = require("@prisma/client");
 const update_profile_dto_1 = require("./dto/update-profile.dto");
+const update_user_role_dto_1 = require("./dto/update-user-role.dto");
+const update_user_status_dto_1 = require("./dto/update-user-status.dto");
 let UsersController = class UsersController {
     usersService;
     constructor(usersService) {
@@ -28,37 +30,30 @@ let UsersController = class UsersController {
     async getAllUsers(page = '1', limit = '10', role) {
         return this.usersService.getAllUsers(Number(page), Number(limit), role);
     }
-    async updateUserRole(id, role) {
-        const data = await this.usersService.updateUserRole(id, role);
+    async updateUserRole(id, dto) {
+        const data = await this.usersService.updateUserRole(id, dto.role);
         return { success: true, data };
     }
-    async updateUserStatus(id, status) {
-        const data = await this.usersService.updateUserStatus(id, status);
+    async updateUserStatus(id, dto) {
+        const data = await this.usersService.updateUserStatus(id, dto.status);
         return { success: true, data };
     }
     async getAdminUserDetails(id) {
         return this.usersService.getAdminUserDetails(id);
     }
     async adminUpdateUser(id, updateProfileDto) {
-        const user = await this.usersService.updateUser(id, updateProfileDto);
-        const { password, ...result } = user;
-        return result;
+        return this.usersService.updateUser(id, updateProfileDto);
     }
     async getProfile(req) {
         const user = await this.usersService.findById(req.user.userId);
-        if (user) {
-            const { password, ...result } = user;
-            return result;
-        }
-        return null;
+        return user;
     }
     async getPublicProfile(id) {
         return this.usersService.getPublicProfile(id);
     }
     async updateProfile(req, updateProfileDto) {
         const user = await this.usersService.updateUser(req.user.userId, updateProfileDto);
-        const { password, ...result } = user;
-        return result;
+        return user;
     }
 };
 exports.UsersController = UsersController;
@@ -78,9 +73,9 @@ __decorate([
     (0, roles_decorator_1.Roles)(client_1.Role.ADMIN),
     (0, common_1.Put)('admin/:id/role'),
     __param(0, (0, common_1.Param)('id')),
-    __param(1, (0, common_1.Body)('role')),
+    __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, String]),
+    __metadata("design:paramtypes", [String, update_user_role_dto_1.UpdateUserRoleDto]),
     __metadata("design:returntype", Promise)
 ], UsersController.prototype, "updateUserRole", null);
 __decorate([
@@ -88,9 +83,9 @@ __decorate([
     (0, roles_decorator_1.Roles)(client_1.Role.ADMIN),
     (0, common_1.Put)('admin/:id/status'),
     __param(0, (0, common_1.Param)('id')),
-    __param(1, (0, common_1.Body)('status')),
+    __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, String]),
+    __metadata("design:paramtypes", [String, update_user_status_dto_1.UpdateUserStatusDto]),
     __metadata("design:returntype", Promise)
 ], UsersController.prototype, "updateUserStatus", null);
 __decorate([

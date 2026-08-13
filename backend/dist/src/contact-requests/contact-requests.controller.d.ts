@@ -15,9 +15,9 @@ export declare class ContactRequestsController {
     } & {
         id: string;
         status: string;
-        createdAt: Date;
         title: string;
         businessId: string;
+        createdAt: Date;
         message: string;
         updatedAt: Date;
         senderId: string;
@@ -32,9 +32,9 @@ export declare class ContactRequestsController {
     } & {
         id: string;
         status: string;
-        createdAt: Date;
         title: string;
         businessId: string;
+        createdAt: Date;
         message: string;
         updatedAt: Date;
         senderId: string;

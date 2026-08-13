@@ -1,6 +1,7 @@
 import { BusinessesService } from './businesses.service';
 import { CreateBusinessDto } from './dto/create-business.dto';
 import { UpdateBusinessDto } from './dto/update-business.dto';
+import { UpdateBusinessStatusDto } from './dto/update-business-status.dto';
 export declare class BusinessesController {
     private readonly businessesService;
     constructor(businessesService: BusinessesService);
@@ -10,6 +11,8 @@ export declare class BusinessesController {
         location: string;
         status: string;
         slug: string;
+        viewCount: number;
+        createdAt: Date;
         legalName: string | null;
         description: string;
         detailedOverview: string | null;
@@ -27,11 +30,9 @@ export declare class BusinessesController {
         operatingRegions: string[];
         mainMarket: string | null;
         financialHighlights: import("@prisma/client/runtime/client").JsonValue | null;
-        savedCount: number;
-        viewCount: number;
-        commentCount: number;
-        createdAt: Date;
         ownerId: string;
+        savedCount: number;
+        commentCount: number;
     }>;
     findAll(skip?: string, take?: string): Promise<({
         owner: {
@@ -45,6 +46,8 @@ export declare class BusinessesController {
         location: string;
         status: string;
         slug: string;
+        viewCount: number;
+        createdAt: Date;
         legalName: string | null;
         description: string;
         detailedOverview: string | null;
@@ -62,13 +65,11 @@ export declare class BusinessesController {
         operatingRegions: string[];
         mainMarket: string | null;
         financialHighlights: import("@prisma/client/runtime/client").JsonValue | null;
-        savedCount: number;
-        viewCount: number;
-        commentCount: number;
-        createdAt: Date;
         ownerId: string;
+        savedCount: number;
+        commentCount: number;
     })[]>;
-    findAllForAdmin(req: any, skip?: string, take?: string, status?: string, search?: string, stage?: string, industry?: string, startDate?: string, endDate?: string): Promise<{
+    findAllForAdmin(skip?: string, take?: string, status?: string, search?: string, stage?: string, industry?: string, startDate?: string, endDate?: string): Promise<{
         data: ({
             owner: {
                 id: string;
@@ -81,6 +82,8 @@ export declare class BusinessesController {
             location: string;
             status: string;
             slug: string;
+            viewCount: number;
+            createdAt: Date;
             legalName: string | null;
             description: string;
             detailedOverview: string | null;
@@ -98,23 +101,23 @@ export declare class BusinessesController {
             operatingRegions: string[];
             mainMarket: string | null;
             financialHighlights: import("@prisma/client/runtime/client").JsonValue | null;
-            savedCount: number;
-            viewCount: number;
-            commentCount: number;
-            createdAt: Date;
             ownerId: string;
+            savedCount: number;
+            commentCount: number;
         })[];
         meta: {
             total: number;
             totalPages: number;
         };
     }>;
-    updateStatus(id: string, status: string, req: any): Promise<{
+    updateStatus(id: string, dto: UpdateBusinessStatusDto): Promise<{
         id: string;
         name: string;
         location: string;
         status: string;
         slug: string;
+        viewCount: number;
+        createdAt: Date;
         legalName: string | null;
         description: string;
         detailedOverview: string | null;
@@ -132,21 +135,19 @@ export declare class BusinessesController {
         operatingRegions: string[];
         mainMarket: string | null;
         financialHighlights: import("@prisma/client/runtime/client").JsonValue | null;
-        savedCount: number;
-        viewCount: number;
-        commentCount: number;
-        createdAt: Date;
         ownerId: string;
+        savedCount: number;
+        commentCount: number;
     }>;
-    findOneForAdmin(id: string, req: any): Promise<{
+    findOneForAdmin(id: string): Promise<{
         teamMembers: {
             id: string;
             name: string;
             bio: string | null;
             avatarUrl: string | null;
             role: string;
-            userId: string | null;
             businessId: string;
+            userId: string | null;
         }[];
         owner: {
             id: string;
@@ -156,13 +157,13 @@ export declare class BusinessesController {
         };
         fundingRounds: {
             id: string;
+            businessId: string;
             isVerified: boolean;
             roundName: string;
             amount: number;
             currency: string;
             date: Date;
             investors: string;
-            businessId: string;
         }[];
     } & {
         id: string;
@@ -170,6 +171,8 @@ export declare class BusinessesController {
         location: string;
         status: string;
         slug: string;
+        viewCount: number;
+        createdAt: Date;
         legalName: string | null;
         description: string;
         detailedOverview: string | null;
@@ -187,18 +190,18 @@ export declare class BusinessesController {
         operatingRegions: string[];
         mainMarket: string | null;
         financialHighlights: import("@prisma/client/runtime/client").JsonValue | null;
-        savedCount: number;
-        viewCount: number;
-        commentCount: number;
-        createdAt: Date;
         ownerId: string;
+        savedCount: number;
+        commentCount: number;
     }>;
-    updateAsAdmin(id: string, updateBusinessDto: any, req: any): Promise<{
+    updateAsAdmin(id: string, updateBusinessDto: any): Promise<{
         id: string;
         name: string;
         location: string;
         status: string;
         slug: string;
+        viewCount: number;
+        createdAt: Date;
         legalName: string | null;
         description: string;
         detailedOverview: string | null;
@@ -216,11 +219,9 @@ export declare class BusinessesController {
         operatingRegions: string[];
         mainMarket: string | null;
         financialHighlights: import("@prisma/client/runtime/client").JsonValue | null;
-        savedCount: number;
-        viewCount: number;
-        commentCount: number;
-        createdAt: Date;
         ownerId: string;
+        savedCount: number;
+        commentCount: number;
     }>;
     findOne(slug: string): Promise<{
         teamMembers: {
@@ -229,8 +230,8 @@ export declare class BusinessesController {
             bio: string | null;
             avatarUrl: string | null;
             role: string;
-            userId: string | null;
             businessId: string;
+            userId: string | null;
         }[];
         owner: {
             id: string;
@@ -239,13 +240,13 @@ export declare class BusinessesController {
         };
         fundingRounds: {
             id: string;
+            businessId: string;
             isVerified: boolean;
             roundName: string;
             amount: number;
             currency: string;
             date: Date;
             investors: string;
-            businessId: string;
         }[];
     } & {
         id: string;
@@ -253,6 +254,8 @@ export declare class BusinessesController {
         location: string;
         status: string;
         slug: string;
+        viewCount: number;
+        createdAt: Date;
         legalName: string | null;
         description: string;
         detailedOverview: string | null;
@@ -270,11 +273,9 @@ export declare class BusinessesController {
         operatingRegions: string[];
         mainMarket: string | null;
         financialHighlights: import("@prisma/client/runtime/client").JsonValue | null;
-        savedCount: number;
-        viewCount: number;
-        commentCount: number;
-        createdAt: Date;
         ownerId: string;
+        savedCount: number;
+        commentCount: number;
     }>;
     update(id: string, updateBusinessDto: UpdateBusinessDto, req: any): Promise<{
         id: string;
@@ -282,6 +283,8 @@ export declare class BusinessesController {
         location: string;
         status: string;
         slug: string;
+        viewCount: number;
+        createdAt: Date;
         legalName: string | null;
         description: string;
         detailedOverview: string | null;
@@ -299,11 +302,9 @@ export declare class BusinessesController {
         operatingRegions: string[];
         mainMarket: string | null;
         financialHighlights: import("@prisma/client/runtime/client").JsonValue | null;
-        savedCount: number;
-        viewCount: number;
-        commentCount: number;
-        createdAt: Date;
         ownerId: string;
+        savedCount: number;
+        commentCount: number;
     }>;
     remove(id: string, req: any): Promise<{
         id: string;
@@ -311,6 +312,8 @@ export declare class BusinessesController {
         location: string;
         status: string;
         slug: string;
+        viewCount: number;
+        createdAt: Date;
         legalName: string | null;
         description: string;
         detailedOverview: string | null;
@@ -328,10 +331,8 @@ export declare class BusinessesController {
         operatingRegions: string[];
         mainMarket: string | null;
         financialHighlights: import("@prisma/client/runtime/client").JsonValue | null;
-        savedCount: number;
-        viewCount: number;
-        commentCount: number;
-        createdAt: Date;
         ownerId: string;
+        savedCount: number;
+        commentCount: number;
     }>;
 }

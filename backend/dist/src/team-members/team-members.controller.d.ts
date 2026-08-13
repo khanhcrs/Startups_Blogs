@@ -10,8 +10,8 @@ export declare class TeamMembersController {
         bio: string | null;
         avatarUrl: string | null;
         role: string;
-        userId: string | null;
         businessId: string;
+        userId: string | null;
     }>;
     findAll(businessId: string): Promise<{
         id: string;
@@ -19,8 +19,8 @@ export declare class TeamMembersController {
         bio: string | null;
         avatarUrl: string | null;
         role: string;
-        userId: string | null;
         businessId: string;
+        userId: string | null;
     }[]>;
     update(businessId: string, id: string, updateTeamMemberDto: UpdateTeamMemberDto, req: any): Promise<{
         id: string;
@@ -28,8 +28,8 @@ export declare class TeamMembersController {
         bio: string | null;
         avatarUrl: string | null;
         role: string;
-        userId: string | null;
         businessId: string;
+        userId: string | null;
     }>;
     remove(businessId: string, id: string, req: any): Promise<{
         id: string;
@@ -37,7 +37,7 @@ export declare class TeamMembersController {
         bio: string | null;
         avatarUrl: string | null;
         role: string;
-        userId: string | null;
         businessId: string;
+        userId: string | null;
     }>;
 }

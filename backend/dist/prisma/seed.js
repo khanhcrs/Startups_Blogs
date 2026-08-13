@@ -36,10 +36,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const dotenv = __importStar(require("dotenv"));
 dotenv.config();
 const client_1 = require("@prisma/client");
-const bcrypt = __importStar(require("bcrypt"));
 const pg_1 = require("pg");
 const adapter_pg_1 = require("@prisma/adapter-pg");
-const pool = new pg_1.Pool({ connectionString: process.env.DATABASE_URL });
+const faker_1 = require("@faker-js/faker");
+const pool = new pg_1.Pool({
+    connectionString: process.env.DATABASE_URL,
+    ssl: { rejectUnauthorized: false },
+});
 const adapter = new adapter_pg_1.PrismaPg(pool);
 const prisma = new client_1.PrismaClient({ adapter });
 async function main() {
@@ -54,11 +57,9 @@ async function main() {
     await prisma.business.deleteMany();
     await prisma.user.deleteMany();
     console.log('Đang tạo người dùng (Seeding users)...');
-    const password = await bcrypt.hash('password123', 10);
     const adminUser = await prisma.user.create({
         data: {
             email: 'admin@startups.vn',
-            password,
             name: 'Quản Trị Viên',
             bio: 'Người quản lý hệ thống Startups & Blogs',
             location: 'Hà Nội, Việt Nam',
@@ -69,9 +70,8 @@ async function main() {
     const testUser = await prisma.user.create({
         data: {
             email: 'user@startups.vn',
-            password,
-            name: 'Nhà Đầu Tư Angel',
-            bio: 'Đam mê công nghệ và tìm kiếm các startup tiềm năng tại Đông Nam Á.',
+            name: 'Khách Tham Quan',
+            bio: 'Nhà đầu tư thiên thần, đam mê công nghệ',
             location: 'Hồ Chí Minh, Việt Nam',
             role: client_1.Role.USER,
             avatarUrl: 'https://i.pravatar.cc/150?u=investor',
@@ -81,12 +81,11 @@ async function main() {
     for (let i = 1; i <= 12; i++) {
         founders.push(await prisma.user.create({
             data: {
-                email: `founder${i}@startups.vn`,
-                password,
-                name: `Founder ${i}`,
-                bio: 'Khởi nghiệp gia nhiệt huyết, luôn tìm kiếm giải pháp đột phá.',
-                location: i % 2 === 0 ? 'Hà Nội, Việt Nam' : 'Hồ Chí Minh, Việt Nam',
-                avatarUrl: `https://i.pravatar.cc/150?u=founder${i}`,
+                email: faker_1.fakerVI.internet.email(),
+                name: faker_1.fakerVI.person.fullName(),
+                bio: faker_1.fakerVI.person.jobTitle(),
+                location: faker_1.fakerVI.location.city(),
+                avatarUrl: faker_1.fakerVI.image.avatar(),
             }
         }));
     }
@@ -381,9 +380,11 @@ async function main() {
     console.log('Hoàn thành quá trình tạo dữ liệu (Seeding completed)!');
     console.log(`Đã tạo thành công: 14 Người dùng, 12 Doanh nghiệp chuẩn, 27 Bài viết, cùng các bình luận và tương tác.`);
     console.log(`\n============================`);
-    console.log(`Tài khoản Admin: admin@startups.vn / password123`);
-    console.log(`Tài khoản Nhà đầu tư: user@startups.vn / password123`);
-    console.log(`Tài khoản Founder (ví dụ): founder1@startups.vn / password123`);
+    console.log(`Tài khoản Admin (Dùng để test News):`);
+    console.log(`Email: admin@startups.vn`);
+    console.log(`\nTài khoản User thường (Dùng để test tính năng chung):`);
+    console.log(`Email: user@startups.vn`);
+    console.log(`Các tài khoản đăng nhập được quản lý trong AWS Cognito.`);
     console.log(`============================\n`);
 }
 main()

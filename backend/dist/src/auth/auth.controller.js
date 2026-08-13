@@ -15,28 +15,59 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuthController = void 0;
 const common_1 = require("@nestjs/common");
 const auth_service_1 = require("./auth.service");
-const register_dto_1 = require("./dto/register.dto");
+const sign_up_dto_1 = require("./dto/sign-up.dto");
+const confirm_sign_up_dto_1 = require("./dto/confirm-sign-up.dto");
+const email_dto_1 = require("./dto/email.dto");
 const login_dto_1 = require("./dto/login.dto");
+const confirm_forgot_password_dto_1 = require("./dto/confirm-forgot-password.dto");
 let AuthController = class AuthController {
     authService;
     constructor(authService) {
         this.authService = authService;
     }
-    register(registerDto) {
-        return this.authService.register(registerDto);
+    signUp(dto) {
+        return this.authService.signUp(dto);
     }
-    login(loginDto) {
-        return this.authService.login(loginDto);
+    confirmSignUp(dto) {
+        return this.authService.confirmSignUp(dto);
+    }
+    resendConfirmationCode(dto) {
+        return this.authService.resendConfirmationCode(dto.email);
+    }
+    login(dto) {
+        return this.authService.login(dto);
+    }
+    forgotPassword(dto) {
+        return this.authService.forgotPassword(dto.email);
+    }
+    confirmForgotPassword(dto) {
+        return this.authService.confirmForgotPassword(dto);
     }
 };
 exports.AuthController = AuthController;
 __decorate([
-    (0, common_1.Post)('register'),
+    (0, common_1.Post)('sign-up'),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [register_dto_1.RegisterDto]),
+    __metadata("design:paramtypes", [sign_up_dto_1.SignUpDto]),
     __metadata("design:returntype", void 0)
-], AuthController.prototype, "register", null);
+], AuthController.prototype, "signUp", null);
+__decorate([
+    (0, common_1.HttpCode)(common_1.HttpStatus.OK),
+    (0, common_1.Post)('confirm-sign-up'),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [confirm_sign_up_dto_1.ConfirmSignUpDto]),
+    __metadata("design:returntype", void 0)
+], AuthController.prototype, "confirmSignUp", null);
+__decorate([
+    (0, common_1.HttpCode)(common_1.HttpStatus.OK),
+    (0, common_1.Post)('resend-confirmation-code'),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [email_dto_1.EmailDto]),
+    __metadata("design:returntype", void 0)
+], AuthController.prototype, "resendConfirmationCode", null);
 __decorate([
     (0, common_1.HttpCode)(common_1.HttpStatus.OK),
     (0, common_1.Post)('login'),
@@ -45,6 +76,22 @@ __decorate([
     __metadata("design:paramtypes", [login_dto_1.LoginDto]),
     __metadata("design:returntype", void 0)
 ], AuthController.prototype, "login", null);
+__decorate([
+    (0, common_1.HttpCode)(common_1.HttpStatus.OK),
+    (0, common_1.Post)('forgot-password'),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [email_dto_1.EmailDto]),
+    __metadata("design:returntype", void 0)
+], AuthController.prototype, "forgotPassword", null);
+__decorate([
+    (0, common_1.HttpCode)(common_1.HttpStatus.OK),
+    (0, common_1.Post)('confirm-forgot-password'),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [confirm_forgot_password_dto_1.ConfirmForgotPasswordDto]),
+    __metadata("design:returntype", void 0)
+], AuthController.prototype, "confirmForgotPassword", null);
 exports.AuthController = AuthController = __decorate([
     (0, common_1.Controller)('auth'),
     __metadata("design:paramtypes", [auth_service_1.AuthService])

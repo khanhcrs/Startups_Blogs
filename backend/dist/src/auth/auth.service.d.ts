@@ -1,27 +1,33 @@
-import { UsersService } from '../users/users.service';
-import { JwtService } from '@nestjs/jwt';
-import { RegisterDto } from './dto/register.dto';
+import { SignUpDto } from './dto/sign-up.dto';
+import { ConfirmSignUpDto } from './dto/confirm-sign-up.dto';
 import { LoginDto } from './dto/login.dto';
+import { ConfirmForgotPasswordDto } from './dto/confirm-forgot-password.dto';
 export declare class AuthService {
-    private usersService;
-    private jwtService;
-    constructor(usersService: UsersService, jwtService: JwtService);
-    register(registerDto: RegisterDto): Promise<{
-        access_token: string;
-        user: {
-            id: string;
-            email: string;
-            name: string;
-            role: import("@prisma/client").$Enums.Role;
-        };
+    private readonly client;
+    private readonly clientId;
+    signUp(dto: SignUpDto): Promise<{
+        confirmed: boolean;
+        userSub: string | undefined;
+        delivery: import("@aws-sdk/client-cognito-identity-provider").CodeDeliveryDetailsType | undefined;
     }>;
-    login(loginDto: LoginDto): Promise<{
-        access_token: string;
-        user: {
-            id: string;
-            email: string;
-            name: string;
-            role: import("@prisma/client").$Enums.Role;
-        };
+    confirmSignUp(dto: ConfirmSignUpDto): Promise<{
+        confirmed: boolean;
     }>;
+    resendConfirmationCode(email: string): Promise<{
+        delivery: import("@aws-sdk/client-cognito-identity-provider").CodeDeliveryDetailsType | undefined;
+    }>;
+    login(dto: LoginDto): Promise<{
+        accessToken: string;
+        idToken: string | undefined;
+        refreshToken: string | undefined;
+        expiresIn: number | undefined;
+        tokenType: string | undefined;
+    }>;
+    forgotPassword(email: string): Promise<{
+        delivery: import("@aws-sdk/client-cognito-identity-provider").CodeDeliveryDetailsType | undefined;
+    }>;
+    confirmForgotPassword(dto: ConfirmForgotPasswordDto): Promise<{
+        passwordReset: boolean;
+    }>;
+    private throwCognitoError;
 }

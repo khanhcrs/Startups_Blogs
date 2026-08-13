@@ -18,15 +18,20 @@ let UploadService = class UploadService {
     bucketName = process.env.AWS_S3_BUCKET || 'startups-blogs-bucket';
     endpoint = process.env.AWS_S3_ENDPOINT || 'http://127.0.0.1:9000';
     constructor() {
-        this.s3Client = new client_s3_1.S3Client({
-            endpoint: this.endpoint,
+        const s3Config = {
             region: process.env.AWS_S3_REGION || 'us-east-1',
-            credentials: {
-                accessKeyId: process.env.AWS_S3_ACCESS_KEY || 'admin',
-                secretAccessKey: process.env.AWS_S3_SECRET_KEY || 'admin123password',
-            },
             forcePathStyle: true,
-        });
+        };
+        if (process.env.AWS_S3_ENDPOINT) {
+            s3Config.endpoint = process.env.AWS_S3_ENDPOINT;
+        }
+        if (process.env.AWS_S3_ACCESS_KEY) {
+            s3Config.credentials = {
+                accessKeyId: process.env.AWS_S3_ACCESS_KEY,
+                secretAccessKey: process.env.AWS_S3_SECRET_KEY,
+            };
+        }
+        this.s3Client = new client_s3_1.S3Client(s3Config);
     }
     async onModuleInit() {
         try {

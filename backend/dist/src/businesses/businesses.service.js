@@ -18,7 +18,9 @@ let BusinessesService = class BusinessesService {
         this.prisma = prisma;
     }
     async create(createBusinessDto, ownerId) {
-        const slug = createBusinessDto.name.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-' + Date.now();
+        const slug = createBusinessDto.name.toLowerCase().replace(/[^a-z0-9]+/g, '-') +
+            '-' +
+            Date.now();
         return this.prisma.business.create({
             data: {
                 ...createBusinessDto,
@@ -62,26 +64,30 @@ let BusinessesService = class BusinessesService {
                 where,
                 skip,
                 take,
-                include: { owner: { select: { id: true, name: true, avatarUrl: true } } },
+                include: {
+                    owner: { select: { id: true, name: true, avatarUrl: true } },
+                },
                 orderBy: { createdAt: 'desc' },
             }),
-            this.prisma.business.count({ where })
+            this.prisma.business.count({ where }),
         ]);
         return {
             data,
             meta: {
                 total,
-                totalPages: Math.ceil(total / take)
-            }
+                totalPages: Math.ceil(total / take),
+            },
         };
     }
     async findOneForAdmin(id) {
         const business = await this.prisma.business.findUnique({
             where: { id },
             include: {
-                owner: { select: { id: true, name: true, avatarUrl: true, email: true } },
+                owner: {
+                    select: { id: true, name: true, avatarUrl: true, email: true },
+                },
                 teamMembers: true,
-                fundingRounds: true
+                fundingRounds: true,
             },
         });
         if (!business) {
@@ -105,7 +111,7 @@ let BusinessesService = class BusinessesService {
             include: {
                 owner: { select: { id: true, name: true, avatarUrl: true } },
                 teamMembers: true,
-                fundingRounds: true
+                fundingRounds: true,
             },
         });
         if (!business) {

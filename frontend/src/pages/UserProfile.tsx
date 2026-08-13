@@ -54,6 +54,7 @@ const UserProfile = () => {
   const [contactRequests, setContactRequests] = useState<any[]>([]);
   const [loadingInbox, setLoadingInbox] = useState(false);
   const [savedArticles, setSavedArticles] = useState<any[]>([]);
+  const [savedBusinesses, setSavedBusinesses] = useState<any[]>([]);
   const [loadingSaved, setLoadingSaved] = useState(false);
   const [myProposals, setMyProposals] = useState<any[]>([]);
   const [loadingProposals, setLoadingProposals] = useState(false);
@@ -123,6 +124,13 @@ const UserProfile = () => {
             followersCount: 0
           });
           setAuthoredArticles(articlesRes.data?.data || []);
+
+          if (isAuthenticated) {
+            api.get('/follows/following').then(res => {
+              const isFollowingUser = res.data.some((f: any) => f.followingId === id);
+              setFollowing(isFollowingUser);
+            }).catch(console.error);
+          }
         }
       } catch (err) {
         console.error('Lỗi khi tải profile', err);
@@ -159,19 +167,23 @@ const UserProfile = () => {
 
   useEffect(() => {
     if (activeTab === 'saved' && isOwner) {
-      const fetchSavedArticles = async () => {
+      const fetchSavedData = async () => {
         setLoadingSaved(true);
         try {
-          const res = await api.get('/bookmarks');
-          setSavedArticles(res.data);
+          const [articlesRes, businessesRes] = await Promise.all([
+            api.get('/bookmarks'),
+            api.get('/saved-businesses')
+          ]);
+          setSavedArticles(articlesRes.data);
+          setSavedBusinesses(businessesRes.data);
         } catch (err) {
-          console.error('Failed to fetch saved articles', err);
-          toast.error('Có lỗi khi tải danh sách bài viết đã lưu.');
+          console.error('Failed to fetch saved data', err);
+          toast.error('Có lỗi khi tải dữ liệu đã lưu.');
         } finally {
           setLoadingSaved(false);
         }
       };
-      fetchSavedArticles();
+      fetchSavedData();
     }
   }, [activeTab, isOwner]);
 
@@ -202,6 +214,27 @@ const UserProfile = () => {
       } catch (error) {
         toast.error('Lỗi khi xóa bài viết.');
       }
+    }
+  };
+
+  const handleToggleFollow = async () => {
+    if (!isAuthenticated) {
+      toast.error('Vui lòng đăng nhập để theo dõi.');
+      return;
+    }
+    
+    try {
+      if (following) {
+        await api.delete(`/follows/${id}`);
+        setFollowing(false);
+        setAuthorInfo((prev: any) => ({...prev, followersCount: Math.max(0, (prev.followersCount || 0) - 1)}));
+      } else {
+        await api.post(`/follows/${id}`);
+        setFollowing(true);
+        setAuthorInfo((prev: any) => ({...prev, followersCount: (prev.followersCount || 0) + 1}));
+      }
+    } catch (err) {
+      toast.error('Có lỗi xảy ra.');
     }
   };
 
@@ -287,7 +320,7 @@ const UserProfile = () => {
               <div className={styles.actionButtons}>
                 <button 
                   className={following ? styles.followingBtn : styles.followBtn}
-                  onClick={() => setFollowing(!following)}
+                  onClick={handleToggleFollow}
                 >
                   {following ? 'Following' : 'Follow'}
                 </button>
@@ -301,7 +334,7 @@ const UserProfile = () => {
               <div className={styles.statItem}>
                 <span className={styles.statValue}>
                   <Users size={20} color="#64748B" style={{marginRight: 8, verticalAlign: 'middle'}}/>
-                  {(authorInfo.followersCount || 0) + (following ? 1 : 0)}
+                  {authorInfo.followersCount || 0}
                 </span>
                 <span className={styles.statLabel}>Followers</span>
               </div>
@@ -663,33 +696,70 @@ const UserProfile = () => {
         {activeTab === 'saved' && isOwner && (
           <div className={styles.tableContainer} style={{ padding: '24px' }}>
              <div className={styles.tableHeader} style={{ marginBottom: '24px' }}>
-               <h2 style={{margin: 0}}>Saved Articles</h2>
-               <p style={{color: 'var(--text-secondary)', marginTop: '8px'}}>Articles you have bookmarked for later.</p>
+               <h2 style={{margin: 0}}>Saved Items</h2>
+               <p style={{color: 'var(--text-secondary)', marginTop: '8px'}}>Articles and Businesses you have saved for later.</p>
              </div>
              
              {loadingSaved ? (
                <p>Đang tải...</p>
-             ) : savedArticles.length > 0 ? (
-               <div className={styles.articlesGrid}>
-                 {savedArticles.map((bookmark: any) => (
-                   <div key={bookmark.id} className={styles.articleCard}>
-                     <div className={styles.cardContent}>
-                       <Link to={`/blogs/${bookmark.article.slug}`} className={styles.cardTitle}>
-                         {bookmark.article.title}
-                       </Link>
-                       <p className={styles.cardSummary}>{bookmark.article.summary}</p>
-                       <div className={styles.cardFooter}>
-                         <span>Saved on {formatDate(bookmark.createdAt)}</span>
-                       </div>
-                     </div>
-                   </div>
-                 ))}
-               </div>
              ) : (
-               <div className={styles.emptyState}>
-                 <Bookmark size={48} style={{margin: '0 auto 16px', color: '#CBD5E1'}} />
-                 <p>Articles you save will appear here.</p>
-               </div>
+               <>
+                 <h3 style={{marginTop: 0, marginBottom: '16px', fontSize: '1.125rem'}}>Saved Articles</h3>
+                 {savedArticles.length > 0 ? (
+                   <div className={styles.articlesGrid} style={{marginBottom: '32px'}}>
+                     {savedArticles.map((bookmark: any) => (
+                       <div key={bookmark.id} className={styles.articleCard}>
+                         <div className={styles.cardContent}>
+                           <Link to={`/blogs/${bookmark.article.slug}`} className={styles.cardTitle}>
+                             {bookmark.article.title}
+                           </Link>
+                           <p className={styles.cardSummary}>{bookmark.article.summary}</p>
+                           <div className={styles.cardFooter}>
+                             <span>Saved on {formatDate(bookmark.createdAt)}</span>
+                           </div>
+                         </div>
+                       </div>
+                     ))}
+                   </div>
+                 ) : (
+                   <div className={styles.emptyState} style={{marginBottom: '32px', padding: '24px'}}>
+                     <Bookmark size={32} style={{margin: '0 auto 8px', color: '#CBD5E1'}} />
+                     <p>Articles you save will appear here.</p>
+                   </div>
+                 )}
+
+                 <h3 style={{marginTop: 0, marginBottom: '16px', fontSize: '1.125rem'}}>Saved Businesses</h3>
+                 {savedBusinesses.length > 0 ? (
+                   <div className={styles.articlesGrid}>
+                     {savedBusinesses.map((sb: any) => (
+                       <div key={sb.id} className={styles.articleCard}>
+                         <div className={styles.cardContent}>
+                           <div style={{display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px'}}>
+                             {sb.business.logoUrl ? (
+                               <img src={sb.business.logoUrl} alt="" style={{width: '24px', height: '24px', borderRadius: '4px'}} />
+                             ) : (
+                               <Building2 size={24} style={{color: 'var(--primary-500)'}} />
+                             )}
+                             <span className={styles.cardCategory}>{sb.business.industry}</span>
+                           </div>
+                           <Link to={`/businesses/${sb.business.slug}`} className={styles.cardTitle}>
+                             {sb.business.name}
+                           </Link>
+                           <p className={styles.cardSummary}>{sb.business.description}</p>
+                           <div className={styles.cardFooter}>
+                             <span>Saved on {formatDate(sb.createdAt)}</span>
+                           </div>
+                         </div>
+                       </div>
+                     ))}
+                   </div>
+                 ) : (
+                   <div className={styles.emptyState} style={{padding: '24px'}}>
+                     <Building2 size={32} style={{margin: '0 auto 8px', color: '#CBD5E1'}} />
+                     <p>Businesses you save will appear here.</p>
+                   </div>
+                 )}
+               </>
              )}
           </div>
         )}

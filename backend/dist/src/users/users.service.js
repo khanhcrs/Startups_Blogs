@@ -12,10 +12,14 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.UsersService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../prisma/prisma.service");
+const client_1 = require("@prisma/client");
+const cognito_groups_service_1 = require("./cognito-groups.service");
 let UsersService = class UsersService {
     prisma;
-    constructor(prisma) {
+    cognitoGroups;
+    constructor(prisma, cognitoGroups) {
         this.prisma = prisma;
+        this.cognitoGroups = cognitoGroups;
     }
     async findByEmail(email) {
         if (!email)
@@ -30,6 +34,27 @@ let UsersService = class UsersService {
             include: { ownedBusinesses: true },
         });
     }
+    async findOrCreateFromCognito(data) {
+        const bySubject = await this.prisma.user.findUnique({
+            where: { cognitoSub: data.cognitoSub },
+        });
+        if (bySubject)
+            return bySubject;
+        const byEmail = await this.findByEmail(data.email);
+        if (byEmail) {
+            return this.prisma.user.update({
+                where: { id: byEmail.id },
+                data: { cognitoSub: data.cognitoSub },
+            });
+        }
+        return this.prisma.user.create({
+            data: {
+                cognitoSub: data.cognitoSub,
+                email: data.email,
+                name: data.name || data.email.split('@')[0],
+            },
+        });
+    }
     async getPublicProfile(id) {
         const user = await this.prisma.user.findUnique({
             where: { id },
@@ -40,9 +65,9 @@ let UsersService = class UsersService {
                 avatarUrl: true,
                 location: true,
                 _count: {
-                    select: { followers: true, articles: true }
-                }
-            }
+                    select: { followers: true, articles: true },
+                },
+            },
         });
         if (!user)
             return null;
@@ -53,7 +78,7 @@ let UsersService = class UsersService {
             avatarUrl: user.avatarUrl,
             location: user.location,
             followersCount: user._count.followers,
-            publishedCount: user._count.articles
+            publishedCount: user._count.articles,
         };
     }
     async createUser(data) {
@@ -99,21 +124,31 @@ let UsersService = class UsersService {
                 total,
                 page,
                 limit,
-                totalPages: Math.ceil(total / limit)
-            }
+                totalPages: Math.ceil(total / limit),
+            },
         };
     }
     async updateUserRole(id, role) {
+        const user = await this.prisma.user.findUnique({
+            where: { id },
+            select: { email: true },
+        });
+        if (!user)
+            throw new common_1.NotFoundException('User not found');
+        await this.cognitoGroups.setAdminMembership(user.email, role === client_1.Role.ADMIN);
         return this.prisma.user.update({
             where: { id },
-            data: { role: role },
+            data: { role },
             select: {
                 id: true,
                 name: true,
                 email: true,
                 role: true,
-            }
+            },
         });
+    }
+    async syncRoleFromCognito(id, role) {
+        await this.prisma.user.update({ where: { id }, data: { role } });
     }
     async updateUserStatus(id, status) {
         return this.prisma.user.update({
@@ -124,7 +159,7 @@ let UsersService = class UsersService {
                 name: true,
                 email: true,
                 status: true,
-            }
+            },
         });
     }
     async getAdminUserDetails(id) {
@@ -132,27 +167,41 @@ let UsersService = class UsersService {
             where: { id },
             include: {
                 articles: {
-                    select: { id: true, title: true, slug: true, status: true, viewCount: true, createdAt: true },
-                    orderBy: { createdAt: 'desc' }
+                    select: {
+                        id: true,
+                        title: true,
+                        slug: true,
+                        status: true,
+                        viewCount: true,
+                        createdAt: true,
+                    },
+                    orderBy: { createdAt: 'desc' },
                 },
                 ownedBusinesses: {
-                    select: { id: true, name: true, slug: true, status: true, industry: true, createdAt: true },
-                    orderBy: { createdAt: 'desc' }
+                    select: {
+                        id: true,
+                        name: true,
+                        slug: true,
+                        status: true,
+                        industry: true,
+                        createdAt: true,
+                    },
+                    orderBy: { createdAt: 'desc' },
                 },
                 _count: {
-                    select: { followers: true, following: true, comments: true }
-                }
-            }
+                    select: { followers: true, following: true, comments: true },
+                },
+            },
         });
         if (!user)
             return null;
-        const { password, ...result } = user;
-        return result;
+        return user;
     }
 };
 exports.UsersService = UsersService;
 exports.UsersService = UsersService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [prisma_service_1.PrismaService])
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService,
+        cognito_groups_service_1.CognitoGroupsService])
 ], UsersService);
 //# sourceMappingURL=users.service.js.map

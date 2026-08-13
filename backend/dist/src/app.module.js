@@ -20,6 +20,7 @@ const funding_opportunities_module_1 = require("./funding-opportunities/funding-
 const articles_module_1 = require("./articles/articles.module");
 const comments_module_1 = require("./comments/comments.module");
 const bookmarks_module_1 = require("./bookmarks/bookmarks.module");
+const saved_businesses_module_1 = require("./saved-businesses/saved-businesses.module");
 const follows_module_1 = require("./follows/follows.module");
 const upload_module_1 = require("./upload/upload.module");
 const contact_requests_module_1 = require("./contact-requests/contact-requests.module");
@@ -42,6 +43,7 @@ exports.AppModule = AppModule = __decorate([
             articles_module_1.ArticlesModule,
             comments_module_1.CommentsModule,
             bookmarks_module_1.BookmarksModule,
+            saved_businesses_module_1.SavedBusinessesModule,
             follows_module_1.FollowsModule,
             upload_module_1.UploadModule,
             contact_requests_module_1.ContactRequestsModule,

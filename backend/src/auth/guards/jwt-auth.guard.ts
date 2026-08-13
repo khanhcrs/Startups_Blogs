@@ -46,11 +46,9 @@ export class JwtAuthGuard implements CanActivate {
       const groups = Array.isArray(payload['cognito:groups'])
         ? payload['cognito:groups']
         : [];
-      const effectiveRole = groups.includes('ADMIN')
+      const effectiveRole = groups.includes('ADMIN') || user.role === Role.ADMIN
         ? Role.ADMIN
-        : user.role === Role.ADMIN
-          ? Role.USER
-          : user.role;
+        : user.role;
       if (user.role !== effectiveRole) {
         await this.usersService.syncRoleFromCognito(user.id, effectiveRole);
       }

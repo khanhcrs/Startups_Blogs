@@ -112,6 +112,10 @@
   color: var(--primary-500);
 }
 
+.savedActive {
+  color: var(--primary-500);
+}
+
 .description {
   font-size: var(--font-size-sm);
   color: var(--text-body);
