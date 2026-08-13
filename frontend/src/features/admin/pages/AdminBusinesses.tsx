@@ -1,13 +1,14 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import commonStyles from '../AdminCommon.module.css';
-import type { Business } from '../../../types/business';
+import { api } from '../../../lib/axios';
+import { adminQueryKeys } from '../services/adminApi';
 
 export default function AdminBusinesses() {
-  const [businesses, setBusinesses] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
   const [statusFilter, setStatusFilter] = useState<string>('PENDING');
 
   // Filter States
@@ -19,8 +20,6 @@ export default function AdminBusinesses() {
 
   // Pagination State
   const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [totalItems, setTotalItems] = useState(0);
   const limit = 10;
 
   useEffect(() => {
@@ -39,61 +38,55 @@ export default function AdminBusinesses() {
     }
   };
 
+  const filters = {
+    skip: (page - 1) * limit,
+    take: limit,
+    status: statusFilter,
+    search: searchQuery || undefined,
+    stage: stageFilter || undefined,
+    industry: industryFilter || undefined,
+    startDate: startDate || undefined,
+    endDate: endDate || undefined,
+  };
+  const businessesQuery = useQuery({
+    queryKey: adminQueryKeys.businessList(filters),
+    queryFn: async () => {
+      const response = await api.get('/businesses/admin/all', {
+        params: filters,
+      });
+      return response.data;
+    },
+  });
+
   useEffect(() => {
-    fetchBusinesses();
-  }, [statusFilter, page, searchQuery, stageFilter, industryFilter, startDate, endDate]);
-
-  const fetchBusinesses = async () => {
-    setLoading(true);
-    try {
-      const token = localStorage.getItem('token');
-      
-      const queryParams = new URLSearchParams({
-        page: page.toString(),
-        limit: limit.toString(),
-        status: statusFilter
-      });
-      if (searchQuery) queryParams.append('search', searchQuery);
-      if (stageFilter) queryParams.append('stage', stageFilter);
-      if (industryFilter) queryParams.append('industry', industryFilter);
-      if (startDate) queryParams.append('startDate', startDate);
-      if (endDate) queryParams.append('endDate', endDate);
-
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/businesses/admin/all?${queryParams.toString()}`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setBusinesses(data.data || []);
-        if (data.meta) {
-          setTotalPages(data.meta.totalPages || 1);
-          setTotalItems(data.meta.total || 0);
-        }
-      }
-    } catch (error) {
+    if (businessesQuery.isError) {
       toast.error('Failed to load businesses');
-    } finally {
-      setLoading(false);
     }
+  }, [businessesQuery.errorUpdatedAt, businessesQuery.isError]);
+
+  const updateStatusMutation = useMutation({
+    mutationFn: ({ id, status }: { id: string; status: string }) =>
+      api.put(`/businesses/admin/${id}/status`, { status }),
+    onSuccess: async (_response, variables) => {
+      toast.success(`Business marked as ${variables.status}`);
+      await queryClient.invalidateQueries({
+        queryKey: adminQueryKeys.businessLists,
+      });
+    },
+    onError: () => {
+      toast.error('Error updating status');
+    },
+  });
+
+  const handleUpdateBusinessStatus = (id: string, status: string) => {
+    updateStatusMutation.mutate({ id, status });
   };
 
-  const handleUpdateBusinessStatus = async (id: string, newStatus: string) => {
-    try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/businesses/admin/${id}/status`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify({ status: newStatus })
-      });
-      if (!res.ok) throw new Error('Failed to update status');
-      toast.success(`Business marked as ${newStatus}`);
-      fetchBusinesses();
-    } catch (error) {
-      toast.error('Error updating status');
-    }
-  };
+  const businesses = businessesQuery.data?.data || [];
+  const totalPages = businessesQuery.data?.meta?.totalPages || 1;
+  const totalItems = businessesQuery.data?.meta?.total || 0;
+  const loading = businessesQuery.isPending;
+  const statusUpdating = updateStatusMutation.isPending;
 
   return (
     <div>
@@ -211,7 +204,7 @@ export default function AdminBusinesses() {
                   </tr>
                 </thead>
                 <tbody>
-                  {businesses.map(b => (
+                  {businesses.map((b: any) => (
                     <tr key={b.id}>
                       <td>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
@@ -264,18 +257,18 @@ export default function AdminBusinesses() {
                           </Link>
                           {b.status === 'PENDING' && (
                             <>
-                              <button className={`${commonStyles.actionBtn} ${commonStyles.approveBtn}`} onClick={() => handleUpdateBusinessStatus(b.id, 'APPROVED')}>Approve</button>
-                              <button className={`${commonStyles.actionBtn} ${commonStyles.rejectBtn}`} onClick={() => handleUpdateBusinessStatus(b.id, 'REJECTED')}>Reject</button>
+                              <button disabled={statusUpdating} className={`${commonStyles.actionBtn} ${commonStyles.approveBtn}`} onClick={() => handleUpdateBusinessStatus(b.id, 'APPROVED')}>Approve</button>
+                              <button disabled={statusUpdating} className={`${commonStyles.actionBtn} ${commonStyles.rejectBtn}`} onClick={() => handleUpdateBusinessStatus(b.id, 'REJECTED')}>Reject</button>
                             </>
                           )}
                           {b.status === 'APPROVED' && (
-                            <button className={`${commonStyles.actionBtn} ${commonStyles.rejectBtn}`} onClick={() => handleUpdateBusinessStatus(b.id, 'SUSPENDED')}>Suspend</button>
+                            <button disabled={statusUpdating} className={`${commonStyles.actionBtn} ${commonStyles.rejectBtn}`} onClick={() => handleUpdateBusinessStatus(b.id, 'SUSPENDED')}>Suspend</button>
                           )}
                           {b.status === 'SUSPENDED' && (
-                            <button className={`${commonStyles.actionBtn} ${commonStyles.approveBtn}`} onClick={() => handleUpdateBusinessStatus(b.id, 'APPROVED')}>Restore</button>
+                            <button disabled={statusUpdating} className={`${commonStyles.actionBtn} ${commonStyles.approveBtn}`} onClick={() => handleUpdateBusinessStatus(b.id, 'APPROVED')}>Restore</button>
                           )}
                           {b.status === 'REJECTED' && (
-                            <button className={`${commonStyles.actionBtn} ${commonStyles.approveBtn}`} onClick={() => handleUpdateBusinessStatus(b.id, 'APPROVED')}>Approve</button>
+                            <button disabled={statusUpdating} className={`${commonStyles.actionBtn} ${commonStyles.approveBtn}`} onClick={() => handleUpdateBusinessStatus(b.id, 'APPROVED')}>Approve</button>
                           )}
                         </div>
                       </td>

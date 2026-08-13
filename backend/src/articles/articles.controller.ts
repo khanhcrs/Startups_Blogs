@@ -1,11 +1,26 @@
-import { Controller, Get, Post, Body, Put, Param, Delete, UseGuards, Request, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Put,
+  Query,
+  Request,
+  UseGuards,
+} from '@nestjs/common';
 import { ArticlesService } from './articles.service';
 import { CreateArticleDto } from './dto/create-article.dto';
 import { UpdateArticleDto } from './dto/update-article.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import type { AuthenticatedRequest } from '../auth/auth.types';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { Role } from '@prisma/client';
+import { UpdateArticleStatusDto } from './dto/update-article-status.dto';
+import { AdminArticleQueryDto } from './dto/admin-article-query.dto';
+import { ArticleListQueryDto } from './dto/article-list-query.dto';
 
 @Controller('articles')
 export class ArticlesController {
@@ -13,39 +28,22 @@ export class ArticlesController {
 
   @UseGuards(JwtAuthGuard)
   @Post()
-  create(@Body() createArticleDto: CreateArticleDto, @Request() req: any) {
+  create(
+    @Body() createArticleDto: CreateArticleDto,
+    @Request() req: AuthenticatedRequest,
+  ) {
     return this.articlesService.create(createArticleDto, req.user.userId);
   }
 
   @UseGuards(JwtAuthGuard)
   @Get('me')
-  findMyArticles(@Request() req: any) {
+  findMyArticles(@Request() req: AuthenticatedRequest) {
     return this.articlesService.findMyArticles(req.user.userId);
   }
 
   @Get()
-  findAll(
-    @Query('category') category?: string,
-    @Query('businessId') businessId?: string,
-    @Query('authorId') authorId?: string,
-    @Query('tag') tag?: string,
-    @Query('search') search?: string,
-    @Query('startDate') startDate?: string,
-    @Query('endDate') endDate?: string,
-    @Query('skip') skip?: string,
-    @Query('take') take?: string,
-  ) {
-    return this.articlesService.findAll({
-      category,
-      businessId,
-      authorId,
-      tag,
-      search,
-      startDate,
-      endDate,
-      skip: skip ? +skip : 0,
-      take: take ? +take : 10,
-    });
+  findAll(@Query() query: ArticleListQueryDto) {
+    return this.articlesService.findAll(query);
   }
 
   @Get('tags')
@@ -55,23 +53,26 @@ export class ArticlesController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
   @Get('admin/all')
-  async getAllArticles(
-    @Query('page') page: string = '1', 
-    @Query('limit') limit: string = '10',
-    @Query('category') category?: string,
-    @Query('search') search?: string,
-    @Query('tag') tag?: string,
-    @Query('startDate') startDate?: string,
-    @Query('endDate') endDate?: string
-  ) {
-    return this.articlesService.getAllArticles(Number(page), Number(limit), category, search, tag, startDate, endDate);
+  async getAllArticles(@Query() query: AdminArticleQueryDto) {
+    return this.articlesService.getAllArticles(query);
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  @Get('admin/:id')
+  async getArticleForAdmin(@Param('id') id: string) {
+    const data = await this.articlesService.findOneForAdmin(id);
+    return { success: true, data };
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
   @Put('admin/:id/status')
-  async updateArticleStatus(@Param('id') id: string, @Body('status') status: string) {
-    const data = await this.articlesService.updateArticleStatus(id, status);
+  async updateArticleStatus(
+    @Param('id') id: string,
+    @Body() dto: UpdateArticleStatusDto,
+  ) {
+    const data = await this.articlesService.updateArticleStatus(id, dto.status);
     return { success: true, data };
   }
 
@@ -93,16 +94,14 @@ export class ArticlesController {
   update(
     @Param('id') id: string,
     @Body() updateArticleDto: UpdateArticleDto,
-    @Request() req: any,
+    @Request() req: AuthenticatedRequest,
   ) {
     return this.articlesService.update(id, updateArticleDto, req.user.userId);
   }
 
   @UseGuards(JwtAuthGuard)
   @Delete(':id')
-  remove(@Param('id') id: string, @Request() req: any) {
+  remove(@Param('id') id: string, @Request() req: AuthenticatedRequest) {
     return this.articlesService.remove(id, req.user.userId);
   }
-
-
 }

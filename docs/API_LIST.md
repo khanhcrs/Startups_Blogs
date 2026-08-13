@@ -2,6 +2,8 @@
 
 Dưới đây là danh sách toàn bộ các API hiện tại của hệ thống, được tạo tự động từ mã nguồn.
 
+> **Runtime hiện tại:** NestJS chưa cấu hình `setGlobalPrefix('api/v1')`. Vì vậy khi gọi trực tiếp qua `VITE_API_URL`/API Gateway phải bỏ phần `/api/v1` trong bảng, ví dụ `GET /admin/stats` và `GET /articles/admin/:id`. Prefix trong bảng là quy ước tài liệu cũ và không được nối thêm vào URL production cho đến khi backend thực sự bật prefix đó.
+
 
 ### Module: ADMIN
 | HTTP Method | API Endpoint | Mục đích (Purpose) | Role yêu cầu |
@@ -23,6 +25,7 @@ Dưới đây là danh sách toàn bộ các API hiện tại của hệ thống
 | **GET** | `/api/v1/articles` | Lấy danh sách (có phân trang) | Public |
 | **GET** | `/api/v1/articles/tags` | Get All Tags | Public |
 | **GET** | `/api/v1/articles/admin/all` | Get All Articles | Admin |
+| **GET** | `/api/v1/articles/admin/:id` | Lấy chi tiết bài viết cho quản trị, không tăng lượt xem | Admin |
 | **PUT** | `/api/v1/articles/admin/:id/status` | Update Article Status | Admin |
 | **DELETE** | `/api/v1/articles/admin/:id` | Delete Article Admin | Admin |
 | **GET** | `/api/v1/articles/:idOrSlug` | Lấy chi tiết một bản ghi | Public |
@@ -59,7 +62,7 @@ Dưới đây là danh sách toàn bộ các API hiện tại của hệ thống
 |---|---|---|---|
 | **POST** | `/api/v1/articles/:articleId/comments` | Tạo mới bản ghi | User/Owner |
 | **GET** | `/api/v1/articles/:articleId/comments` | Lấy danh sách (có phân trang) | Public |
-| **DELETE** | `/api/v1/articles/:articleId/comments/admin/:id` | Remove Admin | Admin |
+| **DELETE** | `/comments/admin/:id` | Xóa bình luận với quyền quản trị | Admin |
 | **PUT** | `/api/v1/articles/:articleId/comments/:id` | Cập nhật bản ghi | User/Owner |
 | **DELETE** | `/api/v1/articles/:articleId/comments/:id` | Xóa bản ghi | User/Owner |
 
@@ -125,6 +128,9 @@ Dưới đây là danh sách toàn bộ các API hiện tại của hệ thống
 |---|---|---|---|
 | **GET** | `/api/v1/users/admin/all` | Get All Users | Admin |
 | **PUT** | `/api/v1/users/admin/:id/role` | Update User Role | Admin |
+| **PUT** | `/api/v1/users/admin/:id/status` | Update User Status | Admin |
+| **GET** | `/api/v1/users/admin/:id` | Get Admin User Details | Admin |
+| **PUT** | `/api/v1/users/admin/:id` | Update User Profile as Admin | Admin |
 | **GET** | `/api/v1/users/me` | Lấy thông tin cá nhân (Profile) | User/Owner |
 | **GET** | `/api/v1/users/:id` | Get Public Profile | Public |
 | **PUT** | `/api/v1/users/me` | Cập nhật thông tin cá nhân | User/Owner |

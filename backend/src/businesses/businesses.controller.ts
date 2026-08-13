@@ -13,11 +13,17 @@ import {
 import { BusinessesService } from './businesses.service';
 import { CreateBusinessDto } from './dto/create-business.dto';
 import { UpdateBusinessDto } from './dto/update-business.dto';
+import { CreateRaiseCapitalDto } from './dto/create-raise-capital.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { Role } from '@prisma/client';
 import { UpdateBusinessStatusDto } from './dto/update-business-status.dto';
+import { AdminBusinessQueryDto } from './dto/admin-business-query.dto';
+import type {
+  AuthenticatedRequest,
+  AuthenticatedUser,
+} from '../auth/auth.types';
 
 @Controller('businesses')
 export class BusinessesController {
@@ -25,7 +31,10 @@ export class BusinessesController {
 
   @UseGuards(JwtAuthGuard)
   @Post()
-  create(@Body() createBusinessDto: CreateBusinessDto, @Request() req: any) {
+  create(
+    @Body() createBusinessDto: CreateBusinessDto,
+    @Request() req: AuthenticatedRequest,
+  ) {
     return this.businessesService.create(createBusinessDto, req.user.userId);
   }
 
@@ -37,26 +46,8 @@ export class BusinessesController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
   @Get('admin/all')
-  findAllForAdmin(
-    @Query('skip') skip?: string,
-    @Query('take') take?: string,
-    @Query('status') status?: string,
-    @Query('search') search?: string,
-    @Query('stage') stage?: string,
-    @Query('industry') industry?: string,
-    @Query('startDate') startDate?: string,
-    @Query('endDate') endDate?: string,
-  ) {
-    return this.businessesService.findAllForAdmin(
-      skip ? +skip : 0,
-      take ? +take : 10,
-      status,
-      search,
-      stage,
-      industry,
-      startDate,
-      endDate,
-    );
+  findAllForAdmin(@Query() query: AdminBusinessQueryDto) {
+    return this.businessesService.findAllForAdmin(query);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
@@ -73,11 +64,78 @@ export class BusinessesController {
     return this.businessesService.findOneForAdmin(id);
   }
 
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.ADMIN)
-  @Put('admin/:id')
-  updateAsAdmin(@Param('id') id: string, @Body() updateBusinessDto: any) {
-    return this.businessesService.updateAsAdmin(id, updateBusinessDto);
+  @Get('taxonomy')
+  getTaxonomy() {
+    return this.businessesService.getTaxonomy();
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('user/saved-ids')
+  getSavedBusinessIds(@Request() req: AuthenticatedRequest) {
+    return this.businessesService.getSavedBusinessIds(req.user.userId);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('user/followed-ids')
+  getFollowedBusinessIds(@Request() req: AuthenticatedRequest) {
+    return this.businessesService.getFollowedBusinessIds(req.user.userId);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('raise-capital')
+  createRaiseCapitalSubmission(
+    @Body() dto: CreateRaiseCapitalDto,
+    @Request() req: AuthenticatedRequest,
+  ) {
+    return this.businessesService.createRaiseCapitalSubmission(
+      dto,
+      req.user.userId,
+    );
+  }
+
+  @Get(':identifier/relationship')
+  getRelationship(
+    @Param('identifier') identifier: string,
+    @Request() req: { user?: AuthenticatedUser },
+  ) {
+    const userId = req.user?.userId;
+    return this.businessesService.getRelationship(identifier, userId);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post(':identifier/save')
+  saveBusiness(
+    @Param('identifier') identifier: string,
+    @Request() req: AuthenticatedRequest,
+  ) {
+    return this.businessesService.saveBusiness(identifier, req.user.userId);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Delete(':identifier/save')
+  unsaveBusiness(
+    @Param('identifier') identifier: string,
+    @Request() req: AuthenticatedRequest,
+  ) {
+    return this.businessesService.unsaveBusiness(identifier, req.user.userId);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post(':identifier/follow')
+  followBusiness(
+    @Param('identifier') identifier: string,
+    @Request() req: AuthenticatedRequest,
+  ) {
+    return this.businessesService.followBusiness(identifier, req.user.userId);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Delete(':identifier/follow')
+  unfollowBusiness(
+    @Param('identifier') identifier: string,
+    @Request() req: AuthenticatedRequest,
+  ) {
+    return this.businessesService.unfollowBusiness(identifier, req.user.userId);
   }
 
   @Get(':slug')
@@ -90,7 +148,7 @@ export class BusinessesController {
   update(
     @Param('id') id: string,
     @Body() updateBusinessDto: UpdateBusinessDto,
-    @Request() req: any,
+    @Request() req: AuthenticatedRequest,
   ) {
     return this.businessesService.update(
       id,
@@ -101,7 +159,7 @@ export class BusinessesController {
 
   @UseGuards(JwtAuthGuard)
   @Delete(':id')
-  remove(@Param('id') id: string, @Request() req: any) {
+  remove(@Param('id') id: string, @Request() req: AuthenticatedRequest) {
     return this.businessesService.remove(id, req.user.userId);
   }
 }

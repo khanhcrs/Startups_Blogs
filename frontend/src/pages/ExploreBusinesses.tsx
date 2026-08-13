@@ -16,21 +16,51 @@ import type { BusinessBrowseState } from '../types/business';
 import { api } from '../lib/axios';
 import toast from 'react-hot-toast';
 import FilterDropdown from '../components/FilterDropdown';
+import { useAuthStore } from '../store/authStore';
 
 const ExploreBusinesses = () => {
   const [searchParams, setSearchParams] = useSearchParams();
+  const user = useAuthStore(state => state.user);
+  const [savedBusinessIds, setSavedBusinessIds] = useState<string[]>([]);
   
   const [businesses, setBusinesses] = useState<BusinessOpportunityRecord[]>([]);
-  const [savedBusinessIds, setSavedBusinessIds] = useState<Set<string>>(new Set());
   const [isLoading, setIsLoading] = useState(true);
   const [showMoreFilters, setShowMoreFilters] = useState(false);
   const [searchInput, setSearchInput] = useState(searchParams.get('search') || '');
   
-  // Use auth context or a way to know if user is logged in
-  const token = localStorage.getItem('token');
-  
   // Single active open dropdown management
   const [activeDropdownId, setActiveDropdownId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (user) {
+      api.get('/businesses/user/saved-ids')
+        .then(res => setSavedBusinessIds(res.data))
+        .catch(err => console.error('Failed to fetch saved business ids', err));
+    } else {
+      setSavedBusinessIds([]);
+    }
+  }, [user]);
+
+  const handleToggleSave = async (id: string) => {
+    if (!user) {
+      toast.error('Vui lòng đăng nhập để lưu doanh nghiệp.');
+      return;
+    }
+    const isCurrentlySaved = savedBusinessIds.includes(id);
+    setSavedBusinessIds(prev => isCurrentlySaved ? prev.filter(x => x !== id) : [...prev, id]);
+    try {
+      if (isCurrentlySaved) {
+        await api.delete(`/businesses/${id}/save`);
+        toast.success('Đã bỏ lưu doanh nghiệp');
+      } else {
+        await api.post(`/businesses/${id}/save`);
+        toast.success('Đã lưu doanh nghiệp');
+      }
+    } catch (err) {
+      setSavedBusinessIds(prev => isCurrentlySaved ? [...prev, id] : prev.filter(x => x !== id));
+      toast.error('Có lỗi xảy ra khi thay đổi trạng thái lưu.');
+    }
+  };
 
   const handleToggleDropdown = (id: string) => {
     setActiveDropdownId((prev) => (prev === id ? null : id));
@@ -53,59 +83,20 @@ const ExploreBusinesses = () => {
   }), [searchParams]);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const res = await api.get('/businesses?take=100');
-        const mapped = res.data.map((b: any) => ({
-          business: b,
-          opportunity: b.fundingOpportunities?.[0]
-        }));
-        setBusinesses(mapped);
-        
-        if (token) {
-          const savedRes = await api.get('/saved-businesses');
-          setSavedBusinessIds(new Set(savedRes.data.map((sb: any) => sb.businessId)));
-        }
-      } catch (err) {
-        console.error('Failed to fetch data', err);
-        toast.error('Failed to load businesses. Please try again later.');
-        setBusinesses([]);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchData();
-  }, [token]);
-
-  const handleSaveBusiness = async (id: string) => {
-    if (!token) {
-      toast.error('Vui lòng đăng nhập để lưu business');
-      return;
-    }
-    const isSaved = savedBusinessIds.has(id);
-    
-    try {
-      if (isSaved) {
-        await api.delete(`/saved-businesses/${id}`);
-        setSavedBusinessIds(prev => {
-          const next = new Set(prev);
-          next.delete(id);
-          return next;
-        });
-        toast.success('Đã bỏ lưu business');
-      } else {
-        await api.post(`/saved-businesses/${id}`);
-        setSavedBusinessIds(prev => {
-          const next = new Set(prev);
-          next.add(id);
-          return next;
-        });
-        toast.success('Đã lưu business');
-      }
-    } catch (err) {
-      toast.error('Có lỗi xảy ra');
-    }
-  };
+    api.get('/businesses?take=100').then((res) => {
+      const mapped = res.data.map((b: any) => ({
+        business: b,
+        opportunity: b.fundingOpportunities?.[0]
+      }));
+      setBusinesses(mapped);
+      setIsLoading(false);
+    }).catch(err => {
+      console.error('Failed to fetch businesses', err);
+      toast.error('Failed to load businesses. Please try again later.');
+      setBusinesses([]);
+      setIsLoading(false);
+    });
+  }, []);
 
   // Sync Search Input to URL with 300ms debounce
   useEffect(() => {
@@ -155,14 +146,7 @@ const ExploreBusinesses = () => {
     filters.tab !== 'all' ||
     filters.sort !== 'newest';
 
-  const baseData = useMemo(() => {
-    if (filters.tab === 'following') {
-      return businesses.filter(b => savedBusinessIds.has(b.business.id));
-    }
-    return businesses;
-  }, [businesses, filters.tab, savedBusinessIds]);
-
-  const filteredData = useMemo(() => filterBusinessRecords(baseData, filters), [baseData, filters]);
+  const filteredData = useMemo(() => filterBusinessRecords(businesses, filters), [businesses, filters]);
   const sortedData = useMemo(() => sortBusinessRecords(filteredData, filters.sort, filters.tab), [filteredData, filters.sort, filters.tab]);
   
   const LIMIT = 9;
@@ -469,7 +453,7 @@ const ExploreBusinesses = () => {
                 <BusinessSkeleton key={idx} />
               ))}
             </div>
-          ) : filters.tab === 'following' && !token ? (
+          ) : filters.tab === 'following' ? (
             <div className={styles.emptyState}>
               <Lock size={48} className={styles.emptyIcon} />
               <h3>Sign in to view businesses you follow.</h3>
@@ -494,8 +478,8 @@ const ExploreBusinesses = () => {
                   <BusinessCard 
                     key={record.business.id} 
                     {...record} 
-                    isSaved={savedBusinessIds.has(record.business.id)}
-                    onSave={handleSaveBusiness}
+                    isSaved={savedBusinessIds.includes(record.business.id)}
+                    onSave={handleToggleSave}
                   />
                 ))}
               </div>

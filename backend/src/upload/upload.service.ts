@@ -1,5 +1,16 @@
-import { Injectable, OnModuleInit, InternalServerErrorException } from '@nestjs/common';
-import { S3Client, PutObjectCommand, CreateBucketCommand, HeadBucketCommand, PutBucketPolicyCommand } from '@aws-sdk/client-s3';
+import {
+  Injectable,
+  OnModuleInit,
+  InternalServerErrorException,
+} from '@nestjs/common';
+import {
+  S3Client,
+  PutObjectCommand,
+  CreateBucketCommand,
+  HeadBucketCommand,
+  PutBucketPolicyCommand,
+  type S3ClientConfig,
+} from '@aws-sdk/client-s3';
 import { extname } from 'path';
 
 @Injectable()
@@ -9,18 +20,18 @@ export class UploadService implements OnModuleInit {
   private endpoint = process.env.AWS_S3_ENDPOINT || 'http://127.0.0.1:9000';
 
   constructor() {
-    const s3Config: any = {
+    const s3Config: S3ClientConfig = {
       region: process.env.AWS_S3_REGION || 'us-east-1',
       forcePathStyle: true, // Bắt buộc true khi dùng MinIO
     };
-    
+
     // Nếu cấu hình Endpoint (như MinIO), thì thêm vào
     if (process.env.AWS_S3_ENDPOINT) {
-        s3Config.endpoint = process.env.AWS_S3_ENDPOINT;
+      s3Config.endpoint = process.env.AWS_S3_ENDPOINT;
     }
 
     // Nếu cấu hình Key (chạy Local), thì thêm vào. Còn trên EC2 sẽ dùng IAM Role nên bỏ qua.
-    if (process.env.AWS_S3_ACCESS_KEY) {
+    if (process.env.AWS_S3_ACCESS_KEY && process.env.AWS_S3_SECRET_KEY) {
       s3Config.credentials = {
         accessKeyId: process.env.AWS_S3_ACCESS_KEY,
         secretAccessKey: process.env.AWS_S3_SECRET_KEY,
@@ -32,11 +43,18 @@ export class UploadService implements OnModuleInit {
 
   async onModuleInit() {
     try {
-      await this.s3Client.send(new HeadBucketCommand({ Bucket: this.bucketName }));
+      await this.s3Client.send(
+        new HeadBucketCommand({ Bucket: this.bucketName }),
+      );
     } catch (error: any) {
-      if (error.name === 'NotFound' || error.$metadata?.httpStatusCode === 404) {
-        await this.s3Client.send(new CreateBucketCommand({ Bucket: this.bucketName }));
-        
+      if (
+        error.name === 'NotFound' ||
+        error.$metadata?.httpStatusCode === 404
+      ) {
+        await this.s3Client.send(
+          new CreateBucketCommand({ Bucket: this.bucketName }),
+        );
+
         // Thiết lập Public Read Policy để trình duyệt có thể truy cập URL ảnh
         const policy = {
           Version: '2012-10-17',
@@ -49,10 +67,14 @@ export class UploadService implements OnModuleInit {
             },
           ],
         };
-        await this.s3Client.send(new PutBucketPolicyCommand({
-          Bucket: this.bucketName,
-          Policy: JSON.stringify(policy)
-        })).catch(console.error); // Ignore error if policy fails in some minio configs
+        await this.s3Client
+          .send(
+            new PutBucketPolicyCommand({
+              Bucket: this.bucketName,
+              Policy: JSON.stringify(policy),
+            }),
+          )
+          .catch(console.error); // Ignore error if policy fails in some minio configs
       }
     }
   }
@@ -70,11 +92,13 @@ export class UploadService implements OnModuleInit {
           ContentType: file.mimetype,
         }),
       );
-      
+
       return `${this.endpoint}/${this.bucketName}/${fileName}`;
     } catch (error) {
       console.error(error);
-      throw new InternalServerErrorException('Error uploading file to S3/MinIO');
+      throw new InternalServerErrorException(
+        'Error uploading file to S3/MinIO',
+      );
     }
   }
 }

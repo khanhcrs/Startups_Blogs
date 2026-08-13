@@ -16,6 +16,8 @@ import { Role } from '@prisma/client';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { UpdateUserRoleDto } from './dto/update-user-role.dto';
 import { UpdateUserStatusDto } from './dto/update-user-status.dto';
+import { AdminUserQueryDto } from './dto/admin-user-query.dto';
+import type { AuthenticatedRequest } from '../auth/auth.types';
 
 @Controller('users')
 export class UsersController {
@@ -24,12 +26,8 @@ export class UsersController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
   @Get('admin/all')
-  async getAllUsers(
-    @Query('page') page: string = '1',
-    @Query('limit') limit: string = '10',
-    @Query('role') role?: string,
-  ) {
-    return this.usersService.getAllUsers(Number(page), Number(limit), role);
+  async getAllUsers(@Query() query: AdminUserQueryDto) {
+    return this.usersService.getAllUsers(query);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
@@ -38,8 +36,13 @@ export class UsersController {
   async updateUserRole(
     @Param('id') id: string,
     @Body() dto: UpdateUserRoleDto,
+    @Request() req: AuthenticatedRequest,
   ) {
-    const data = await this.usersService.updateUserRole(id, dto.role);
+    const data = await this.usersService.updateUserRole(
+      id,
+      dto.role,
+      req.user.userId,
+    );
     return { success: true, data };
   }
 
@@ -49,8 +52,13 @@ export class UsersController {
   async updateUserStatus(
     @Param('id') id: string,
     @Body() dto: UpdateUserStatusDto,
+    @Request() req: AuthenticatedRequest,
   ) {
-    const data = await this.usersService.updateUserStatus(id, dto.status);
+    const data = await this.usersService.updateUserStatus(
+      id,
+      dto.status,
+      req.user.userId,
+    );
     return { success: true, data };
   }
 
@@ -73,7 +81,7 @@ export class UsersController {
 
   @UseGuards(JwtAuthGuard)
   @Get('me')
-  async getProfile(@Request() req: any) {
+  async getProfile(@Request() req: AuthenticatedRequest) {
     const user = await this.usersService.findById(req.user.userId);
     return user;
   }
@@ -86,7 +94,7 @@ export class UsersController {
   @UseGuards(JwtAuthGuard)
   @Put('me')
   async updateProfile(
-    @Request() req: any,
+    @Request() req: AuthenticatedRequest,
     @Body() updateProfileDto: UpdateProfileDto,
   ) {
     const user = await this.usersService.updateUser(

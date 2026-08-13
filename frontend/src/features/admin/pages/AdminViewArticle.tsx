@@ -1,91 +1,67 @@
-import { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useEffect, useMemo } from 'react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useParams, Link, useLocation } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import { Trash2 } from 'lucide-react';
-import { ComposedChart, CartesianGrid, XAxis, YAxis, Tooltip, Bar, Line, ResponsiveContainer } from 'recharts';
-import commonStyles from '../AdminCommon.module.css';
 import { useAdminTabsStore } from '../../../store/adminTabsStore';
-import { useLocation } from 'react-router-dom';
+import { api } from '../../../lib/axios';
+import { sanitizeRichText } from '../../../utils/sanitizeRichText';
+import { adminQueryKeys } from '../services/adminApi';
 
 export default function AdminViewArticle({ articleId: propArticleId }: { articleId?: string }) {
+  const queryClient = useQueryClient();
   const params = useParams();
   const location = useLocation();
   const updateTabTitle = useAdminTabsStore(state => state.updateTabTitle);
   const articleId = propArticleId || params.id;
   
-  const [selectedArticle, setSelectedArticle] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-  
-  const [startDate, setStartDate] = useState(new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]);
-  const [endDate, setEndDate] = useState(new Date().toISOString().split('T')[0]);
+  const articleQuery = useQuery({
+    queryKey: adminQueryKeys.article(articleId),
+    enabled: Boolean(articleId),
+    queryFn: async () => {
+      const response = await api.get(`/articles/admin/${articleId}`);
+      return response.data.data ?? response.data;
+    },
+  });
 
   useEffect(() => {
-    if (articleId) {
-      fetchArticleDetails();
+    const article = articleQuery.data;
+    if (article) {
+      updateTabTitle(location.pathname, `View: ${article.title.length > 20 ? article.title.substring(0, 20) + '...' : article.title}`);
     }
-  }, [articleId]);
+  }, [articleQuery.data, location.pathname, updateTabTitle]);
 
-  const fetchArticleDetails = async () => {
-    setLoading(true);
-    try {
-      // Use the public endpoint, or if there's an admin one, use it. Here we use the public one which returns all needed info.
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/articles/${articleId}`);
-      if (res.ok) {
-        const data = await res.json();
-        const article = data.data || data;
-        setSelectedArticle(article);
-        updateTabTitle(location.pathname, `View: ${article.title.length > 20 ? article.title.substring(0, 20) + '...' : article.title}`);
-      } else {
-        toast.error('Failed to load article details');
-      }
-    } catch (error) {
+  useEffect(() => {
+    if (articleQuery.isError) {
       toast.error('Failed to load article details');
-    } finally {
-      setLoading(false);
     }
-  };
+  }, [articleQuery.errorUpdatedAt, articleQuery.isError]);
 
-  const handleDeleteComment = async (commentId: string) => {
-    if (!window.confirm('Are you sure you want to delete this comment?')) return;
-    try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/comments/admin/${commentId}`, {
-        method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-      });
-      if (!res.ok) throw new Error('Failed to delete');
+  const deleteCommentMutation = useMutation({
+    mutationFn: (commentId: string) =>
+      api.delete(`/comments/admin/${commentId}`),
+    onSuccess: async () => {
       toast.success('Comment deleted');
-      fetchArticleDetails();
-    } catch (error) {
-      toast.error('Error deleting comment');
-    }
+      await queryClient.invalidateQueries({
+        queryKey: adminQueryKeys.article(articleId),
+      });
+    },
+    onError: () => toast.error('Error deleting comment'),
+  });
+
+  const handleDeleteComment = (commentId: string) => {
+    if (!window.confirm('Are you sure you want to delete this comment?')) return;
+    deleteCommentMutation.mutate(commentId);
   };
 
-  const generateChartDataRange = (start: string, end: string) => {
-    const data = [];
-    const s = new Date(start);
-    const e = new Date(end);
-    
-    if (isNaN(s.getTime()) || isNaN(e.getTime()) || s > e) return [];
-    
-    const diffTime = Math.abs(e.getTime() - s.getTime());
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
-    const maxDays = Math.min(diffDays, 90);
+  const selectedArticle = articleQuery.data;
+  const sanitizedContent = useMemo(
+    () => sanitizeRichText(selectedArticle?.content),
+    [selectedArticle?.content],
+  );
 
-    for (let i = 0; i < maxDays; i++) {
-      const d = new Date(s);
-      d.setDate(d.getDate() + i);
-      const label = maxDays <= 7 ? d.toLocaleDateString('en-US', { weekday: 'short' }) : d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-      const seed = d.getTime();
-      const views = Math.floor(Math.abs(Math.sin(seed) * 300) + 50);
-      const likes = Math.floor(views * 0.15 + Math.abs(Math.cos(seed) * 20));
-      data.push({ name: label, views, likes });
-    }
-    return data;
-  };
-
-  const chartData = generateChartDataRange(startDate, endDate);
-
-  if (loading) return <div style={{ padding: '2rem', textAlign: 'center' }}>Loading article details...</div>;
+  if (!articleId) return <div style={{ padding: '2rem', textAlign: 'center' }}>Article not found.</div>;
+  if (articleQuery.isPending) return <div style={{ padding: '2rem', textAlign: 'center' }}>Loading article details...</div>;
   if (!selectedArticle) return <div style={{ padding: '2rem', textAlign: 'center' }}>Article not found.</div>;
 
   return (
@@ -130,37 +106,10 @@ export default function AdminViewArticle({ articleId: propArticleId }: { article
           </div>
 
           <div style={{ width: '100%', backgroundColor: '#fff', padding: '1.5rem', borderRadius: '0.75rem', border: '1px solid #e2e8f0' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '10px' }}>
-              <h4 style={{ margin: 0, fontSize: '1rem', color: '#0f172a' }}>Tương tác theo thời gian</h4>
-              <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-                <input 
-                  type="date" 
-                  value={startDate}
-                  onChange={(e) => setStartDate(e.target.value)}
-                  style={{ padding: '0.375rem 0.75rem', borderRadius: '0.375rem', border: '1px solid #cbd5e1', fontSize: '0.875rem', outline: 'none' }}
-                />
-                <span style={{ color: '#64748b' }}>-</span>
-                <input 
-                  type="date" 
-                  value={endDate}
-                  onChange={(e) => setEndDate(e.target.value)}
-                  style={{ padding: '0.375rem 0.75rem', borderRadius: '0.375rem', border: '1px solid #cbd5e1', fontSize: '0.875rem', outline: 'none' }}
-                />
-              </div>
-            </div>
-            <div style={{ height: '250px' }}>
-              <ResponsiveContainer width="100%" height="100%">
-                <ComposedChart data={chartData}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                  <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 12}} />
-                  <YAxis yAxisId="left" axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 12}} />
-                  <YAxis yAxisId="right" orientation="right" axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 12}} />
-                  <Tooltip contentStyle={{borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)'}} />
-                  <Bar yAxisId="left" dataKey="views" fill="#3b82f6" radius={[4,4,0,0]} name="Lượt xem" maxBarSize={40} />
-                  <Line yAxisId="right" type="monotone" dataKey="likes" stroke="#f59e0b" strokeWidth={3} name="Lượt thích" dot={{r: 4}} activeDot={{r: 6}} />
-                </ComposedChart>
-              </ResponsiveContainer>
-            </div>
+            <h4 style={{ margin: '0 0 0.5rem', fontSize: '1rem', color: '#0f172a' }}>Tương tác theo thời gian</h4>
+            <p style={{ margin: 0, color: '#64748b', fontSize: '0.875rem' }}>
+              Chưa có API analytics theo thời gian. Các số liệu phía trên là tổng hợp thực tế hiện có của bài viết.
+            </p>
           </div>
         </div>
 
@@ -190,7 +139,7 @@ export default function AdminViewArticle({ articleId: propArticleId }: { article
               {selectedArticle.summary}
             </div>
 
-            <div dangerouslySetInnerHTML={{ __html: selectedArticle.content }} />
+            <div dangerouslySetInnerHTML={{ __html: sanitizedContent }} />
           </div>
         </div>
 
@@ -209,6 +158,7 @@ export default function AdminViewArticle({ articleId: propArticleId }: { article
                       </span>
                       <button
                         onClick={() => handleDeleteComment(comment.id)}
+                        disabled={deleteCommentMutation.isPending}
                         style={{ background: 'none', border: 'none', padding: '0.25rem', color: '#ef4444', cursor: 'pointer', borderRadius: '0.25rem', display: 'flex', alignItems: 'center', transition: 'background 0.2s' }}
                         title="Delete comment"
                       >

@@ -13,12 +13,16 @@
 }
 
 .modalContent {
-  background-color: var(--surface-color);
+  background-color: #ffffff;
+  background: #ffffff;
   border-radius: var(--radius-lg);
   width: 100%;
   max-width: 500px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-  overflow: hidden;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+  position: relative;
+  z-index: 1001;
 }
 
 .modalHeader {
@@ -26,20 +30,21 @@
   justify-content: space-between;
   align-items: center;
   padding: 1rem 1.5rem;
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-color, #e5e7eb);
+  background-color: #ffffff;
 }
 
 .modalHeader h3 {
   margin: 0;
   font-size: 1.125rem;
-  color: var(--text-primary);
+  color: var(--text-primary, #111827);
 }
 
 .closeBtn {
   background: none;
   border: none;
   cursor: pointer;
-  color: var(--text-muted);
+  color: var(--text-muted, #6b7280);
   padding: 0.25rem;
   display: flex;
   align-items: center;
@@ -48,17 +53,18 @@
 }
 
 .closeBtn:hover {
-  background-color: var(--bg-hover);
-  color: var(--text-primary);
+  background-color: var(--bg-hover, #f3f4f6);
+  color: var(--text-primary, #111827);
 }
 
 .modalBody {
   padding: 1.5rem;
+  background-color: #ffffff;
 }
 
 .helpText {
   font-size: 0.875rem;
-  color: var(--text-secondary);
+  color: var(--text-secondary, #4b5563);
   margin-bottom: 1.5rem;
 }
 
@@ -71,17 +77,17 @@
   font-weight: 500;
   margin-bottom: 0.5rem;
   font-size: 0.875rem;
-  color: var(--text-primary);
+  color: var(--text-primary, #111827);
 }
 
 .formGroup input,
 .formGroup textarea {
   width: 100%;
   padding: 0.75rem;
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--border-color, #d1d5db);
   border-radius: var(--radius-md);
-  background-color: var(--bg-default);
-  color: var(--text-primary);
+  background-color: #ffffff;
+  color: var(--text-primary, #111827);
   font-family: inherit;
   font-size: 0.9rem;
 }
@@ -89,7 +95,7 @@
 .formGroup input:focus,
 .formGroup textarea:focus {
   outline: none;
-  border-color: var(--primary-500);
+  border-color: var(--primary-500, #3b82f6);
 }
 
 .modalFooter {
@@ -97,27 +103,27 @@
   justify-content: flex-end;
   gap: 1rem;
   padding: 1rem 1.5rem;
-  border-top: 1px solid var(--border-color);
-  background-color: var(--bg-accent);
+  border-top: 1px solid var(--border-color, #e5e7eb);
+  background-color: var(--bg-accent, #f9fafb);
 }
 
 .cancelBtn {
   padding: 0.5rem 1rem;
-  border: 1px solid var(--border-color);
-  background-color: transparent;
-  color: var(--text-primary);
+  border: 1px solid var(--border-color, #d1d5db);
+  background-color: #ffffff;
+  color: var(--text-primary, #111827);
   border-radius: var(--radius-md);
   cursor: pointer;
   font-weight: 500;
 }
 
 .cancelBtn:hover {
-  background-color: var(--bg-hover);
+  background-color: var(--bg-hover, #f3f4f6);
 }
 
 .submitBtn {
   padding: 0.5rem 1rem;
-  background-color: var(--primary-600);
+  background-color: var(--primary-600, #2563eb);
   color: white;
   border: none;
   border-radius: var(--radius-md);
@@ -128,7 +134,7 @@
 }
 
 .submitBtn:hover {
-  background-color: var(--primary-700);
+  background-color: var(--primary-700, #1d4ed8);
 }
 
 .submitBtn:disabled {

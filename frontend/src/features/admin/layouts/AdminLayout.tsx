@@ -1,7 +1,6 @@
-import { useEffect, useLayoutEffect } from 'react';
+import { useLayoutEffect } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { LayoutDashboard, Building2, Users, FileText, X } from 'lucide-react';
-import { useAuthStore } from '../../../store/authStore';
 import { useAdminTabsStore } from '../../../store/adminTabsStore';
 import styles from './AdminLayout.module.css';
 
@@ -41,21 +40,9 @@ const renderTabContent = (path: string) => {
 };
 
 export default function AdminLayout() {
-  const { user, isAuthenticated } = useAuthStore();
   const navigate = useNavigate();
   const location = useLocation();
   const { tabs, activePath, addTab, removeTab, setActiveTab, setTabs } = useAdminTabsStore();
-
-  useEffect(() => {
-    if (!isAuthenticated) {
-      navigate('/login');
-      return;
-    }
-    if (user?.role !== 'ADMIN') {
-      navigate('/403');
-      return;
-    }
-  }, [isAuthenticated, user, navigate]);
 
   useLayoutEffect(() => {
     if (location.pathname.startsWith('/admin')) {
@@ -89,10 +76,6 @@ export default function AdminLayout() {
       navigate(newActivePath, { replace: true });
     }
   };
-
-  if (!isAuthenticated || user?.role !== 'ADMIN') {
-    return null;
-  }
 
   const getMenuClass = (path: string) => {
     return location.pathname.includes(path) ? `${styles.menuItem} ${styles.activeMenuItem}` : styles.menuItem;

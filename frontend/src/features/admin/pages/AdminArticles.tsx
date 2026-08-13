@@ -1,40 +1,40 @@
 import { useState, useEffect } from 'react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import { Search, Image as ImageIcon, ChevronLeft, ChevronRight, Edit, Trash2 } from 'lucide-react';
 import commonStyles from '../AdminCommon.module.css';
-import { ComposedChart, CartesianGrid, XAxis, YAxis, Tooltip, Bar, Line, ResponsiveContainer } from 'recharts';
+import { api } from '../../../lib/axios';
+import { adminQueryKeys } from '../services/adminApi';
+
+type ArticleCategoryFilter = 'ALL' | 'BLOG' | 'NEWS';
+
+const categoryTabs: Array<{ value: ArticleCategoryFilter; label: string }> = [
+  { value: 'ALL', label: 'All Articles' },
+  { value: 'BLOG', label: 'Blogs' },
+  { value: 'NEWS', label: 'News' },
+];
+
 export default function AdminArticles() {
-  const [articles, setArticles] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
   
   // Filters & Pagination
-  const [category, setCategory] = useState<'All' | 'Blog' | 'News'>('All');
+  const [category, setCategory] = useState<ArticleCategoryFilter>('ALL');
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [selectedTag, setSelectedTag] = useState('');
   const [startDateFilter, setStartDateFilter] = useState('');
   const [endDateFilter, setEndDateFilter] = useState('');
-  const [availableTags, setAvailableTags] = useState<string[]>([]);
   const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [totalItems, setTotalItems] = useState(0);
   const limit = 10;
 
-  useEffect(() => {
-    const fetchTags = async () => {
-      try {
-        const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/articles/tags`);
-        if (res.ok) {
-          const tags = await res.json();
-          setAvailableTags(tags);
-        }
-      } catch (err) {
-        console.error('Failed to fetch tags', err);
-      }
-    };
-    fetchTags();
-  }, []);
+  const tagsQuery = useQuery({
+    queryKey: adminQueryKeys.articleTags,
+    queryFn: async () => {
+      const response = await api.get('/articles/tags');
+      return response.data as string[];
+    },
+  });
 
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -44,106 +44,76 @@ export default function AdminArticles() {
     return () => clearTimeout(handler);
   }, [searchQuery]);
 
+  const filters = {
+    page,
+    limit,
+    category: category === 'ALL' ? undefined : category,
+    search: debouncedSearch || undefined,
+    tag: selectedTag || undefined,
+    startDate: startDateFilter || undefined,
+    endDate: endDateFilter || undefined,
+  };
+  const articlesQuery = useQuery({
+    queryKey: adminQueryKeys.articleList(filters),
+    queryFn: async () => {
+      const response = await api.get('/articles/admin/all', {
+        params: filters,
+      });
+      return response.data;
+    },
+  });
+
   useEffect(() => {
-    fetchArticles();
-  }, [category, debouncedSearch, selectedTag, startDateFilter, endDateFilter, page]);
-
-  const fetchArticles = async () => {
-    setLoading(true);
-    try {
-      const token = localStorage.getItem('token');
-      let url = `${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/articles/admin/all?page=${page}&limit=${limit}`;
-      if (category !== 'All') url += `&category=${category}`;
-      if (debouncedSearch) url += `&search=${encodeURIComponent(debouncedSearch)}`;
-      if (selectedTag) url += `&tag=${encodeURIComponent(selectedTag)}`;
-      if (startDateFilter) url += `&startDate=${encodeURIComponent(startDateFilter)}`;
-      if (endDateFilter) url += `&endDate=${encodeURIComponent(endDateFilter)}`;
-
-      const res = await fetch(url, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      if (res.ok) {
-        const data = await res.json();
-        // Assuming API returns { data, meta: { totalPages, total, ... } }
-        setArticles(data.data || []);
-        if (data.meta) {
-          setTotalPages(data.meta.totalPages || 1);
-          setTotalItems(data.meta.total || 0);
-        }
-      }
-    } catch (error) {
+    if (articlesQuery.isError) {
       toast.error('Failed to load articles');
-    } finally {
-      setLoading(false);
     }
-  };
+  }, [articlesQuery.errorUpdatedAt, articlesQuery.isError]);
 
-  const handleUpdateArticleStatus = async (id: string, newStatus: string) => {
-    try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/articles/admin/${id}/status`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify({ status: newStatus })
-      });
-      if (!res.ok) throw new Error('Failed to update status');
-      toast.success(`Article status updated`);
-      fetchArticles();
-    } catch (error) {
-      toast.error('Error updating article');
+  useEffect(() => {
+    if (tagsQuery.isError) {
+      console.error('Failed to fetch tags', tagsQuery.error);
     }
-  };
+  }, [tagsQuery.error, tagsQuery.errorUpdatedAt, tagsQuery.isError]);
 
-  const handleDeleteArticle = async (id: string) => {
-    if (!window.confirm('Are you sure you want to delete this article?')) return;
-    try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/articles/admin/${id}`, {
-        method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+  const updateStatusMutation = useMutation({
+    mutationFn: ({ id, status }: { id: string; status: string }) =>
+      api.put(`/articles/admin/${id}/status`, { status }),
+    onSuccess: async () => {
+      toast.success('Article status updated');
+      await queryClient.invalidateQueries({
+        queryKey: adminQueryKeys.articleLists,
       });
-      if (!res.ok) throw new Error('Failed to delete');
+    },
+    onError: () => toast.error('Error updating article'),
+  });
+
+  const deleteArticleMutation = useMutation({
+    mutationFn: (id: string) => api.delete(`/articles/admin/${id}`),
+    onSuccess: async () => {
       toast.success('Article deleted');
-      fetchArticles();
-    } catch (error) {
-      toast.error('Error deleting article');
-    }
-  };
-
-  const [startDate, setStartDate] = useState(() => {
-    const d = new Date();
-    d.setDate(d.getDate() - 6);
-    return d.toISOString().split('T')[0];
-  });
-  const [endDate, setEndDate] = useState(() => {
-    return new Date().toISOString().split('T')[0];
+      await queryClient.invalidateQueries({
+        queryKey: adminQueryKeys.articleLists,
+      });
+    },
+    onError: () => toast.error('Error deleting article'),
   });
 
-  const generateChartDataRange = (start: string, end: string) => {
-    const data = [];
-    const s = new Date(start);
-    const e = new Date(end);
-    
-    if (isNaN(s.getTime()) || isNaN(e.getTime()) || s > e) return [];
-    
-    const diffTime = Math.abs(e.getTime() - s.getTime());
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
-    const maxDays = Math.min(diffDays, 90);
-
-    for (let i = 0; i < maxDays; i++) {
-      const d = new Date(s);
-      d.setDate(d.getDate() + i);
-      const label = maxDays <= 7 ? d.toLocaleDateString('en-US', { weekday: 'short' }) : d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-      const seed = d.getTime();
-      const views = Math.floor(Math.abs(Math.sin(seed) * 300) + 50);
-      const likes = Math.floor(views * 0.15 + Math.abs(Math.cos(seed) * 20));
-      data.push({ name: label, views, likes });
-    }
-    return data;
+  const handleUpdateArticleStatus = (id: string, status: string) => {
+    updateStatusMutation.mutate({ id, status });
   };
 
-  const chartData = generateChartDataRange(startDate, endDate);
+  const handleDeleteArticle = (id: string) => {
+    if (!window.confirm('Are you sure you want to delete this article?')) return;
+    deleteArticleMutation.mutate(id);
+  };
+
+  const availableTags = tagsQuery.data || [];
+  const articles = articlesQuery.data?.data || [];
+  const totalPages = articlesQuery.data?.meta?.totalPages || 1;
+  const totalItems = articlesQuery.data?.meta?.total || 0;
+  const loading = articlesQuery.isPending;
+  const articleMutating =
+    updateStatusMutation.isPending || deleteArticleMutation.isPending;
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', height: '100%', minHeight: 0 }}>
@@ -159,23 +129,23 @@ export default function AdminArticles() {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
           {/* Tabs */}
           <div style={{ display: 'flex', background: '#f1f5f9', padding: '0.25rem', borderRadius: '0.5rem' }}>
-            {['All', 'Blog', 'News'].map((tab) => (
+            {categoryTabs.map((tab) => (
               <button
-                key={tab}
-                onClick={() => { setCategory(tab as any); setPage(1); }}
+                key={tab.value}
+                onClick={() => { setCategory(tab.value); setPage(1); }}
                 style={{
                   padding: '0.5rem 1.25rem',
                   border: 'none',
-                  background: category === tab ? '#fff' : 'transparent',
-                  color: category === tab ? '#0f172a' : '#64748b',
-                  fontWeight: category === tab ? 600 : 500,
+                  background: category === tab.value ? '#fff' : 'transparent',
+                  color: category === tab.value ? '#0f172a' : '#64748b',
+                  fontWeight: category === tab.value ? 600 : 500,
                   borderRadius: '0.375rem',
-                  boxShadow: category === tab ? '0 1px 2px rgba(0,0,0,0.05)' : 'none',
+                  boxShadow: category === tab.value ? '0 1px 2px rgba(0,0,0,0.05)' : 'none',
                   cursor: 'pointer',
                   transition: 'all 0.2s'
                 }}
               >
-                {tab === 'All' ? 'All Articles' : tab === 'Blog' ? 'Blogs' : 'News'}
+                {tab.label}
               </button>
             ))}
           </div>
@@ -257,7 +227,7 @@ export default function AdminArticles() {
                 </tr>
               </thead>
               <tbody>
-                {articles.map((a) => (
+                {articles.map((a: any) => (
                   <tr key={a.id} style={{ borderBottom: '1px solid #e2e8f0', transition: 'background 0.2s' }} onMouseOver={e => e.currentTarget.style.backgroundColor = '#f8fafc'} onMouseOut={e => e.currentTarget.style.backgroundColor = 'transparent'}>
                     
                     {/* Article Info & Image */}
@@ -292,6 +262,7 @@ export default function AdminArticles() {
                       <select 
                         value={a.status} 
                         onChange={(e) => handleUpdateArticleStatus(a.id, e.target.value)}
+                        disabled={articleMutating}
                         style={{
                           padding: '0.375rem 0.75rem',
                           borderRadius: '9999px',
@@ -327,6 +298,7 @@ export default function AdminArticles() {
                         </Link>
                         <button 
                           onClick={() => handleDeleteArticle(a.id)}
+                          disabled={articleMutating}
                           style={{ padding: '0.5rem', background: '#fef2f2', color: '#ef4444', borderRadius: '0.375rem', border: 'none', cursor: 'pointer', transition: 'background 0.2s' }}
                           title="Delete"
                         >

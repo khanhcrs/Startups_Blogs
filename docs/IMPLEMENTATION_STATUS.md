@@ -5,9 +5,9 @@ Tài liệu này đóng vai trò như một "bộ nhớ vĩnh cửu" (Permanent 
 ## 🟢 Những Phần Đã Hoàn Thành (Done)
 
 ### 1. Kiến trúc hạ tầng (Infrastructure)
-- **Local Database:** PostgreSQL chạy qua Docker (`docker-compose.yml` ở cổng `5433`).
+- **Database:** Production sử dụng Amazon RDS for PostgreSQL; PostgreSQL qua Docker (`docker-compose.yml` ở cổng `5433`) chỉ là lựa chọn cho phát triển local.
 - **ORM:** Tích hợp `Prisma`. Đã định nghĩa toàn bộ Lược đồ Dữ liệu (User, Business, Article, Funding, Follow, Bookmark). (Xem chi tiết tại `DATABASE_SCHEMA.md`).
-- **CI/CD & Docker:** Đã viết sẵn `Dockerfile` chuẩn và `deploy-backend.yml` (GitHub Actions -> EC2 via PM2). (Chờ Frontend xong để test thực tế).
+- **Runtime & CI/CD:** Terraform mô tả API Gateway -> EC2:3000. Workflow `CI` chạy lint, unit test và build cho backend nhưng không triển khai production. Dự án không dùng ECR/App Runner; backend CD cho EC2 chưa được tự động hóa và chỉ nên bổ sung sau khi xác minh quy trình vận hành thực tế trên EC2.
 
 ### 2. Module: Auth & Users (Phase 1)
 - Lựa chọn giải pháp: **AWS Cognito** (Đã tích hợp thành công, bao gồm Auto-login, đồng bộ Database tự động, Quản lý Token).

@@ -10,6 +10,7 @@ describe('BusinessesService', () => {
   const mockPrismaService = {
     business: {
       create: jest.fn(),
+      findFirst: jest.fn(),
       findMany: jest.fn(),
       findUnique: jest.fn(),
       update: jest.fn(),
@@ -77,6 +78,21 @@ describe('BusinessesService', () => {
         where: { id: '1' },
         data: { name: 'New' },
       });
+    });
+  });
+
+  describe('findOneBySlug public moderation gate', () => {
+    it('only queries an approved business', async () => {
+      mockPrismaService.business.findFirst.mockResolvedValueOnce(null);
+
+      await expect(service.findOneBySlug('pending-startup')).rejects.toThrow(
+        NotFoundException,
+      );
+      expect(mockPrismaService.business.findFirst).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { slug: 'pending-startup', status: 'APPROVED' },
+        }),
+      );
     });
   });
 

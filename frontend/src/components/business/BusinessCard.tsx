@@ -37,12 +37,11 @@ const BusinessCard = ({ business, isSaved = false, onSave }: BusinessCardProps) 
           </div>
         </div>
         <button 
-          className={`${styles.saveBtn} ${isSaved ? styles.savedActive : ''}`} 
+          className={`${styles.saveBtn} ${isSaved ? styles.savedBtnActive : ''}`} 
           aria-label={isSaved ? `Unsave ${name}` : `Save ${name}`}
-          onClick={(e) => {
-            e.preventDefault();
-            if (onSave) onSave(id);
-          }}
+          title={isSaved ? "Saved" : "Save"}
+          style={isSaved ? { color: 'var(--primary-600, #2563eb)' } : undefined}
+          onClick={() => onSave && onSave(id)}
         >
           <Bookmark size={20} fill={isSaved ? "currentColor" : "none"} />
         </button>

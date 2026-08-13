@@ -1,17 +1,28 @@
-import { Controller, Post, Get, Body, Param, UseGuards, Request } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Get,
+  Body,
+  Param,
+  UseGuards,
+  Request,
+} from '@nestjs/common';
 import { ContactRequestsService } from './contact-requests.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import type { AuthenticatedRequest } from '../auth/auth.types';
 
 @Controller('businesses/:businessId/contact-requests')
 export class ContactRequestsController {
-  constructor(private readonly contactRequestsService: ContactRequestsService) {}
+  constructor(
+    private readonly contactRequestsService: ContactRequestsService,
+  ) {}
 
   @UseGuards(JwtAuthGuard)
   @Post()
   async createContactRequest(
     @Param('businessId') businessId: string,
     @Body() body: { title: string; message: string },
-    @Request() req
+    @Request() req: AuthenticatedRequest,
   ) {
     return this.contactRequestsService.create({
       businessId,
@@ -25,8 +36,11 @@ export class ContactRequestsController {
   @Get()
   async getContactRequests(
     @Param('businessId') businessId: string,
-    @Request() req
+    @Request() req: AuthenticatedRequest,
   ) {
-    return this.contactRequestsService.findByBusiness(businessId, req.user.userId);
+    return this.contactRequestsService.findByBusiness(
+      businessId,
+      req.user.userId,
+    );
   }
 }

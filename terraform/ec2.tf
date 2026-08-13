@@ -22,6 +22,53 @@ resource "aws_iam_role_policy_attachment" "s3_policy_attach" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonS3FullAccess"
 }
 
+locals {
+  backend_cognito_user_pool_arn = coalesce(
+    var.backend_cognito_user_pool_arn,
+    aws_cognito_user_pool.user_pool.arn,
+  )
+  backend_cognito_region       = split(":", local.backend_cognito_user_pool_arn)[3]
+  backend_cognito_user_pool_id = split("/", local.backend_cognito_user_pool_arn)[1]
+  backend_cognito_client_id = coalesce(
+    var.backend_cognito_client_id,
+    aws_cognito_user_pool_client.client.id,
+  )
+}
+
+# Backend chỉ cần các thao tác này để xác minh và đồng bộ role ADMIN.
+# GetUser được ủy quyền bằng access token của user và không dùng IAM policy.
+resource "aws_iam_role_policy" "ec2_cognito_admin_group_management" {
+  name = "${var.project_name}-cognito-admin-group-management"
+  role = aws_iam_role.ec2_s3_role.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid    = "ManageAdminAuthorization"
+        Effect = "Allow"
+        Action = [
+          "cognito-idp:AdminAddUserToGroup",
+          "cognito-idp:AdminListGroupsForUser",
+          "cognito-idp:AdminRemoveUserFromGroup",
+          "cognito-idp:AdminUserGlobalSignOut",
+        ]
+        Resource = local.backend_cognito_user_pool_arn
+      }
+    ]
+  })
+
+  lifecycle {
+    precondition {
+      condition = (
+        (var.backend_cognito_user_pool_arn == null) ==
+        (var.backend_cognito_client_id == null)
+      )
+      error_message = "backend_cognito_user_pool_arn and backend_cognito_client_id must both be set for an external Cognito pool, or both be null for the Terraform-managed pool."
+    }
+  }
+}
+
 # 3. IAM Instance Profile
 resource "aws_iam_instance_profile" "ec2_profile" {
   name = "EC2-S3-Instance-Profile"

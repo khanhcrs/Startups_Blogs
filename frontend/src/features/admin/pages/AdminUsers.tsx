@@ -1,87 +1,81 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import commonStyles from '../AdminCommon.module.css';
 import styles from './AdminUsers.module.css';
+import { api } from '../../../lib/axios';
+import { adminQueryKeys } from '../services/adminApi';
 
 export default function AdminUsers() {
-  const [users, setUsers] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState<'USER' | 'MODERATOR' | 'ADMIN'>('USER');
 
   // Pagination State
   const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [totalItems, setTotalItems] = useState(0);
   const limit = 10;
 
   useEffect(() => {
     setPage(1);
   }, [activeTab]);
 
+  const filters = { page, limit, role: activeTab };
+  const usersQuery = useQuery({
+    queryKey: adminQueryKeys.userList(filters),
+    queryFn: async () => {
+      const response = await api.get('/users/admin/all', {
+        params: filters,
+      });
+      return response.data;
+    },
+  });
+
   useEffect(() => {
-    fetchUsers();
-  }, [activeTab, page]);
-
-  const fetchUsers = async () => {
-    setLoading(true);
-    try {
-      const token = localStorage.getItem('token');
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/users/admin/all?page=${page}&limit=${limit}&role=${activeTab}`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setUsers(data.data || []);
-        if (data.meta) {
-          setTotalPages(data.meta.totalPages || 1);
-          setTotalItems(data.meta.total || 0);
-        }
-      }
-    } catch (error) {
+    if (usersQuery.isError) {
       toast.error('Failed to load users');
-    } finally {
-      setLoading(false);
     }
+  }, [usersQuery.errorUpdatedAt, usersQuery.isError]);
+
+  const updateRoleMutation = useMutation({
+    mutationFn: ({ id, role }: { id: string; role: string }) =>
+      api.put(`/users/admin/${id}/role`, { role }),
+    onSuccess: async (_response, variables) => {
+      toast.success(`User role updated to ${variables.role}`);
+      await queryClient.invalidateQueries({
+        queryKey: adminQueryKeys.userLists,
+      });
+    },
+    onError: () => toast.error('Error updating role'),
+  });
+
+  const updateStatusMutation = useMutation({
+    mutationFn: ({ id, status }: { id: string; status: string }) =>
+      api.put(`/users/admin/${id}/status`, { status }),
+    onSuccess: async (_response, variables) => {
+      toast.success(`User account is now ${variables.status}`);
+      await queryClient.invalidateQueries({
+        queryKey: adminQueryKeys.userLists,
+      });
+    },
+    onError: () => toast.error('Error updating status'),
+  });
+
+  const handleUpdateUserRole = (id: string, role: string) => {
+    updateRoleMutation.mutate({ id, role });
   };
 
-  const handleUpdateUserRole = async (id: string, newRole: string) => {
-    try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/users/admin/${id}/role`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify({ role: newRole })
-      });
-      if (!res.ok) throw new Error('Failed to update role');
-      toast.success(`User role updated to ${newRole}`);
-      fetchUsers();
-    } catch (error) {
-      toast.error('Error updating role');
-    }
+  const handleToggleStatus = (id: string, currentStatus: string) => {
+    const status = currentStatus === 'LOCKED' ? 'ACTIVE' : 'LOCKED';
+    updateStatusMutation.mutate({ id, status });
   };
 
-  const handleToggleStatus = async (id: string, currentStatus: string) => {
-    const newStatus = currentStatus === 'LOCKED' ? 'ACTIVE' : 'LOCKED';
-    try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/users/admin/${id}/status`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify({ status: newStatus })
-      });
-      if (!res.ok) throw new Error('Failed to update status');
-      toast.success(`User account is now ${newStatus}`);
-      fetchUsers();
-    } catch (error) {
-      toast.error('Error updating status');
-    }
-  };
+  const users = usersQuery.data?.data || [];
+  const totalPages = usersQuery.data?.meta?.totalPages || 1;
+  const totalItems = usersQuery.data?.meta?.total || 0;
+  const loading = usersQuery.isPending;
+  const userMutating =
+    updateRoleMutation.isPending || updateStatusMutation.isPending;
 
   return (
     <div>
@@ -132,7 +126,7 @@ export default function AdminUsers() {
                      <tr>
                        <td colSpan={5} style={{textAlign: 'center', padding: '2rem'}}>No users found for this role.</td>
                      </tr>
-                  ) : users.map(u => (
+                  ) : users.map((u: any) => (
                     <tr key={u.id} style={{ opacity: u.status === 'LOCKED' ? 0.6 : 1 }}>
                       <td>
                         <Link to={`/admin/users/${u.id}`} className={styles.userInfo} style={{textDecoration: 'none'}}>
@@ -164,6 +158,7 @@ export default function AdminUsers() {
                           <select 
                             value={u.role} 
                             onChange={(e) => handleUpdateUserRole(u.id, e.target.value)}
+                            disabled={userMutating}
                             className={commonStyles.selectInput}
                             style={{ padding: '0.25rem', fontSize: '0.85rem' }}
                           >
@@ -174,6 +169,7 @@ export default function AdminUsers() {
                           <button 
                             className={`${styles.lockBtn} ${u.status === 'LOCKED' ? styles.unlockBtn : ''}`}
                             onClick={() => handleToggleStatus(u.id, u.status || 'ACTIVE')}
+                            disabled={userMutating}
                           >
                             {u.status === 'LOCKED' ? 'Unlock' : 'Lock'}
                           </button>

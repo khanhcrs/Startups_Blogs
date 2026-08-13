@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateFundingRoundDto } from './dto/create-funding-round.dto';
 import { UpdateFundingRoundDto } from './dto/update-funding-round.dto';
@@ -8,17 +12,25 @@ export class FundingRoundsService {
   constructor(private prisma: PrismaService) {}
 
   private async checkBusinessOwnership(businessId: string, ownerId: string) {
-    const business = await this.prisma.business.findUnique({ where: { id: businessId } });
+    const business = await this.prisma.business.findUnique({
+      where: { id: businessId },
+    });
     if (!business) {
       throw new NotFoundException(`Business with id ${businessId} not found`);
     }
     if (business.ownerId !== ownerId) {
-      throw new ForbiddenException('You do not have permission to modify funding rounds for this business');
+      throw new ForbiddenException(
+        'You do not have permission to modify funding rounds for this business',
+      );
     }
     return business;
   }
 
-  async create(businessId: string, createFundingRoundDto: CreateFundingRoundDto, ownerId: string) {
+  async create(
+    businessId: string,
+    createFundingRoundDto: CreateFundingRoundDto,
+    ownerId: string,
+  ) {
     await this.checkBusinessOwnership(businessId, ownerId);
     return this.prisma.fundingRound.create({
       data: {
@@ -36,28 +48,33 @@ export class FundingRoundsService {
     });
   }
 
-  async update(businessId: string, id: string, updateFundingRoundDto: UpdateFundingRoundDto, ownerId: string) {
+  async update(
+    businessId: string,
+    id: string,
+    updateFundingRoundDto: UpdateFundingRoundDto,
+    ownerId: string,
+  ) {
     await this.checkBusinessOwnership(businessId, ownerId);
-    
+
     const fundingRound = await this.prisma.fundingRound.findFirst({
       where: { id, businessId },
     });
     if (!fundingRound) throw new NotFoundException('Funding round not found');
 
-    const updateData: any = { ...updateFundingRoundDto };
-    if (updateData.date) {
-      updateData.date = new Date(updateData.date);
-    }
+    const { date, ...updateData } = updateFundingRoundDto;
 
     return this.prisma.fundingRound.update({
       where: { id },
-      data: updateData,
+      data: {
+        ...updateData,
+        ...(date && { date: new Date(date) }),
+      },
     });
   }
 
   async remove(businessId: string, id: string, ownerId: string) {
     await this.checkBusinessOwnership(businessId, ownerId);
-    
+
     const fundingRound = await this.prisma.fundingRound.findFirst({
       where: { id, businessId },
     });

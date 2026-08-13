@@ -80,9 +80,16 @@ const FilterDropdown = ({
     };
   }, [isOpen, handleClickOutside, handleKeyDown]);
 
-  const selectedOption = options.find((opt) => opt.value === value);
+  const selectedOption = options.find(
+    (opt) =>
+      opt.value === value ||
+      (opt.value !== 'all' &&
+        opt.value.toLowerCase() === value.toLowerCase()),
+  );
   const displayLabel =
-    value === 'all' || value === 'newest' ? label : selectedOption?.label || label;
+    value === 'all' || value === 'newest'
+      ? label
+      : selectedOption?.label || value;
 
   return (
     <div

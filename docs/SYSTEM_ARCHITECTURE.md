@@ -11,32 +11,37 @@ Dự án **Startups Blogs** được thiết kế theo kiến trúc Microservice
 
 ### 1.2 API Server (Backend)
 - **Công nghệ:** Node.js, NestJS, TypeScript, Prisma ORM.
-- **Hosting:** Amazon EC2 kết hợp API Gateway. NestJS backend được chạy trên EC2 thông qua PM2. API Gateway làm proxy đứng trước EC2 để tăng cường bảo mật và định tuyến.
+- **Topology do Terraform khai báo:** API Gateway dùng HTTP proxy để chuyển request vào backend NestJS trên EC2, cổng `3000`.
+- **Trạng thái production:** Frontend production gọi một URL API Gateway cố định; chỉ từ repository chưa thể xác nhận Gateway live đó đang tích hợp với EC2 do state Terraform hiện tại quản lý.
+- **Tự động hóa hiện tại:** Workflow `CI` kiểm tra lint, unit test và build backend. Repository không còn workflow ECR/App Runner vì production không sử dụng đường triển khai này.
+- **Trước khi phát hành:** Xác minh integration live của API Gateway và quy trình chạy backend trên EC2 trước khi xây dựng CD; không tự động SSH, restart hoặc thay đổi production khi chưa có runbook và cơ chế rollback.
 
 ### 1.3 Database & Storage
-- **Object Storage:** Amazon S3. Lưu trữ logo, hình ảnh, pitch deck. Việc upload được xử lý qua **Backend Proxy** để kiểm soát luồng tải file và dữ liệu. *(Lưu ý: Ở bản MVP hiện tại, chúng ta đang dùng MinIO giả lập S3 chạy trên Docker và Backend xử lý upload file trực tiếp thông qua Multer)*.
+- **Relational Database:** Production sử dụng Amazon RDS for PostgreSQL. Prisma kết nối tới RDS để lưu dữ liệu nghiệp vụ; PostgreSQL Docker chỉ phục vụ phát triển local khi cần.
+- **Object Storage:** Backend nhận file qua `POST /upload` rồi ghi vào dịch vụ tương thích S3. Production có thể dùng Amazon S3; local mặc định dùng MinIO. Luồng hiện tại là backend proxy, chưa phải presigned URL trực tiếp từ trình duyệt.
 
 ### 1.4 Identity & Authentication
-- **Dịch vụ (Mục tiêu):** Amazon Cognito User Pool.
-- **Luồng hoạt động (Mục tiêu):** - Frontend gọi trực tiếp đến Cognito để Đăng ký / Đăng nhập.
- - Cognito trả về JWT Token.
- - Backend sử dụng JWT Guard để verify token, lấy `cognitoSub`.
-- **MVP (Hiện hành):** Dự án đang tạm thời sử dụng **Local JWT + bcrypt** trên NestJS để mã hóa mật khẩu và cấp Token, nhằm đẩy nhanh tốc độ kiểm thử.
+- **Dịch vụ hiện hành:** Amazon Cognito User Pool.
+- **Luồng hoạt động:**
+  - Frontend gọi trực tiếp Cognito để đăng ký/đăng nhập và nhận access token JWT.
+  - Frontend gửi token qua `Authorization: Bearer <token>` khi gọi backend.
+  - Backend xác minh Cognito access token, liên kết user bằng `cognitoSub` và, đối với quyền `ADMIN`, kiểm tra membership hiện thời trong Cognito; không dùng role do frontend gửi lên để cấp quyền.
 
 ### 1.5 Dịch vụ phụ trợ
 - **Email:** Amazon SES. Dùng để gửi các email giao dịch ngoài luồng auth (như thông báo hệ thống, Contact Request).
-- **Log & Monitor:** Amazon CloudWatch (Logs, Metrics, Alerts cho API Gateway, EC2 và RDS).
+- **Log & Monitor:** Terraform khai báo cảnh báo CPU EC2 qua CloudWatch/SNS và dashboard cho metric EC2/RDS; repository chưa khai báo log collection cho API Gateway/EC2 hoặc metric RAM EC2.
 - **Security:** AWS Secrets Manager để lưu trữ thông tin nhạy cảm (DB password, API keys).
 
 ## 2. Sơ đồ luồng dữ liệu (Data Flow Diagram)
 
 ```mermaid
 graph TD
- Client[Browser / Frontend] -->|1. Auth Requests| Cognito(Amazon Cognito)
- Client -->|2. REST API & File Upload| API[API Gateway + EC2 NestJS]
- Cognito -.->|JWT Token| Client
- API -->|3. Verify Token| Cognito
- API -->|4. SQL Queries| RDS[(Amazon RDS PostgreSQL)]
- API -->|5. Send Email| SES(Amazon SES)
- API -->|6. Upload Object (PutObject)| S3[(Amazon S3)]
+    Client[Browser / Frontend] -->|1. Auth Requests| Cognito[Amazon Cognito]
+    Cognito -.->|Access token JWT| Client
+    Client -->|2. REST API and file upload| Gateway[API Gateway]
+    Gateway -->|HTTP proxy - Terraform topology| API[EC2 / NestJS port 3000]
+    API -->|3. Verify token and ADMIN membership| Cognito
+    API -->|4. SQL Queries| RDS[(Amazon RDS PostgreSQL)]
+    API -->|5. Upload Object - PutObject| S3[(Amazon S3 / MinIO)]
+    API -->|6. Send Email| SES[Amazon SES]
 ```

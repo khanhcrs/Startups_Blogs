@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
-import { useNavigate, useParams, Link } from 'react-router-dom';
-import { Image as ImageIcon, Cloud, ArrowLeft } from 'lucide-react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { Cloud, ArrowLeft } from 'lucide-react';
 import ReactQuill from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
 import { toast } from 'sonner';
@@ -9,6 +9,8 @@ import detailStyles from './BlogDetail.module.css';
 import { api } from '../lib/axios';
 import ImageUploader from '../components/ImageUploader';
 import TagInput from '../components/TagInput';
+import { sanitizeRichText } from '../utils/sanitizeRichText';
+import { useAuthStore } from '../store/authStore';
 
 const customScrollbarStyle = `
   .custom-scroll::-webkit-scrollbar {
@@ -109,10 +111,11 @@ const customScrollbarStyle = `
 const CreateBlog = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
-  const [step, setStep] = useState<'write' | 'settings'>('write');
+  const [showPublishModal, setShowPublishModal] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
-  
+  const user = useAuthStore(state => state.user);
+
   const [formData, setFormData] = useState({
     title: '',
     content: '',
@@ -127,7 +130,7 @@ const CreateBlog = () => {
 
   useEffect(() => {
     const styleEl = document.createElement('style');
-    styleEl.innerHTML = customScrollbarStyle;
+    styleEl.textContent = customScrollbarStyle;
     document.head.appendChild(styleEl);
     return () => { document.head.removeChild(styleEl); };
   }, []);
@@ -146,7 +149,7 @@ const CreateBlog = () => {
 
           setFormData({
             title: articleToEdit.title,
-            content: articleToEdit.content,
+            content: sanitizeRichText(articleToEdit.content),
             summary: articleToEdit.summary || '',
             topic: foundTopic,
             tags: remainingTags,
@@ -180,7 +183,7 @@ const CreateBlog = () => {
       [{ 'header': [1, 2, 3, false] }],
       ['bold', 'italic', 'underline', 'strike', 'blockquote'],
       [{'list': 'ordered'}, {'list': 'bullet'}],
-      ['link', 'image', 'video'],
+      ['link', 'image'],
       ['clean']
     ],
   };
@@ -189,7 +192,7 @@ const CreateBlog = () => {
     'header',
     'bold', 'italic', 'underline', 'strike', 'blockquote',
     'list', 'bullet',
-    'link', 'image', 'video'
+    'link', 'image'
   ];
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -202,7 +205,7 @@ const CreateBlog = () => {
       toast.warning('Vui lòng nhập tiêu đề và nội dung bài viết trước khi tiếp tục!');
       return;
     }
-    setStep('settings');
+    setShowPublishModal(true);
   };
 
   const getProcessedTags = () => {
@@ -219,7 +222,7 @@ const CreateBlog = () => {
     const payload = {
       title: formData.title,
       summary: formData.summary,
-      content: formData.content,
+      content: sanitizeRichText(formData.content),
       coverImage: formData.coverImage,
       category: 'BLOG',
       tags: getProcessedTags(),
@@ -227,13 +230,25 @@ const CreateBlog = () => {
 
     try {
       if (id) {
-        await api.put(`/articles/${id}`, payload);
+        const res = await api.put(`/articles/${id}`, payload);
         toast.success("Cập nhật bài viết thành công!");
+        setShowPublishModal(false);
+        if (res.data?.status === 'PUBLISHED') {
+          navigate(`/blogs/${res.data.slug || id}`);
+        } else {
+          navigate(user ? `/user/${user.id}` : '/blogs');
+        }
       } else {
-        await api.post('/articles', payload);
-        toast.success("Xuất bản bài viết thành công! Đang chờ admin duyệt.");
+        const res = await api.post('/articles', payload);
+        setShowPublishModal(false);
+        if (res.data?.status === 'PUBLISHED') {
+          toast.success("Xuất bản bài viết thành công!");
+          navigate(`/blogs/${res.data.slug}`);
+        } else {
+          toast.success("Đã gửi bài viết thành công! Bài viết đang chờ Admin duyệt.");
+          navigate(user ? `/user/${user.id}` : '/blogs');
+        }
       }
-      navigate('/');
     } catch (error) {
       console.error("Lỗi xuất bản", error);
       toast.error("Có lỗi xảy ra khi lưu bài viết.");
@@ -241,55 +256,6 @@ const CreateBlog = () => {
       setIsPublishing(false);
     }
   };
-
-  if (step === 'settings') {
-    return (
-      <div className={styles.publishContainer}>
-        <div className={styles.publishHeader}>
-          <button className={styles.backBtn} onClick={() => setStep('write')}>
-            <ArrowLeft size={20} /> Quay lại
-          </button>
-          <h2>Tùy chỉnh trước khi xuất bản</h2>
-        </div>
-
-        <div className={styles.publishContent}>
-          <div className={styles.publishSection}>
-            <div className={styles.fieldGroup}>
-              <label>Chủ đề chính</label>
-              <select name="topic" value={formData.topic} onChange={handleChange} className={styles.select}>
-                <option value="Startup Guide">Startup Guide</option>
-                <option value="Funding">Funding</option>
-                <option value="Growth">Growth</option>
-                <option value="Product">Product</option>
-                <option value="Community">Community</option>
-              </select>
-            </div>
-
-            <div className={styles.fieldGroup}>
-              <label>Thẻ phụ (Bấm Enter hoặc phẩy để thêm)</label>
-              <TagInput 
-                tags={formData.tags} 
-                onChange={(newTags) => setFormData({...formData, tags: newTags})} 
-                placeholder="Ví dụ: AI, Fintech, B2B..." 
-              />
-            </div>
-            
-            <div className={styles.infoBox}>
-              <p>Bài viết của bạn sẽ được gán danh mục <strong>Blog</strong> và được hiển thị trong mục tương ứng sau khi Admin phê duyệt.</p>
-            </div>
-
-            <button 
-              className={styles.publishSubmitBtn} 
-              onClick={handlePublish}
-              disabled={isPublishing}
-            >
-              <Cloud size={18} /> {isPublishing ? 'Đang lưu...' : (id ? 'Lưu thay đổi' : 'Xuất bản bài viết')}
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 64px)' }}>
@@ -459,8 +425,80 @@ const CreateBlog = () => {
                     </p>
                   )}
                   
-                  <div className="ql-editor" style={{ padding: 0, color: '#1e293b', fontSize: '1.125rem', lineHeight: 1.7 }} dangerouslySetInnerHTML={{ __html: formData.content || '<p style="color: #94a3b8;">Nội dung sẽ hiển thị ở đây...</p>' }} />
+                  {formData.content ? (
+                    <div className="ql-editor" style={{ padding: 0, color: '#1e293b', fontSize: '1.125rem', lineHeight: 1.7 }} dangerouslySetInnerHTML={{ __html: sanitizeRichText(formData.content) }} />
+                  ) : (
+                    <p style={{ color: '#94a3b8' }}>Nội dung sẽ hiển thị ở đây...</p>
+                  )}
                 </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      )}
+
+      {/* Publish Settings Modal */}
+      {showPublishModal && (
+        <div className="modal-overlay" onClick={() => setShowPublishModal(false)}>
+          <div className="modal-content custom-scroll" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '550px', padding: '0' }}>
+            <div className="modal-header">
+              <h2 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 600, color: '#0f172a' }}>Tùy chỉnh & Xuất bản bài viết</h2>
+              <button 
+                onClick={() => setShowPublishModal(false)}
+                style={{ background: '#f1f5f9', border: 'none', width: '32px', height: '32px', borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b', fontSize: '1.25rem', lineHeight: 1 }}
+                title="Đóng"
+              >
+                &times;
+              </button>
+            </div>
+
+            <div style={{ padding: '1.5rem 2rem' }}>
+              <div style={{ marginBottom: '1.25rem' }}>
+                <label style={{ display: 'block', fontWeight: 600, marginBottom: '0.5rem', color: '#334155', fontSize: '0.875rem' }}>Chủ đề chính</label>
+                <select 
+                  name="topic" 
+                  value={formData.topic} 
+                  onChange={handleChange} 
+                  style={{ width: '100%', padding: '0.75rem', borderRadius: '0.5rem', border: '1px solid #cbd5e1', fontSize: '0.95rem', color: '#1e293b', background: '#fff' }}
+                >
+                  <option value="Startup Guide">Startup Guide</option>
+                  <option value="Funding">Funding</option>
+                  <option value="Growth">Growth</option>
+                  <option value="Product">Product</option>
+                  <option value="Community">Community</option>
+                </select>
+              </div>
+
+              <div style={{ marginBottom: '1.25rem' }}>
+                <label style={{ display: 'block', fontWeight: 600, marginBottom: '0.5rem', color: '#334155', fontSize: '0.875rem' }}>Thẻ phụ (Bấm Enter hoặc phẩy để thêm)</label>
+                <TagInput 
+                  tags={formData.tags} 
+                  onChange={(newTags) => setFormData({...formData, tags: newTags})} 
+                  placeholder="Ví dụ: AI, Fintech, B2B..." 
+                />
+              </div>
+
+              <div style={{ background: '#f8fafc', padding: '1rem', borderRadius: '0.5rem', border: '1px solid #e2e8f0', marginBottom: '1.5rem', fontSize: '0.875rem', color: '#475569' }}>
+                <p style={{ margin: 0 }}>Bài viết của bạn sẽ được gán danh mục <strong>Blog</strong> và gửi tới hệ thống. Bài viết sẽ xuất hiện trên trang Blog công khai sau khi được Admin duyệt.</p>
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem' }}>
+                <button 
+                  type="button" 
+                  onClick={() => setShowPublishModal(false)}
+                  style={{ padding: '0.6rem 1.25rem', background: '#f1f5f9', border: '1px solid #cbd5e1', borderRadius: '0.5rem', color: '#475569', fontWeight: 500, cursor: 'pointer' }}
+                >
+                  Hủy
+                </button>
+                <button 
+                  type="button" 
+                  onClick={handlePublish}
+                  disabled={isPublishing}
+                  style={{ padding: '0.6rem 1.25rem', background: 'var(--primary-600, #2563eb)', border: 'none', borderRadius: '0.5rem', color: 'white', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', opacity: isPublishing ? 0.7 : 1 }}
+                >
+                  <Cloud size={18} /> {isPublishing ? 'Đang lưu...' : (id ? 'Lưu thay đổi' : 'Xuất bản bài viết')}
+                </button>
               </div>
             </div>
 

@@ -1,0 +1,77 @@
+.statePage {
+  min-height: calc(100vh - 64px);
+  display: grid;
+  place-items: center;
+  padding: 2rem;
+  background: var(--bg-body, #f8fafc);
+}
+
+.stateCard {
+  width: min(100%, 32rem);
+  padding: 2.5rem;
+  border: 1px solid var(--border-color, #e2e8f0);
+  border-radius: 1rem;
+  background: var(--bg-surface, #ffffff);
+  box-shadow: 0 18px 45px rgb(15 23 42 / 8%);
+  text-align: center;
+}
+
+.stateCard h1 {
+  margin: 1rem 0 0.5rem;
+  color: var(--text-primary, #0f172a);
+  font-size: 1.5rem;
+}
+
+.stateCard p {
+  margin: 0;
+  color: var(--text-secondary, #64748b);
+  line-height: 1.6;
+}
+
+.stateIcon {
+  color: var(--primary-color, #2563eb);
+}
+
+.progress {
+  height: 0.25rem;
+  margin-top: 1.5rem;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--bg-hover, #e2e8f0);
+}
+
+.progress::after {
+  content: '';
+  display: block;
+  width: 45%;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--primary-color, #2563eb);
+  animation: verify 1.2s ease-in-out infinite alternate;
+}
+
+.retryButton {
+  margin-top: 1.5rem;
+  padding: 0.7rem 1.1rem;
+  border: 0;
+  border-radius: 0.55rem;
+  background: var(--primary-color, #2563eb);
+  color: #ffffff;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.retryButton:hover {
+  filter: brightness(0.95);
+}
+
+@keyframes verify {
+  from {
+    transform: translateX(-10%);
+  }
+
+  to {
+    transform: translateX(130%);
+  }
+}

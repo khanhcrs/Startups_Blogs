@@ -146,6 +146,15 @@ export const calculateTrendingScore = (record: BusinessOpportunityRecord): numbe
   return savedCount * 3 + commentCount * 2 + Math.floor(viewCount / 10);
 };
 
+export const normalizeIndustry = (ind: string): string => {
+  if (!ind) return '';
+  try {
+    return decodeURIComponent(ind).trim().toLowerCase();
+  } catch {
+    return ind.trim().toLowerCase();
+  }
+};
+
 export const filterBusinessRecords = (
   records: BusinessOpportunityRecord[],
   filters: BusinessBrowseState
@@ -167,8 +176,12 @@ export const filterBusinessRecords = (
     }
 
     // Industry
-    if (filters.industry !== 'all' && business.industry !== filters.industry) {
-      return false;
+    if (filters.industry !== 'all') {
+      const targetInd = normalizeIndustry(filters.industry);
+      const businessInd = normalizeIndustry(business.industry);
+      if (business.industry !== filters.industry && businessInd !== targetInd) {
+        return false;
+      }
     }
 
     // Business Type

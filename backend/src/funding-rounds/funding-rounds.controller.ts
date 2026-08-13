@@ -1,8 +1,19 @@
-import { Controller, Get, Post, Body, Put, Param, Delete, UseGuards, Request } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Put,
+  Param,
+  Delete,
+  UseGuards,
+  Request,
+} from '@nestjs/common';
 import { FundingRoundsService } from './funding-rounds.service';
 import { CreateFundingRoundDto } from './dto/create-funding-round.dto';
 import { UpdateFundingRoundDto } from './dto/update-funding-round.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import type { AuthenticatedRequest } from '../auth/auth.types';
 
 @Controller('businesses/:businessId/funding-rounds')
 export class FundingRoundsController {
@@ -13,9 +24,13 @@ export class FundingRoundsController {
   create(
     @Param('businessId') businessId: string,
     @Body() createFundingRoundDto: CreateFundingRoundDto,
-    @Request() req: any,
+    @Request() req: AuthenticatedRequest,
   ) {
-    return this.fundingRoundsService.create(businessId, createFundingRoundDto, req.user.userId);
+    return this.fundingRoundsService.create(
+      businessId,
+      createFundingRoundDto,
+      req.user.userId,
+    );
   }
 
   @Get()
@@ -29,9 +44,14 @@ export class FundingRoundsController {
     @Param('businessId') businessId: string,
     @Param('id') id: string,
     @Body() updateFundingRoundDto: UpdateFundingRoundDto,
-    @Request() req: any,
+    @Request() req: AuthenticatedRequest,
   ) {
-    return this.fundingRoundsService.update(businessId, id, updateFundingRoundDto, req.user.userId);
+    return this.fundingRoundsService.update(
+      businessId,
+      id,
+      updateFundingRoundDto,
+      req.user.userId,
+    );
   }
 
   @UseGuards(JwtAuthGuard)
@@ -39,7 +59,7 @@ export class FundingRoundsController {
   remove(
     @Param('businessId') businessId: string,
     @Param('id') id: string,
-    @Request() req: any,
+    @Request() req: AuthenticatedRequest,
   ) {
     return this.fundingRoundsService.remove(businessId, id, req.user.userId);
   }
