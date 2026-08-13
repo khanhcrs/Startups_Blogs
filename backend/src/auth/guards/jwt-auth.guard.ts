@@ -7,7 +7,6 @@ import {
 import { CognitoJwtVerifier } from 'aws-jwt-verify';
 import { Role } from '@prisma/client';
 import { UsersService } from '../../users/users.service';
-import type { AuthenticatedRequest } from '../auth.types';
 
 @Injectable()
 export class JwtAuthGuard implements CanActivate {
@@ -20,7 +19,7 @@ export class JwtAuthGuard implements CanActivate {
   constructor(private readonly usersService: UsersService) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const request = context.switchToHttp().getRequest<AuthenticatedRequest>();
+    const request = context.switchToHttp().getRequest();
     const authorization = request.headers.authorization;
     const token = authorization?.startsWith('Bearer ')
       ? authorization.slice(7)
@@ -41,6 +40,7 @@ export class JwtAuthGuard implements CanActivate {
       const user = await this.usersService.findOrCreateFromCognito({
         cognitoSub: payload.sub,
         email,
+        emailVerified: payload.email_verified === true,
         name: typeof payload.name === 'string' ? payload.name : undefined,
       });
       const groups = Array.isArray(payload['cognito:groups'])
