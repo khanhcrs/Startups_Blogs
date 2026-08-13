@@ -45,6 +45,7 @@ let JwtAuthGuard = class JwtAuthGuard {
             const user = await this.usersService.findOrCreateFromCognito({
                 cognitoSub: payload.sub,
                 email,
+                emailVerified: payload.email_verified === true,
                 name: typeof payload.name === 'string' ? payload.name : undefined,
             });
             const groups = Array.isArray(payload['cognito:groups'])
